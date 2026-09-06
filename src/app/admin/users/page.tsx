@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { getUserRole, isAdminRole } from "@/lib/require-admin";
 import { Card } from "@/components/ui/card";
 import { UserStatusSelect } from "@/components/admin/user-status-select";
 import { cn } from "@/lib/utils";
@@ -11,8 +12,8 @@ export default async function AdminUsersPage() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
-  const { data: myProfile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-  if (myProfile?.role !== "admin" && myProfile?.role !== "super_admin") redirect("/");
+  const role = await getUserRole(supabase, user.id);
+  if (!isAdminRole(role)) redirect("/");
 
   const { data: users } = await supabase
     .from("profiles")

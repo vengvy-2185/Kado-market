@@ -1,7 +1,17 @@
 import { redirect } from "next/navigation";
 import { ScrollText } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { getUserRole, isAdminRole } from "@/lib/require-admin";
 import { Card } from "@/components/ui/card";
+
+type AuditLogRow = {
+  id: string;
+  action: string;
+  target_type: string;
+  details: Record<string, unknown> | null;
+  created_at: string;
+  profiles: { full_name: string | null; email: string } | null;
+};
 
 export default async function AdminAuditPage() {
   const supabase = createClient();
@@ -9,14 +19,15 @@ export default async function AdminAuditPage() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-  if (profile?.role !== "admin" && profile?.role !== "super_admin") redirect("/");
+  const role = await getUserRole(supabase, user.id);
+  if (!isAdminRole(role)) redirect("/");
 
-  const { data: logs } = await supabase
+  const { data: logsRaw } = await supabase
     .from("audit_logs")
     .select("*, profiles(full_name, email)")
     .order("created_at", { ascending: false })
     .limit(100);
+  const logs = (logsRaw ?? []) as unknown as AuditLogRow[];
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-12">
@@ -25,14 +36,14 @@ export default async function AdminAuditPage() {
         <h1 className="text-2xl font-bold">Audit Log</h1>
       </div>
 
-      {!logs || logs.length === 0 ? (
+      {logs.length === 0 ? (
         <Card>
           <p className="text-white/60">No admin actions logged yet.</p>
         </Card>
       ) : (
         <div className="space-y-2">
           {logs.map((l) => {
-            const actor = l.profiles as unknown as { full_name: string | null; email: string } | null;
+            const actor = l.profiles;
             return (
               <Card key={l.id} className="py-3">
                 <p className="text-sm">

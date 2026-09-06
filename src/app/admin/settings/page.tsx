@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { Settings } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { getUserRole, isAdminRole } from "@/lib/require-admin";
 import { PlatformKhqrForm } from "@/components/admin/platform-khqr-form";
 import { PlatformTelegramPanel } from "@/components/admin/platform-telegram-panel";
 
@@ -10,8 +11,8 @@ export default async function AdminSettingsPage() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-  if (profile?.role !== "admin" && profile?.role !== "super_admin") redirect("/");
+  const role = await getUserRole(supabase, user.id);
+  if (!isAdminRole(role)) redirect("/");
 
   const { data: settings } = await supabase.from("platform_settings").select("*").eq("id", 1).single();
 

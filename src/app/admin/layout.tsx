@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getUserRole, isAdminRole } from "@/lib/require-admin";
 import { AdminShell } from "@/components/admin/admin-shell";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -9,8 +10,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-  if (profile?.role !== "admin" && profile?.role !== "super_admin") redirect("/");
+  const role = await getUserRole(supabase, user.id);
+  if (!isAdminRole(role)) redirect("/");
 
   const [{ count: pendingStores }, { count: openTickets }, { count: recentErrors }] = await Promise.all([
     supabase.from("stores").select("*", { count: "exact", head: true }).eq("status", "pending_review"),

@@ -5,6 +5,11 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { MobileBottomNav } from "@/components/home/mobile-bottom-nav";
 import { BackButton } from "@/components/dashboard/back-button";
+import type { Database } from "@/lib/types/database.types";
+
+type OrderRow = Database["public"]["Tables"]["orders"]["Row"] & {
+  stores: { store_name: string } | null;
+};
 
 const STATUS_COLOR: Record<string, string> = {
   pending: "bg-white/10 text-white/60",
@@ -24,11 +29,13 @@ export default async function MyOrdersPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login?redirect=/account/orders");
 
-  const { data: orders } = await supabase
+  const { data: ordersRaw } = await supabase
     .from("orders")
     .select("*, stores(store_name)")
     .eq("customer_id", user.id)
     .order("created_at", { ascending: false });
+
+  const orders = (ordersRaw ?? []) as unknown as OrderRow[];
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-10 md:px-6">
@@ -37,14 +44,14 @@ export default async function MyOrdersPage() {
       </div>
       <h1 className="mb-6 text-2xl font-bold">My Orders</h1>
 
-      {!orders || orders.length === 0 ? (
+      {orders.length === 0 ? (
         <Card>
           <p className="text-white/60">No orders yet — browse products and check out to see them here.</p>
         </Card>
       ) : (
         <div className="space-y-3">
           {orders.map((o) => {
-            const store = o.stores as unknown as { store_name: string } | null;
+            const store = o.stores;
             return (
               <Link key={o.id} href={`/orders/${o.id}`}>
                 <Card className="flex items-center justify-between transition-colors hover:border-primary/40">

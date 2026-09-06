@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { LifeBuoy } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { getUserRole, isAdminRole } from "@/lib/require-admin";
 import { Card } from "@/components/ui/card";
 import { TicketReplyForm } from "@/components/admin/ticket-reply-form";
 import { cn } from "@/lib/utils";
@@ -17,8 +18,8 @@ export default async function AdminSupportPage() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-  if (profile?.role !== "admin" && profile?.role !== "super_admin") redirect("/");
+  const role = await getUserRole(supabase, user.id);
+  if (!isAdminRole(role)) redirect("/");
 
   const { data: tickets } = await supabase
     .from("support_tickets")

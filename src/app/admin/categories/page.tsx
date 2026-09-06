@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { Tag } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { getUserRole, isAdminRole } from "@/lib/require-admin";
 import { Card } from "@/components/ui/card";
 import { CategoryRow } from "@/components/admin/category-row";
 import { NewCategoryForm } from "@/components/admin/new-plan-forms";
@@ -11,8 +12,8 @@ export default async function AdminCategoriesPage() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-  if (profile?.role !== "admin" && profile?.role !== "super_admin") redirect("/");
+  const role = await getUserRole(supabase, user.id);
+  if (!isAdminRole(role)) redirect("/");
 
   const { data: categories } = await supabase.from("categories").select("*").order("sort_order");
 

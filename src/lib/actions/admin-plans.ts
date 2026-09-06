@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getUserRole, isAdminRole } from "@/lib/require-admin";
 import { logAudit } from "@/lib/audit";
 
 async function requireAdmin() {
@@ -11,8 +12,8 @@ async function requireAdmin() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-  if (profile?.role !== "admin" && profile?.role !== "super_admin") throw new Error("Not authorized.");
+  const role = await getUserRole(supabase, user.id);
+  if (!isAdminRole(role)) throw new Error("Not authorized.");
   return supabase;
 }
 

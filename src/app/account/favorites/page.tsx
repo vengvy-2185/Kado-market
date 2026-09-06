@@ -15,15 +15,19 @@ export default async function FavoritesPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login?redirect=/account/favorites");
 
-  const { data: saved } = await supabase
+  const { data: savedRaw } = await supabase
     .from("saved_products")
     .select("product_id, products(id, name, slug, price, status, product_images(url, sort_order))")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  const products = (saved ?? [])
-    .map((s) => s.products as unknown as { id: string; name: string; slug: string; price: number; status: string; product_images: { url: string; sort_order: number }[] | null })
-    .filter((p) => p && p.status === "active");
+  type SavedRow = {
+    product_id: string;
+    products: { id: string; name: string; slug: string; price: number; status: string; product_images: { url: string; sort_order: number }[] | null } | null;
+  };
+  const saved = (savedRaw ?? []) as unknown as SavedRow[];
+
+  const products = saved.map((s) => s.products).filter((p): p is NonNullable<typeof p> => Boolean(p) && p!.status === "active");
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-10 md:px-6">

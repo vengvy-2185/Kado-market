@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { CreditCard } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { getUserRole, isAdminRole } from "@/lib/require-admin";
 import { Card } from "@/components/ui/card";
 import { SubscriptionPlanRow } from "@/components/admin/subscription-plan-row";
 import { AiPlanRow } from "@/components/admin/ai-plan-row";
@@ -13,8 +14,8 @@ export default async function AdminPlansPage() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-  if (profile?.role !== "admin" && profile?.role !== "super_admin") redirect("/");
+  const role = await getUserRole(supabase, user.id);
+  if (!isAdminRole(role)) redirect("/");
 
   const [{ data: storePlans }, { data: aiPlans }, { data: boostPlans }] = await Promise.all([
     supabase.from("subscription_plans").select("*").order("sort_order"),

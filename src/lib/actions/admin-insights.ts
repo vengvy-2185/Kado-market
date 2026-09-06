@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getUserRole, isAdminRole } from "@/lib/require-admin";
 import { generateAdminInsightAnswer } from "@/lib/ai/provider";
 
 async function requireAdmin() {
@@ -10,8 +11,8 @@ async function requireAdmin() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-  if (profile?.role !== "admin" && profile?.role !== "super_admin") redirect("/");
+  const role = await getUserRole(supabase, user.id);
+  if (!isAdminRole(role)) redirect("/");
   return supabase;
 }
 
@@ -58,8 +59,8 @@ export async function askAdminInsight(question: string): Promise<string> {
     .filter((o) => !["cancelled", "refunded"].includes(o.status))
     .reduce((sum, o) => sum + Number(o.total), 0);
 
-  const topStores = (topStoresByProducts ?? [])
-    .map((s) => ({ store_name: s.store_name, product_count: (s.products as unknown as { count: number }[])?.[0]?.count ?? 0 }))
+  const topStores = ((topStoresByProducts ?? []) as unknown as { store_name: string; products: { count: number }[] }[])
+    .map((s) => ({ store_name: s.store_name, product_count: s.products?.[0]?.count ?? 0 }))
     .sort((a, b) => b.product_count - a.product_count)
     .slice(0, 5);
 

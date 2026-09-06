@@ -1,6 +1,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/types/database.types";
+import { getUserRole } from "@/lib/require-admin";
 
 const SELLER_PREFIXES = ["/dashboard"];
 const ADMIN_PREFIXES = ["/admin"];
@@ -49,13 +50,7 @@ export async function updateSession(request: NextRequest) {
   // authorization boundary is enforced by Postgres RLS policies, per
   // spec section 38 ("never rely only on frontend permissions").
   if (user && (SELLER_PREFIXES.some((p) => path.startsWith(p)) || ADMIN_PREFIXES.some((p) => path.startsWith(p)))) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    const role = profile?.role;
+    const role = await getUserRole(supabase, user.id);
 
     if (ADMIN_PREFIXES.some((p) => path.startsWith(p)) && role !== "admin" && role !== "super_admin") {
       return NextResponse.redirect(new URL("/", request.url));
