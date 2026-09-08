@@ -925,6 +925,32 @@ production build. This phase actually ran `next build` end-to-end (not just
 - **Verified**: `npm run build` now completes with exit code 0, all 49
   routes generate successfully.
 
+## Phase 40 — Mobile responsiveness fixes (admin plan/category editors)
+
+- **Found and fixed a real mobile-breaking issue**: the admin Plans and
+  Categories editable-row components (`SubscriptionPlanRow`, `AiPlanRow`,
+  `BoostPlanRow`, `CategoryRow`) used a rigid `grid-cols-12` layout with no
+  responsive breakpoints — usable on desktop, but on a phone screen this
+  squeezed a dozen tiny inputs into ~375px, unusable. Rebuilt all four as
+  stacked, labeled fields on mobile (`grid-cols-2`) that switch to the
+  original compact grid at `md:` breakpoint, with column headers hidden on
+  mobile (`hidden md:grid`) since they don't apply to the stacked layout.
+  Searched the rest of the codebase for the same `grid-cols-12` pattern —
+  these four were the only occurrences.
+- **Note on "the site feels laggy":** that's almost certainly `npm run
+  dev`'s per-route on-demand compilation (visible in your own terminal
+  logs as `○ Compiling /some/route ... ✓ Compiled in Nms` on first visit
+  to each page) — a development-only cost that doesn't exist in a
+  production build. `next build` pre-compiles every route once; Vercel
+  serves the built output directly with no per-visit compile step. This
+  should already feel completely different once the Vercel deployment
+  (Phase 39's build fix) is live.
+- **Cleanup note**: if your local project folder still has
+  `src/app/api/telegram/webhook/route.ts` or an empty `src/lib/products.ts`
+  — these are leftovers from before the Telegram feature was redesigned to
+  per-store bot tokens (Phase 29) and can be safely deleted; they aren't
+  present in this delivered copy.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

@@ -37,7 +37,7 @@ export default async function AdminPlansPage() {
       <Card className="mb-6">
         <h2 className="mb-3 text-sm font-semibold text-white/70">Store subscription plans</h2>
         <NewSubscriptionPlanForm />
-        <div className="grid grid-cols-12 gap-2 pb-1 text-[10px] uppercase tracking-wide text-white/30">
+        <div className="hidden md:grid grid-cols-12 gap-2 pb-1 text-[10px] uppercase tracking-wide text-white/30">
           <span className="col-span-3">Name</span>
           <span className="col-span-2">$/mo</span>
           <span className="col-span-2">$/yr</span>
@@ -54,7 +54,7 @@ export default async function AdminPlansPage() {
       <Card className="mb-6">
         <h2 className="mb-3 text-sm font-semibold text-white/70">AI Assistant plans</h2>
         <NewAiPlanForm />
-        <div className="grid grid-cols-12 gap-2 pb-1 text-[10px] uppercase tracking-wide text-white/30">
+        <div className="hidden md:grid grid-cols-12 gap-2 pb-1 text-[10px] uppercase tracking-wide text-white/30">
           <span className="col-span-4">Name</span>
           <span className="col-span-2">Price</span>
           <span className="col-span-2">Months</span>
@@ -70,7 +70,7 @@ export default async function AdminPlansPage() {
       <Card>
         <h2 className="mb-3 text-sm font-semibold text-white/70">Boost plans</h2>
         <NewBoostPlanForm />
-        <div className="grid grid-cols-12 gap-2 pb-1 text-[10px] uppercase tracking-wide text-white/30">
+        <div className="hidden md:grid grid-cols-12 gap-2 pb-1 text-[10px] uppercase tracking-wide text-white/30">
           <span className="col-span-4">Duration (days)</span>
           <span className="col-span-4">Price</span>
           <span className="col-span-3">Active</span>

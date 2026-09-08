@@ -29,7 +29,7 @@ export default async function AdminCategoriesPage() {
 
       <Card>
         <NewCategoryForm />
-        <div className="grid grid-cols-12 gap-2 pb-1 text-[10px] uppercase tracking-wide text-white/30">
+        <div className="hidden md:grid grid-cols-12 gap-2 pb-1 text-[10px] uppercase tracking-wide text-white/30">
           <span className="col-span-2">Icon</span>
           <span className="col-span-4">Name</span>
           <span className="col-span-2">Slug</span>
