@@ -38,7 +38,7 @@ export default async function MyOrdersPage() {
   const orders = (ordersRaw ?? []) as unknown as OrderRow[];
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-10 md:px-6">
+    <div className="mx-auto max-w-2xl px-4 py-10 md:px-6">
       <div className="mb-4">
         <BackButton />
       </div>
@@ -72,6 +72,6 @@ export default async function MyOrdersPage() {
       )}
       <div className="h-16 md:hidden" aria-hidden />
       <MobileBottomNav isLoggedIn />
-    </main>
+    </div>
   );
 }

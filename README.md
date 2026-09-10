@@ -974,6 +974,33 @@ production build. This phase actually ran `next build` end-to-end (not just
   Cancelled/refunded orders show a distinct red banner instead of the
   linear tracker, since those aren't points on the same progression.
 
+## Phase 42 — Reliable chat delivery + customer desktop sidebar
+
+- **Human chat no longer depends entirely on Realtime** — same lesson as
+  the AI chat fix earlier: `ChatThread` previously only added incoming
+  messages via a Supabase Realtime subscription, with no fallback. If
+  Realtime doesn't fire reliably in a given deployment (websocket/proxy
+  quirks are common enough in production that this shouldn't be the only
+  delivery path), a reply could sit unseen until a manual refresh. Added a
+  4-second polling fallback that runs alongside Realtime, and the sender's
+  own message now resolves from "optimistic" to the real, saved message
+  immediately after the send action completes rather than waiting for the
+  next poll or Realtime tick.
+- **Customer-facing desktop sidebar** (`/account/layout.tsx` +
+  `AccountSidebar`) — `/account/profile`, `/account/orders`, and
+  `/account/favorites` now share a persistent left sidebar on desktop
+  (Profile, My Orders, Favorites, Messages, Cart) with the site header
+  above it, matching the seller/admin dashboard pattern. Mobile is
+  unchanged — still the bottom nav bar, no room for a sidebar there.
+- **On the "admin/stores page stuck loading" report:** the `loading.tsx`
+  skeleton itself is working exactly as designed (Phase 41) — it's showing
+  because the underlying data request is taking unusually long, most
+  likely a **paused free-tier Supabase project** waking up on first
+  request, which can exceed Vercel's default serverless function timeout.
+  Check the Supabase dashboard for a "paused" banner; a second page load
+  shortly after should be fast once the database is awake. This isn't
+  something fixable in application code.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

@@ -30,7 +30,7 @@ export default async function FavoritesPage() {
   const products = saved.map((s) => s.products).filter((p): p is NonNullable<typeof p> => Boolean(p) && p!.status === "active");
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-10 md:px-6">
+    <div className="mx-auto max-w-4xl px-4 py-10 md:px-6">
       <div className="mb-4">
         <BackButton />
       </div>
@@ -70,6 +70,6 @@ export default async function FavoritesPage() {
       )}
       <div className="h-16 md:hidden" aria-hidden />
       <MobileBottomNav isLoggedIn />
-    </main>
+    </div>
   );
 }

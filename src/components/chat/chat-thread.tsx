@@ -50,6 +50,34 @@ export function ChatThread({
     supabase.rpc("mark_conversation_read", { p_conversation_id: conversationId });
   }, [conversationId]);
 
+  // Realtime is the fast path for incoming messages, but isn't guaranteed to
+  // be reliable in every deployment (websocket/proxy quirks, etc.) — this
+  // poll is a belt-and-suspenders fallback so a reply never requires a
+  // manual page refresh to appear, even if Realtime silently isn't working.
+  useEffect(() => {
+    const supabase = createClient();
+    let cancelled = false;
+
+    async function poll() {
+      const { data } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("conversation_id", conversationId)
+        .order("created_at", { ascending: true });
+      if (cancelled || !data) return;
+      setMessages((prev) => {
+        const optimisticOnly = prev.filter((m) => m.id.startsWith("optimistic-"));
+        return [...(data as Message[]), ...optimisticOnly];
+      });
+    }
+
+    const interval = setInterval(poll, 4000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [conversationId]);
+
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase
@@ -146,8 +174,22 @@ export function ChatThread({
       formData.set("location_lng", String(pendingLocation.lng));
     }
     if (replyToId) formData.set("reply_to_id", replyToId);
-    startTransition(() => {
-      sendMessage(formData);
+    startTransition(async () => {
+      await sendMessage(formData);
+      // resolve the optimistic message into the real one immediately,
+      // instead of waiting for the next poll/realtime tick
+      const supabase = createClient();
+      const { data } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("conversation_id", conversationId)
+        .order("created_at", { ascending: true });
+      if (data) {
+        setMessages((prev) => {
+          const stillPendingOptimistic = prev.filter((m) => m.id.startsWith("optimistic-") && m.id !== optimistic.id);
+          return [...(data as Message[]), ...stillPendingOptimistic];
+        });
+      }
     });
 
     setText("");

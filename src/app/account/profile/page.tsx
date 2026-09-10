@@ -15,7 +15,7 @@ export default async function ProfilePage() {
   if (!profile) redirect("/");
 
   return (
-    <main className="mx-auto max-w-lg px-4 py-10 md:px-6">
+    <div className="mx-auto max-w-lg px-4 py-10 md:px-6">
       <div className="mb-4">
         <BackButton />
       </div>
@@ -23,6 +23,6 @@ export default async function ProfilePage() {
       <EditProfileForm profile={profile} />
       <div className="h-16 md:hidden" aria-hidden />
       <MobileBottomNav isLoggedIn />
-    </main>
+    </div>
   );
 }
