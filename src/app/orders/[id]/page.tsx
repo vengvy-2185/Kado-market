@@ -7,6 +7,7 @@ import { BackButton } from "@/components/dashboard/back-button";
 import { KhqrDisplay } from "@/components/settings/khqr-display";
 import { generateKhqr } from "@/lib/khqr";
 import { ReviewForm } from "@/components/reviews/review-form";
+import { OrderTracker } from "@/components/product/order-tracker";
 import { cn } from "@/lib/utils";
 
 const STATUS_COLOR: Record<string, string> = {
@@ -139,19 +140,10 @@ export default async function OrderDetailPage({ params }: { params: { id: string
         </Card>
       )}
 
-      {history && history.length > 0 && (
-        <Card>
-          <h2 className="mb-3 text-sm font-semibold text-white/70">History</h2>
-          <div className="space-y-2">
-            {history.map((h) => (
-              <div key={h.id} className="flex items-center justify-between text-sm">
-                <span className="capitalize text-white/70">{h.status}</span>
-                <span className="text-xs text-white/40">{new Date(h.created_at).toLocaleString()}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
+      <Card className="mb-4">
+        <h2 className="mb-4 text-sm font-semibold text-white/70">Order tracking</h2>
+        <OrderTracker currentStatus={order.status} history={history ?? []} />
+      </Card>
     </main>
   );
 }

@@ -951,6 +951,29 @@ production build. This phase actually ran `next build` end-to-end (not just
   per-store bot tokens (Phase 29) and can be safely deleted; they aren't
   present in this delivered copy.
 
+## Phase 41 — Instant navigation feedback + real order tracking
+
+- **Fixed the "feels stuck when clicking" problem** — the app had **zero**
+  `loading.tsx` files anywhere, so Next.js showed a blank/frozen screen on
+  every navigation until the destination page's server-side data fetch
+  fully completed. Added `loading.tsx` to 13 route segments (root,
+  dashboard, admin, store/product pages, chat/AI-chat threads, cart,
+  checkout, orders, account/orders) using shared skeleton components
+  (`src/components/ui/loading.tsx`). Because `loading.tsx` only replaces
+  the page content — not the surrounding layout — the dashboard/admin
+  sidebar now stays visible and interactive immediately while just the
+  content area shows a skeleton, which is what actually fixes the
+  perceived lag (this is a real Next.js App Router mechanism, not a
+  cosmetic trick).
+- **Real order tracking** (`OrderTracker` component) — replaced the old
+  plain-text status history list on `/orders/[id]` with a proper visual
+  progress stepper (Order placed → Payment confirmed → Processing →
+  Packed → Shipped → Delivered), each step showing its real timestamp
+  from `order_status_history` (which has been populated by a database
+  trigger since Phase 1 — this wasn't new data, just never had a real UI).
+  Cancelled/refunded orders show a distinct red banner instead of the
+  linear tracker, since those aren't points on the same progression.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,
