@@ -1001,6 +1001,22 @@ production build. This phase actually ran `next build` end-to-end (not just
   shortly after should be fast once the database is awake. This isn't
   something fixable in application code.
 
+## Phase 43 — Real logo integrated site-wide
+
+- The provided KADO MARKET logo (`public/logo.png`) now replaces the
+  text-based "KADO MARKET" wordmark everywhere it appeared: the customer
+  site header (`SiteHeader`), the seller dashboard sidebar
+  (`DashboardShell`), and the admin sidebar (`AdminSidebarNav`) — via one
+  shared `<Logo>` component (`src/components/logo.tsx`) so future changes
+  only need to happen in one place.
+- Also set as the app's favicon/browser tab icon via Next.js App Router's
+  automatic icon convention (`src/app/icon.png`) — no manual `<link>` tag
+  or favicon generator needed.
+- The full-page loading spinner (`FullPageSpinner`, used by the
+  `loading.tsx` files from Phase 41) now shows the logo with a gentle
+  pulse instead of a generic spinner-only state, for a more branded
+  loading experience.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

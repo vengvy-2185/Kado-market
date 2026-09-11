@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, ShieldCheck } from "lucide-react";
 import { SidebarNav, SidebarLogout } from "./sidebar-nav";
+import { Logo } from "@/components/logo";
 import { BackButton } from "./back-button";
 import { LanguageToggle } from "./language-toggle";
 import { LiveClock } from "./live-clock";
@@ -74,7 +75,7 @@ export function DashboardShell({
           </button>
           <BackButton />
           <div className="flex items-center gap-2 text-sm font-semibold text-white/70 md:hidden">
-            <span className="bg-brand-gradient bg-clip-text text-transparent">KADO MARKET</span>
+            <Logo size={24} />
           </div>
 
           <div className="ml-auto flex items-center gap-4">
@@ -104,9 +105,7 @@ function SidebarHeader({
   return (
     <div className="border-b border-white/10 p-4">
       <Link href="/dashboard" className="mb-4 block">
-        <span className="bg-brand-gradient bg-clip-text text-lg font-extrabold text-transparent">
-          KADO MARKET
-        </span>
+        <Logo size={28} />
       </Link>
       {storeName && (
         <div className="flex items-center gap-2.5 rounded-xl bg-white/5 px-3 py-2.5">

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/home/search-bar";
 import { CategoryTabs } from "@/components/home/category-tabs";
 import { LanguageToggle } from "@/components/dashboard/language-toggle";
+import { Logo } from "@/components/logo";
 import { NotificationBell } from "@/components/notification-bell";
 
 export async function SiteHeader({
@@ -47,7 +48,7 @@ export async function SiteHeader({
     <div className="sticky top-0 z-30 border-b border-white/5 bg-background/95 px-4 pb-3 pt-4 backdrop-blur-sm md:px-6">
       <div className="mb-3 flex items-center gap-3">
         <Link href="/" className="flex-shrink-0">
-          <span className="bg-brand-gradient bg-clip-text text-xl font-extrabold text-transparent">KADO</span>
+          <Logo size={32} />
         </Link>
         <SearchBar defaultValue={searchDefaultValue} />
         <div className="flex flex-shrink-0 items-center gap-1.5">

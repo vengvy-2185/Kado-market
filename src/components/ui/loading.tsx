@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export function Spinner({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
   const px = size === "sm" ? "h-5 w-5" : size === "lg" ? "h-10 w-10" : "h-7 w-7";
   return (
@@ -11,8 +13,9 @@ export function Spinner({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
 
 export function FullPageSpinner() {
   return (
-    <div className="flex min-h-[50vh] items-center justify-center">
-      <Spinner size="lg" />
+    <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3">
+      <Image src="/logo.png" alt="" width={48} height={48} className="animate-pulse rounded-xl" priority />
+      <Spinner size="sm" />
     </div>
   );
 }

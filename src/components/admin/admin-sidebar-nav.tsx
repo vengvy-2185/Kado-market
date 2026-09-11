@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { LogOut, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/lib/i18n/language-context";
+import { Logo } from "@/components/logo";
 import { ADMIN_NAV } from "./admin-nav-config";
 
 export function AdminSidebarNav({
@@ -55,7 +56,7 @@ export function AdminSidebarHeader() {
   return (
     <div className="border-b border-white/10 p-4">
       <Link href="/admin" className="mb-4 block">
-        <span className="bg-brand-gradient bg-clip-text text-lg font-extrabold text-transparent">KADO MARKET</span>
+        <Logo size={28} />
       </Link>
       <div className="flex items-center gap-2.5 rounded-xl bg-white/5 px-3 py-2.5">
         <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-brand-gradient">
