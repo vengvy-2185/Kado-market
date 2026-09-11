@@ -16,13 +16,17 @@ import { ReviewsList } from "@/components/reviews/reviews-list";
 
 async function getProduct(slug: string) {
   const supabase = createClient();
+  // No app-level status filter — RLS already correctly scopes this to
+  // active products from active stores for the public, while still
+  // letting the product's own store owner (or an admin) preview it
+  // regardless of status. Filtering by status here too would 404 an
+  // owner previewing their own draft/pending product.
   const { data: product } = await supabase
     .from("products")
     .select(
       "*, product_images(url, sort_order), product_variants(*), stores(id, store_name, slug, verified, city, country, seller_id)"
     )
     .eq("slug", slug)
-    .eq("status", "active")
     .single();
   return product;
 }
@@ -126,6 +130,11 @@ export default async function ProductPage({ params }: { params: { slug: string }
       <div className="mb-4">
         <BackButton />
       </div>
+      {product.status !== "active" && user?.id === store?.seller_id && (
+        <div className="mb-4 rounded-xl border border-warning/30 bg-warning/10 px-4 py-2.5 text-xs text-warning">
+          Preview only — this product is <span className="font-semibold capitalize">{product.status.replace("_", " ")}</span> and isn&apos;t visible to customers yet.
+        </div>
+      )}
       <div className="grid gap-8 md:grid-cols-2">
         <div>
           <div className="aspect-square overflow-hidden rounded-2xl bg-white/5">

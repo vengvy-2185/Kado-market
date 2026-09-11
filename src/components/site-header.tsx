@@ -46,12 +46,11 @@ export async function SiteHeader({
 
   return (
     <div className="sticky top-0 z-30 border-b border-white/5 bg-background/95 px-4 pb-3 pt-4 backdrop-blur-sm md:px-6">
-      <div className="mb-3 flex items-center gap-3">
+      <div className="mb-3 flex flex-wrap items-center gap-3">
         <Link href="/" className="flex-shrink-0">
           <Logo size={32} />
         </Link>
-        <SearchBar defaultValue={searchDefaultValue} />
-        <div className="flex flex-shrink-0 items-center gap-1.5">
+        <div className="flex flex-shrink-0 items-center gap-1.5 md:order-3 md:ml-auto">
           <LanguageToggle />
           {user ? (
             <>
@@ -85,6 +84,9 @@ export async function SiteHeader({
               </Link>
             </div>
           )}
+        </div>
+        <div className="order-2 w-full md:order-none md:w-auto md:flex-1">
+          <SearchBar defaultValue={searchDefaultValue} />
         </div>
       </div>
 

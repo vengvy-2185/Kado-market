@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ShoppingBag } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { PostCard } from "@/components/posts/post-card";
@@ -257,16 +258,21 @@ export default async function HomePage({
                   }}
                 />
                 {interleavedProducts.length > 0 && (
-                  <div className="mx-auto grid max-w-lg grid-cols-2 gap-3">
-                    {interleavedProducts.map((p) => (
-                      <HomeProductCard
-                        key={p.id}
-                        product={p as unknown as Parameters<typeof HomeProductCard>[0]["product"]}
-                        isLoggedIn={Boolean(user)}
-                        isSaved={savedIds.has(p.id)}
-                        hasAiAssistant={aiEnabledStoreIds.has(p.store_id)}
-                      />
-                    ))}
+                  <div className="mx-auto max-w-lg">
+                    <p className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/30">
+                      <ShoppingBag className="h-3 w-3" /> Picks for you
+                    </p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {interleavedProducts.map((p) => (
+                        <HomeProductCard
+                          key={p.id}
+                          product={p as unknown as Parameters<typeof HomeProductCard>[0]["product"]}
+                          isLoggedIn={Boolean(user)}
+                          isSaved={savedIds.has(p.id)}
+                          hasAiAssistant={aiEnabledStoreIds.has(p.store_id)}
+                        />
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

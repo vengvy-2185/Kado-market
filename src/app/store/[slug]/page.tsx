@@ -15,12 +15,12 @@ import { LocationCard } from "@/components/map/location-card";
 
 async function getStore(slug: string) {
   const supabase = createClient();
-  const { data: store } = await supabase
-    .from("stores")
-    .select("*")
-    .eq("slug", slug)
-    .eq("status", "active")
-    .single();
+  // No app-level status filter here — RLS (products_select.../stores select
+  // policy) already correctly returns active stores to the public, plus a
+  // store's own owner/admin regardless of status. Filtering by status here
+  // too would 404 an owner previewing their own pending/suspended store,
+  // even though they're supposed to be allowed to see it.
+  const { data: store } = await supabase.from("stores").select("*").eq("slug", slug).single();
   return store;
 }
 
@@ -123,6 +123,11 @@ export default async function StorePage({ params }: { params: { slug: string } }
       <div className="mb-4">
         <BackButton />
       </div>
+      {store.status !== "active" && user?.id === store.seller_id && (
+        <div className="mb-4 rounded-xl border border-warning/30 bg-warning/10 px-4 py-2.5 text-xs text-warning">
+          Preview only — this store is <span className="font-semibold capitalize">{store.status.replace("_", " ")}</span> and isn&apos;t visible to customers yet.
+        </div>
+      )}
       {/* Cover */}
       <div className="relative -mx-4 h-40 w-[calc(100%+2rem)] bg-white/5 md:-mx-6 md:h-56 md:w-[calc(100%+3rem)]">
         {store.cover_image_url ? (

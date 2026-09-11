@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import Image from "next/image";
+import { Download } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { OrderStatusControl } from "@/components/product/order-status-control";
@@ -65,6 +66,15 @@ export default async function OrderDetailPage({ params }: { params: { id: string
           {order.status}
         </span>
       </div>
+
+      <a
+        href={`/api/orders/${order.id}/invoice`}
+        download
+        className="mb-6 flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-2.5 text-sm font-medium text-white/80 hover:bg-white/10"
+      >
+        <Download className="h-4 w-4" />
+        Download Invoice (PDF)
+      </a>
 
       {order.payment_method === "demo" && (
         <div className="mb-6 rounded-xl border border-warning/30 bg-warning/10 px-4 py-2.5 text-xs text-warning">

@@ -1099,6 +1099,35 @@ production build. This phase actually ran `next build` end-to-end (not just
   owns their own folder same as avatars). Shown inline under the review
   text on the product page and in the seller's `/dashboard/reviews`.
 
+## Phase 48 — Fixed a real 404 bug, wider search bar, downloadable invoices
+
+- **Fixed the reported 404 bug**: `/store/[slug]` and `/product/[slug]`
+  hard-filtered `status = 'active'` at the *application* level, on top of
+  RLS already correctly restricting visibility. RLS's actual rule is
+  "public sees only active stores/products, but the owner (or an admin)
+  can always see their own regardless of status" — the app-level filter
+  was overriding that and 404'ing an owner previewing their **own**
+  pending/suspended store or draft product, even though they're supposed
+  to be allowed to. Removed the redundant app-level filter (RLS still
+  protects everyone else correctly) and added a small "Preview only — not
+  visible to customers yet" banner for the owner/admin when status isn't
+  active, so it's not confused for a normal live listing.
+- **Search bar widened** — on mobile it now gets its own full-width row
+  below the logo/icons instead of being squeezed between them; unchanged
+  (inline) on desktop where there's room. Category tabs' horizontal
+  scrolling was already implemented correctly (`overflow-x-auto`) — what
+  looked like a cutoff in a screenshot is just how a scrollable tab strip
+  looks mid-scroll, not a bug.
+- **"Picks for you" label** added above each interleaved product row in
+  the home feed (Phase 46) for clearer visual separation from posts, per
+  feedback that posts and products blended together too much.
+- **Downloadable PDF invoices** — a real "Download Invoice" button on
+  `/orders/[id]` hits a new `/api/orders/[id]/invoice` route (built with
+  `pdfkit`, Node runtime) that generates a proper invoice PDF on demand:
+  order number, date, seller/buyer info, itemized table, discount/shipping
+  breakdown, total, and payment status. Only the order's own customer or
+  the store's seller/admin can generate it.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,
