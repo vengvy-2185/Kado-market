@@ -3,6 +3,7 @@ import Image from "next/image";
 import { ShieldCheck, MessageCircle, ShoppingBag } from "lucide-react";
 import { LikeButton } from "./like-button";
 import { CommentSection } from "./comment-section";
+import { PostMediaSlideshow } from "./post-media-slideshow";
 import { startConversation } from "@/lib/actions/chat";
 
 type Post = {
@@ -72,15 +73,7 @@ export function PostCard({
 
       <p className="mb-3 whitespace-pre-wrap text-sm text-white/90">{post.content}</p>
 
-      {post.media.length > 0 && (
-        <div className={post.media.length > 1 ? "mb-3 grid max-w-sm grid-cols-2 gap-1.5" : "mb-3 max-w-sm"}>
-          {post.media.map((m) => (
-            <div key={m.url} className="aspect-square overflow-hidden rounded-xl bg-white/5">
-              <Image src={m.url} alt="" width={400} height={400} className="h-full w-full object-cover" />
-            </div>
-          ))}
-        </div>
-      )}
+      {post.media.length > 0 && <PostMediaSlideshow media={post.media} />}
 
       {post.product && (
         <Link

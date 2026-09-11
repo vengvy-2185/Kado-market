@@ -1,18 +1,16 @@
 import Link from "next/link";
-import Image from "next/image";
-import { Package, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { SaveButton } from "@/components/product/save-button";
 import { SiteHeader } from "@/components/site-header";
 import { PostCard } from "@/components/posts/post-card";
 import { MobileBottomNav } from "@/components/home/mobile-bottom-nav";
-import { QuickActions } from "@/components/product/quick-actions";
+import { HomeProductCard } from "@/components/home/home-product-card";
+import { ProductFilters } from "@/components/home/product-filters";
 import { StoryBar, type StoryGroup } from "@/components/stories/story-bar";
 
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: { q?: string; category?: string };
+  searchParams: { q?: string; category?: string; minPrice?: string; maxPrice?: string; location?: string; sort?: string };
 }) {
   const supabase = createClient();
   const {
@@ -45,15 +43,40 @@ export default async function HomePage({
     categoryId = cat?.id ?? null;
   }
 
+  const hasLocationFilter = Boolean(searchParams.location?.trim());
+
   let productQuery = supabase
     .from("products")
-    .select("id, name, slug, price, compare_at_price, store_id, product_images(url, sort_order), stores(store_name, slug, verified)")
+    .select(
+      hasLocationFilter
+        ? "id, name, slug, price, compare_at_price, store_id, sales_count, product_images(url, sort_order), stores!inner(store_name, slug, verified, city, province)"
+        : "id, name, slug, price, compare_at_price, store_id, sales_count, product_images(url, sort_order), stores(store_name, slug, verified, city, province)"
+    )
     .eq("status", "active")
-    .order("created_at", { ascending: false })
     .limit(24);
 
   if (searchParams.q) productQuery = productQuery.ilike("name", `%${searchParams.q}%`);
   if (categoryId) productQuery = productQuery.eq("category_id", categoryId);
+  if (searchParams.minPrice) productQuery = productQuery.gte("price", Number(searchParams.minPrice));
+  if (searchParams.maxPrice) productQuery = productQuery.lte("price", Number(searchParams.maxPrice));
+  if (hasLocationFilter) {
+    const loc = `%${searchParams.location!.trim()}%`;
+    productQuery = productQuery.or(`city.ilike.${loc},province.ilike.${loc}`, { foreignTable: "stores" });
+  }
+
+  switch (searchParams.sort) {
+    case "price_asc":
+      productQuery = productQuery.order("price", { ascending: true });
+      break;
+    case "price_desc":
+      productQuery = productQuery.order("price", { ascending: false });
+      break;
+    case "best_selling":
+      productQuery = productQuery.order("sales_count", { ascending: false });
+      break;
+    default:
+      productQuery = productQuery.order("created_at", { ascending: false });
+  }
 
   const { data: products } = await productQuery;
 
@@ -78,7 +101,9 @@ export default async function HomePage({
     chatUnreadCount = unread ?? 0;
   }
 
-  const isFiltered = Boolean(searchParams.q || searchParams.category);
+  const isFiltered = Boolean(
+    searchParams.q || searchParams.category || searchParams.minPrice || searchParams.maxPrice || searchParams.location || searchParams.sort
+  );
 
   // Posts feed — only shown on the unfiltered default view, most recent first
   type RawPost = {
@@ -196,49 +221,64 @@ export default async function HomePage({
         </div>
       )}
 
-      {/* Posts feed */}
+      {/* Interleaved feed: posts with product rows mixed in, not one big block of each */}
       {!isFiltered && posts.length > 0 && (
         <div className="mb-8 space-y-4">
-          <h2 className="text-sm font-semibold text-white/70">Posts</h2>
-          {posts.map((post) => {
+          {posts.map((post, postIndex) => {
             const media = (post.post_media ?? []).slice().sort((a, b) => a.sort_order - b.sort_order);
             const likeArr = post.likes ?? [];
             const commentArr = post.comments ?? [];
+            const interleavedProducts = (products ?? []).slice(postIndex * 2, postIndex * 2 + 2);
             return (
-              <PostCard
-                key={post.id}
-                currentUserId={user?.id ?? null}
-                isLoggedIn={Boolean(user)}
-                canModerate={Boolean(myStoreId && myStoreId === post.store_id)}
-                isSponsored={sponsoredPostIds.has(post.id)}
-                post={{
-                  id: post.id,
-                  content: post.content,
-                  created_at: post.created_at,
-                  store: post.stores,
-                  media: media.map((m) => ({ url: m.url })),
-                  product: post.products,
-                  likeCount: likeArr.length,
-                  likedByMe: Boolean(user && likeArr.some((l) => l.user_id === user.id)),
-                  commentCount: commentArr.length,
-                  comments: commentArr.map((c) => ({
-                    id: c.id,
-                    content: c.content,
-                    created_at: c.created_at,
-                    user_id: c.user_id,
-                    parent_id: c.parent_id,
-                    author_name: c.profiles?.full_name ?? "Someone",
-                  })),
-                }}
-              />
+              <div key={post.id} className="space-y-4">
+                <PostCard
+                  currentUserId={user?.id ?? null}
+                  isLoggedIn={Boolean(user)}
+                  canModerate={Boolean(myStoreId && myStoreId === post.store_id)}
+                  isSponsored={sponsoredPostIds.has(post.id)}
+                  post={{
+                    id: post.id,
+                    content: post.content,
+                    created_at: post.created_at,
+                    store: post.stores,
+                    media: media.map((m) => ({ url: m.url })),
+                    product: post.products,
+                    likeCount: likeArr.length,
+                    likedByMe: Boolean(user && likeArr.some((l) => l.user_id === user.id)),
+                    commentCount: commentArr.length,
+                    comments: commentArr.map((c) => ({
+                      id: c.id,
+                      content: c.content,
+                      created_at: c.created_at,
+                      user_id: c.user_id,
+                      parent_id: c.parent_id,
+                      author_name: c.profiles?.full_name ?? "Someone",
+                    })),
+                  }}
+                />
+                {interleavedProducts.length > 0 && (
+                  <div className="mx-auto grid max-w-lg grid-cols-2 gap-3">
+                    {interleavedProducts.map((p) => (
+                      <HomeProductCard
+                        key={p.id}
+                        product={p as unknown as Parameters<typeof HomeProductCard>[0]["product"]}
+                        isLoggedIn={Boolean(user)}
+                        isSaved={savedIds.has(p.id)}
+                        hasAiAssistant={aiEnabledStoreIds.has(p.store_id)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>
       )}
 
-      {/* Product feed */}
+      {/* Remaining products (or full results grid when searching/filtering) */}
+      <ProductFilters />
       <h2 className="mb-4 text-sm font-semibold text-white/70">
-        {isFiltered ? `Results${searchParams.q ? ` for "${searchParams.q}"` : ""}` : "Latest products"}
+        {isFiltered ? `Results${searchParams.q ? ` for "${searchParams.q}"` : ""}` : "More products"}
       </h2>
 
       {!products || products.length === 0 ? (
@@ -247,48 +287,15 @@ export default async function HomePage({
         </p>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-          {products.map((p) => {
-            const images = (p.product_images as { url: string; sort_order: number }[] | null) ?? [];
-            const thumb = [...images].sort((a, b) => a.sort_order - b.sort_order)[0]?.url ?? null;
-            const store = p.stores as unknown as { store_name: string; slug: string; verified: boolean } | null;
-            return (
-              <div key={p.id} className="group relative overflow-hidden rounded-2xl border border-white/10 bg-surface/60 transition-colors hover:border-primary/40">
-                {user && <SaveButton productId={p.id} initialSaved={savedIds.has(p.id)} />}
-                <Link href={`/product/${p.slug}`}>
-                  <div className="aspect-square bg-white/5">
-                    {thumb ? (
-                      <Image src={thumb} alt={p.name} width={300} height={300} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-white/20">
-                        <Package className="h-8 w-8" />
-                      </div>
-                    )}
-                  </div>
-                </Link>
-                <div className="p-3">
-                  {store && (
-                    <Link
-                      href={`/store/${store.slug}`}
-                      className="mb-1 flex items-center gap-1 text-[11px] text-white/40 hover:text-white/70"
-                    >
-                      {store.store_name}
-                      {store.verified && <ShieldCheck className="h-3 w-3 text-accent" />}
-                    </Link>
-                  )}
-                  <Link href={`/product/${p.slug}`}>
-                    <p className="truncate text-sm font-medium">{p.name}</p>
-                    <div className="flex items-baseline gap-1.5">
-                      <p className="text-sm font-semibold text-accent">${p.price}</p>
-                      {p.compare_at_price && (
-                        <p className="text-xs text-white/30 line-through">${p.compare_at_price}</p>
-                      )}
-                    </div>
-                  </Link>
-                  {user && <QuickActions productId={p.id} storeId={p.store_id} hasAiAssistant={aiEnabledStoreIds.has(p.store_id)} />}
-                </div>
-              </div>
-            );
-          })}
+          {(isFiltered ? products : products.slice(posts.length * 2)).map((p) => (
+            <HomeProductCard
+              key={p.id}
+              product={p as unknown as Parameters<typeof HomeProductCard>[0]["product"]}
+              isLoggedIn={Boolean(user)}
+              isSaved={savedIds.has(p.id)}
+              hasAiAssistant={aiEnabledStoreIds.has(p.store_id)}
+            />
+          ))}
         </div>
       )}
       <div className="h-16 md:hidden" aria-hidden />

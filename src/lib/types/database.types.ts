@@ -186,6 +186,7 @@ export interface Database {
           review_count: number;
           low_stock_threshold: number;
           low_stock_alerted: boolean;
+          sales_count: number;
           created_at: string;
           updated_at: string;
         };
@@ -668,6 +669,7 @@ export interface Database {
           rating: number;
           comment: string | null;
           seller_reply: string | null;
+          images: string[];
           seller_replied_at: string | null;
           created_at: string;
           updated_at: string;

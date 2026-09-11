@@ -16,6 +16,8 @@ export async function createReview(formData: FormData) {
   const storeId = String(formData.get("store_id") ?? "");
   const rating = Number(formData.get("rating") ?? 0);
   const comment = String(formData.get("comment") ?? "").trim() || null;
+  const imagesRaw = String(formData.get("images") ?? "").trim();
+  const images = imagesRaw ? imagesRaw.split(",").filter(Boolean) : [];
 
   if (!orderItemId || !productId || !storeId) throw new Error("Missing review target.");
   if (rating < 1 || rating > 5) throw new Error("Please choose a star rating.");
@@ -27,6 +29,7 @@ export async function createReview(formData: FormData) {
     customer_id: user.id,
     rating,
     comment,
+    images,
   });
 
   if (error) {

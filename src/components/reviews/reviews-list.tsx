@@ -4,6 +4,7 @@ type Review = {
   id: string;
   rating: number;
   comment: string | null;
+  images: string[] | null;
   seller_reply: string | null;
   created_at: string;
   profiles: { full_name: string | null } | null;
@@ -24,6 +25,14 @@ export function ReviewsList({ reviews }: { reviews: Review[] }) {
           </div>
           <StarRating rating={r.rating} />
           {r.comment && <p className="mt-2 text-sm text-white/70">{r.comment}</p>}
+          {r.images && r.images.length > 0 && (
+            <div className="mt-2 flex gap-2">
+              {r.images.map((url) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img key={url} src={url} alt="" className="h-16 w-16 rounded-lg object-cover" />
+              ))}
+            </div>
+          )}
           {r.seller_reply && (
             <div className="mt-2 rounded-lg border border-accent/20 bg-accent/5 p-2.5 text-sm">
               <p className="mb-0.5 text-xs font-semibold text-accent">Seller reply</p>

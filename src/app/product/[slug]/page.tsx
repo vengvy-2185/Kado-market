@@ -82,7 +82,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
   const { data: reviewRows } = await supabase
     .from("reviews")
-    .select("id, rating, comment, seller_reply, created_at, profiles(full_name)")
+    .select("id, rating, comment, images, seller_reply, created_at, profiles(full_name)")
     .eq("product_id", product.id)
     .order("created_at", { ascending: false });
   const reviews = (reviewRows as unknown as Parameters<typeof ReviewsList>[0]["reviews"]) ?? [];

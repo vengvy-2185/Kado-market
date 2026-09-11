@@ -1055,6 +1055,50 @@ production build. This phase actually ran `next build` end-to-end (not just
   large and centered with a scale-in animation while the page loads,
   distinct from the smaller spinner used on other pages.
 
+## Phase 46 — Mixed feed (posts + products interleaved) + auto-slideshow for multi-image posts
+
+- **The home feed no longer shows one big block of posts followed by one
+  big block of products** — when browsing "All" (no search/category
+  filter), a small row of 2 product cards is now woven in after each
+  post, matching how social-commerce feeds actually work (scroll and see
+  a mix, not two separate sections). Any products not used in the
+  interleaved rows still appear afterward under "More products," so
+  nothing is hidden — just reordered for a nicer browsing experience.
+  Searching or filtering by category still shows a plain results grid
+  (that's a product-browsing intent, not a "scroll the feed" one).
+  Extracted the repeated product-card markup into a reusable
+  `HomeProductCard` component so it isn't duplicated between the
+  interleaved rows and the leftover grid.
+- **Posts with multiple images now auto-play as a slideshow**
+  (`PostMediaSlideshow`) — cross-fades every 3.5 seconds, with dot
+  indicators and hover-to-reveal prev/next arrows for manual control.
+  Single-image posts are unchanged. This is what sellers get automatically
+  when they upload more than one photo to a post — no extra step needed
+  on their end to "enable" it.
+- The per-store Stories carousel (`StoryBar`) requested as a "slideshow
+  per store" already existed from an earlier phase — confirmed it's still
+  in place on the home feed, no changes needed there.
+
+## Phase 47 — Advanced search filters + photo uploads on reviews
+
+- **Filters** (`ProductFilters`, on the home feed) — price range (min/max),
+  location (matches store city or province, `ILIKE` since these are
+  free-text fields sellers typed during setup, not a fixed list), and sort
+  (Newest / Price low-high / Price high-low / Best Selling). All reflected
+  in the URL (`?minPrice=&maxPrice=&location=&sort=`) so results are
+  shareable/bookmarkable and work via normal server rendering — no client
+  state that resets on refresh.
+- **"Best Selling" sort** needed a real signal to sort by — added
+  `products.sales_count` (migration `0047`), incremented via a database
+  trigger whenever an order item is created. This counts items ordered,
+  not confirmed-delivered, as a simpler proxy for popularity; it's not
+  decremented on cancellation, so treat it as a ranking signal rather than
+  a precise "units sold" figure.
+- **Review photos** — customers can now attach up to 3 real photos to a
+  review (`reviews.images`, a new `review-images` storage bucket, uploader
+  owns their own folder same as avatars). Shown inline under the review
+  text on the product page and in the seller's `/dashboard/reviews`.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,
