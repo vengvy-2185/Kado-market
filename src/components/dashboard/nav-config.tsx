@@ -19,6 +19,7 @@ import {
   CircleDollarSign,
   Settings,
   HelpCircle,
+  User,
 } from "lucide-react";
 
 export type NavItem = {
@@ -30,6 +31,7 @@ export type NavItem = {
 export const SELLER_NAV: NavItem[] = [
   { labelKey: "nav_dashboard", href: "/dashboard", icon: LayoutDashboard },
   { labelKey: "nav_my_store", href: "/dashboard/store", icon: Store },
+  { labelKey: "nav_profile", href: "/account/profile", icon: User },
   { labelKey: "nav_products", href: "/dashboard/products", icon: Package },
   { labelKey: "nav_inventory", href: "/dashboard/inventory", icon: Boxes },
   { labelKey: "nav_orders", href: "/dashboard/orders", icon: ShoppingBag },

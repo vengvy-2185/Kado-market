@@ -1017,6 +1017,26 @@ production build. This phase actually ran `next build` end-to-end (not just
   pulse instead of a generic spinner-only state, for a more branded
   loading experience.
 
+## Phase 44 — Profile link in seller nav, branded loading everywhere
+
+- **Added "Profile" to the seller sidebar** (`/account/profile`, right
+  after "My Store") — sellers previously had no direct link to edit their
+  own personal profile from the dashboard, only their store's profile.
+- **Every `loading.tsx` now shows the branded logo spinner**
+  (`FullPageSpinner`) instead of plain gray skeleton bars — dashboard,
+  admin, store/product pages, cart, checkout, chat, and order pages all
+  match now, addressing the "loading looks like blank gray blocks"
+  feedback directly.
+- **On "sometimes clicking doesn't navigate":** this is hard to diagnose
+  further without a specific reproduction (which page, which link, does
+  it happen after being idle for a while, etc.) — but the `loading.tsx`
+  additions across Phase 41/44 should make this feel much less like a
+  "dead click," since every navigation now shows instant visual feedback
+  (the branded spinner) rather than a blank screen while the next page's
+  data loads. If it still happens after this update, the next useful
+  piece of information would be: which specific link/button, and whether
+  it's consistent or intermittent.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

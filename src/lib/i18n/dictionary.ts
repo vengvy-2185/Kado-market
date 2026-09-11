@@ -4,6 +4,7 @@ export const dictionary = {
   // Sidebar nav
   nav_dashboard: { en: "Dashboard", km: "ផ្ទាំងគ្រប់គ្រង" },
   nav_my_store: { en: "My Store", km: "ហាងរបស់ខ្ញុំ" },
+  nav_profile: { en: "Profile", km: "ប្រវត្តិរូប" },
   nav_products: { en: "Products", km: "ទំនិញ" },
   nav_inventory: { en: "Inventory", km: "ស្តុកទំនិញ" },
   nav_orders: { en: "Orders", km: "ការបញ្ជាទិញ" },
