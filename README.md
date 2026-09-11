@@ -1157,6 +1157,34 @@ production build. This phase actually ran `next build` end-to-end (not just
   Full page-by-page coverage of the entire app remains a larger, ongoing
   effort — this pass targeted the highest-traffic, most-repeated strings.
 
+## Phase 50 — Invoice now shows store logo + product photos, dead-click hardening
+
+- **Invoice PDF redesigned around the seller's own brand**: the store's
+  own logo (whatever the seller uploaded in Store Setup) now appears at
+  the top instead of only "KADO MARKET," since this is the seller's
+  receipt to their customer — KADO MARKET appears as a small "Invoice via"
+  note underneath instead. Each line item now shows a real product photo
+  thumbnail next to its name. Both images are fetched server-side and
+  embedded as real image data in the PDF (not links) — if a particular
+  image fails to load or is an unsupported format, that one thumbnail is
+  skipped without breaking the rest of the invoice.
+- **Hardened against a real class of "click does nothing" bugs**: the
+  post image slideshow's prev/next arrows were `opacity-0` until hover,
+  but still fully clickable/tappable even while invisible (a well-known
+  CSS gotcha — `opacity: 0` hides visually but doesn't remove hit-testing
+  by default). On touch devices, where `:hover` never fires the same way,
+  these could silently intercept a tap meant for the photo underneath.
+  Fixed with `pointer-events-none` until hover (`group-hover:pointer-events-auto`).
+  Also simplified `AccountSidebar`'s sticky positioning, which used a
+  guessed hardcoded pixel offset (`top-[73px]`) that could drift out of
+  sync with the actual header height — now uses a standard spacing value
+  with `self-start` and internal scrolling, removing that whole class of
+  risk regardless of exact header height.
+- If clicks still occasionally don't respond after this, the next useful
+  detail would be: does it happen on a specific page/button, and
+  mobile vs. desktop — that would point at whichever element is still
+  catching the tap.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

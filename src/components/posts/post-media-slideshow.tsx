@@ -45,14 +45,14 @@ export function PostMediaSlideshow({ media }: { media: { url: string }[] }) {
         ))}
         <button
           onClick={() => setIndex((i) => (i - 1 + media.length) % media.length)}
-          className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white opacity-0 transition-opacity hover:opacity-100 group-hover:opacity-100"
+          className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100"
           aria-label="Previous image"
         >
           ‹
         </button>
         <button
           onClick={() => setIndex((i) => (i + 1) % media.length)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white opacity-0 transition-opacity hover:opacity-100 group-hover:opacity-100"
+          className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100"
           aria-label="Next image"
         >
           ›

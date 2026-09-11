@@ -17,7 +17,7 @@ export function AccountSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="sticky top-[73px] hidden h-[calc(100vh-73px)] w-56 flex-shrink-0 border-r border-white/10 bg-surface/40 md:block">
+    <aside className="sticky top-16 hidden max-h-[calc(100vh-4rem)] w-56 flex-shrink-0 self-start overflow-y-auto border-r border-white/10 bg-surface/40 md:block">
       <nav className="flex flex-col gap-1 p-3">
         {LINKS.map((link) => {
           const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
