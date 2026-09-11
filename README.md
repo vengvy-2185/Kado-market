@@ -1185,6 +1185,23 @@ production build. This phase actually ran `next build` end-to-end (not just
   mobile vs. desktop — that would point at whichever element is still
   catching the tap.
 
+## Phase 51 — Fixed iOS auto-zoom on every text field, faster chat updates
+
+- **Fixed the "page zooms in when I tap to type" issue** — this is a
+  well-known iOS Safari behavior: it auto-zooms the whole page when a
+  focused input/textarea/select has a computed font-size under 16px. Most
+  fields across the app used `text-sm` (14px). Rather than hunting down
+  every raw `<input>` across 60+ files, fixed it once, globally, in
+  `globals.css` — a mobile-only (`max-width: 767px`) rule forcing
+  `font-size: 16px` on every `input`, `textarea`, and `select` site-wide.
+  Desktop sizing is untouched.
+- **Chat polling interval shortened from 4s to 2s** for a snappier feel
+  when a reply comes in (from Phase 42's Realtime + polling fallback).
+  Confirmed the AI Assistant chat doesn't need the same fix — its replies
+  come back synchronously in the same request as part of
+  `askAiAssistant()`, so there's no independent "other party" message to
+  poll for the way there is in human-to-human chat.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

@@ -14,3 +14,18 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Prevent iOS Safari from auto-zooming the whole page when a form field
+   is focused. iOS zooms in whenever a focused input/textarea/select has
+   a computed font-size under 16px — this affects every text field
+   site-wide (many are raw <input>/<textarea> elements with their own
+   Tailwind classes, not just the shared <Input> component), so it's
+   fixed once here globally rather than per-component. Only applies on
+   small screens; desktop sizing is untouched. */
+@media screen and (max-width: 767px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
