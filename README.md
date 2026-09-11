@@ -1037,6 +1037,24 @@ production build. This phase actually ran `next build` end-to-end (not just
   piece of information would be: which specific link/button, and whether
   it's consistent or intermittent.
 
+## Phase 45 — Redesigned Login/Signup pages (split layout, animation, provided artwork)
+
+- **Split-screen layout** on `/login` and `/signup` (desktop/`lg:` and up):
+  the provided "Welcome to KADO MARKET — Shop Smarter, Live Better"
+  artwork (`public/auth-hero.png`) fills the left half with a gentle
+  floating animation and soft background glow blobs; the form sits in a
+  card on the right with a scale-in entrance animation. On mobile the
+  hero image is hidden (no room for it) and the logo appears above the
+  form instead, so nothing is lost on small screens.
+- **New reusable animation utilities** added to `tailwind.config.ts`:
+  `animate-fade-in-up`, `animate-fade-in`, `animate-float`,
+  `animate-scale-in` — available for future use elsewhere, not just these
+  two pages.
+- **Dedicated big-logo loading state** for `/login` and `/signup`
+  specifically (`loading.tsx` in each folder) — shows the KADO MARKET logo
+  large and centered with a scale-in animation while the page loads,
+  distinct from the smaller spinner used on other pages.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

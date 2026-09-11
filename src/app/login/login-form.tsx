@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
+import { AuthHeroPanel } from "@/components/auth/auth-hero-panel";
+import { Logo } from "@/components/logo";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -39,10 +41,15 @@ export default function LoginForm() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-6">
-      <Card className="w-full max-w-sm">
-        <h1 className="mb-1 text-2xl font-bold">Welcome back</h1>
-        <p className="mb-6 text-sm text-white/50">Log in to KADO MARKET</p>
+    <main className="flex min-h-screen">
+      <AuthHeroPanel />
+      <div className="flex flex-1 items-center justify-center px-6 py-12">
+        <Card className="w-full max-w-sm animate-scale-in">
+          <div className="mb-4 flex justify-center lg:hidden">
+            <Logo size={40} />
+          </div>
+          <h1 className="mb-1 text-2xl font-bold">Welcome back</h1>
+          <p className="mb-6 text-sm text-white/50">Log in to KADO MARKET</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -93,8 +100,9 @@ export default function LoginForm() {
           <Link href="/signup" className="text-accent hover:underline">
             Sign up
           </Link>
-        </p>
-      </Card>
+          </p>
+        </Card>
+      </div>
     </main>
   );
 }

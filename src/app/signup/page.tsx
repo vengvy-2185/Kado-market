@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
+import { AuthHeroPanel } from "@/components/auth/auth-hero-panel";
+import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 
 type Role = "customer" | "seller";
@@ -64,27 +66,38 @@ export default function SignupPage() {
 
   if (submitted) {
     return (
-      <main className="flex min-h-screen items-center justify-center px-6">
-        <Card className="w-full max-w-sm text-center">
-          <h1 className="mb-2 text-xl font-bold">Check your inbox</h1>
-          <p className="text-sm text-white/60">
-            We sent a confirmation link to <span className="text-white">{email}</span>. Verify
-            your email to activate your account
-            {role === "seller" ? " and continue to Store Setup." : "."}
-          </p>
-          <Link href="/login" className="mt-6 inline-block text-sm text-accent hover:underline">
-            Back to login
-          </Link>
-        </Card>
+      <main className="flex min-h-screen">
+        <AuthHeroPanel />
+        <div className="flex flex-1 items-center justify-center px-6 py-12">
+          <Card className="w-full max-w-sm animate-scale-in text-center">
+            <div className="mb-4 flex justify-center lg:hidden">
+              <Logo size={40} />
+            </div>
+            <h1 className="mb-2 text-xl font-bold">Check your inbox</h1>
+            <p className="text-sm text-white/60">
+              We sent a confirmation link to <span className="text-white">{email}</span>. Verify
+              your email to activate your account
+              {role === "seller" ? " and continue to Store Setup." : "."}
+            </p>
+            <Link href="/login" className="mt-6 inline-block text-sm text-accent hover:underline">
+              Back to login
+            </Link>
+          </Card>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-6 py-12">
-      <Card className="w-full max-w-md">
-        <h1 className="mb-1 text-2xl font-bold">Create your account</h1>
-        <p className="mb-6 text-sm text-white/50">Join KADO MARKET as a shopper or a seller</p>
+    <main className="flex min-h-screen">
+      <AuthHeroPanel />
+      <div className="flex flex-1 items-center justify-center px-6 py-12">
+        <Card className="w-full max-w-md animate-scale-in">
+          <div className="mb-4 flex justify-center lg:hidden">
+            <Logo size={40} />
+          </div>
+          <h1 className="mb-1 text-2xl font-bold">Create your account</h1>
+          <p className="mb-6 text-sm text-white/50">Join KADO MARKET as a shopper or a seller</p>
 
         <div className="mb-6 grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-white/5 p-1">
           {(["customer", "seller"] as Role[]).map((r) => (
@@ -180,8 +193,9 @@ export default function SignupPage() {
           <Link href="/login" className="text-accent hover:underline">
             Log in
           </Link>
-        </p>
-      </Card>
+          </p>
+        </Card>
+      </div>
     </main>
   );
 }
