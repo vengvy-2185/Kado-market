@@ -6,6 +6,7 @@ import { ShoppingCart, Zap, Bot } from "lucide-react";
 import { addToCart } from "@/lib/actions/cart";
 import { getOrStartAiThread } from "@/lib/actions/ai-assistant";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 export function QuickActions({
   productId,
@@ -17,6 +18,7 @@ export function QuickActions({
   hasAiAssistant?: boolean;
 }) {
   const router = useRouter();
+  const { t } = useLanguage();
   const [isPending, startTransition] = useTransition();
   const [added, setAdded] = useState(false);
 
@@ -51,7 +53,7 @@ export function QuickActions({
         )}
       >
         <ShoppingCart className="h-3.5 w-3.5" />
-        {added ? "Added" : "Cart"}
+        {added ? t("product_card_added") : t("product_card_cart")}
       </button>
       <button
         onClick={handleBuyNow}
@@ -59,7 +61,7 @@ export function QuickActions({
         className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-brand-gradient py-1.5 text-xs font-semibold"
       >
         <Zap className="h-3.5 w-3.5" />
-        Buy
+        {t("product_card_buy")}
       </button>
       {hasAiAssistant && storeId && (
         <form

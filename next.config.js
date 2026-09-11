@@ -43,6 +43,20 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // pdfkit reads its standard-14 font metrics (Helvetica.afm etc.) from
+  // disk at runtime via fs.readFileSync — Vercel's serverless bundler
+  // doesn't know to include those non-JS data files unless told to, which
+  // causes a real "ENOENT: Helvetica.afm not found" crash in production
+  // even though it works fine locally. Two-part fix: keep pdfkit as a
+  // real external require (not webpack-bundled/mangled) so Vercel's file
+  // tracer can analyze its actual fs calls, and explicitly include its
+  // data directory for the one route that uses it.
+  experimental: {
+    serverComponentsExternalPackages: ["pdfkit"],
+    outputFileTracingIncludes: {
+      "/api/orders/[id]/invoice": ["./node_modules/pdfkit/js/data/**/*"],
+    },
+  },
 };
 
 module.exports = nextConfig;

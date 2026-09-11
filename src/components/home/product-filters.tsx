@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { SlidersHorizontal, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const SORT_OPTIONS = [
   { value: "", label: "Newest" },
@@ -56,27 +57,30 @@ export function ProductFilters() {
       <div className="relative">
         <button
           onClick={() => setOpen((o) => !o)}
-          className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/70 hover:bg-white/10"
+          className={cn(
+            "flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold transition-colors",
+            activeCount > 0 ? "bg-brand-gradient text-white shadow-glow" : "border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20"
+          )}
         >
           <SlidersHorizontal className="h-3.5 w-3.5" />
           Filters
           {activeCount > 0 && (
-            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-highlight px-1 text-[10px] font-bold text-white">
+            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-white/25 px-1 text-[10px] font-bold text-white">
               {activeCount}
             </span>
           )}
         </button>
 
         {open && (
-          <div className="absolute left-0 z-40 mt-2 w-72 rounded-2xl border border-white/10 bg-surface p-4 shadow-xl">
+          <div className="absolute left-0 z-40 mt-2 w-72 rounded-2xl border border-primary/20 bg-surface p-4 shadow-2xl shadow-black/50">
             <div className="mb-3 flex items-center justify-between">
-              <p className="text-sm font-semibold">Filters</p>
+              <p className="text-sm font-semibold text-white">Filters</p>
               <button onClick={() => setOpen(false)} className="text-white/40 hover:text-white">
                 <X className="h-4 w-4" />
               </button>
             </div>
 
-            <label className="mb-1 block text-xs text-white/50">Price range ($)</label>
+            <label className="mb-1 block text-xs font-medium text-accent">Price range ($)</label>
             <div className="mb-3 flex items-center gap-2">
               <input
                 type="number"
@@ -84,7 +88,7 @@ export function ProductFilters() {
                 placeholder="Min"
                 value={minPrice}
                 onChange={(e) => setMinPrice(e.target.value)}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-sm"
+                className="w-full rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5 text-sm text-white outline-none focus:border-primary"
               />
               <span className="text-white/30">–</span>
               <input
@@ -93,24 +97,24 @@ export function ProductFilters() {
                 placeholder="Max"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-sm"
+                className="w-full rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5 text-sm text-white outline-none focus:border-primary"
               />
             </div>
 
-            <label className="mb-1 block text-xs text-white/50">Location (city or province)</label>
+            <label className="mb-1 block text-xs font-medium text-accent">Location (city or province)</label>
             <input
               type="text"
               placeholder="e.g. Phnom Penh"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className="mb-4 w-full rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-sm"
+              className="mb-4 w-full rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5 text-sm text-white outline-none focus:border-primary"
             />
 
             <div className="flex gap-2">
-              <button onClick={clearFilters} className="flex-1 rounded-xl border border-white/10 py-2 text-sm text-white/60 hover:bg-white/5">
+              <button onClick={clearFilters} className="flex-1 rounded-xl border border-white/15 py-2 text-sm text-white/60 hover:bg-white/5">
                 Clear
               </button>
-              <button onClick={applyFilters} className="flex-1 rounded-xl bg-brand-gradient py-2 text-sm font-semibold">
+              <button onClick={applyFilters} className="flex-1 rounded-xl bg-brand-gradient py-2 text-sm font-semibold text-white shadow-glow">
                 Apply
               </button>
             </div>
@@ -121,10 +125,13 @@ export function ProductFilters() {
       <select
         value={currentSort}
         onChange={(e) => changeSort(e.target.value)}
-        className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/70 outline-none"
+        className={cn(
+          "rounded-full px-3.5 py-2 text-xs font-semibold outline-none transition-colors",
+          currentSort ? "bg-brand-gradient text-white" : "border border-accent/30 bg-accent/10 text-accent hover:bg-accent/20"
+        )}
       >
         {SORT_OPTIONS.map((opt) => (
-          <option key={opt.value} value={opt.value}>
+          <option key={opt.value} value={opt.value} className="bg-surface text-white">
             {opt.label}
           </option>
         ))}

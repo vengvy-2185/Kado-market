@@ -6,6 +6,7 @@ import { PostCard } from "@/components/posts/post-card";
 import { MobileBottomNav } from "@/components/home/mobile-bottom-nav";
 import { HomeProductCard } from "@/components/home/home-product-card";
 import { ProductFilters } from "@/components/home/product-filters";
+import { T } from "@/components/t";
 import { StoryBar, type StoryGroup } from "@/components/stories/story-bar";
 
 export default async function HomePage({
@@ -191,6 +192,7 @@ export default async function HomePage({
       <div className="px-4 py-6 md:px-6 md:py-8">
 
       <StoryBar groups={storyGroups} />
+      <ProductFilters />
 
       {/* Compact welcome / role links */}
       {user && profile ? (
@@ -260,7 +262,7 @@ export default async function HomePage({
                 {interleavedProducts.length > 0 && (
                   <div className="mx-auto max-w-lg">
                     <p className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/30">
-                      <ShoppingBag className="h-3 w-3" /> Picks for you
+                      <ShoppingBag className="h-3 w-3" /> <T k="home_picks_for_you" />
                     </p>
                     <div className="grid grid-cols-2 gap-3">
                       {interleavedProducts.map((p) => (
@@ -282,14 +284,20 @@ export default async function HomePage({
       )}
 
       {/* Remaining products (or full results grid when searching/filtering) */}
-      <ProductFilters />
       <h2 className="mb-4 text-sm font-semibold text-white/70">
-        {isFiltered ? `Results${searchParams.q ? ` for "${searchParams.q}"` : ""}` : "More products"}
+        {isFiltered ? (
+          <>
+            <T k="home_results_for" />
+            {searchParams.q ? ` for "${searchParams.q}"` : ""}
+          </>
+        ) : (
+          <T k="home_more_products" />
+        )}
       </h2>
 
       {!products || products.length === 0 ? (
         <p className="text-sm text-white/40">
-          {isFiltered ? "No products match your search." : "No products published yet."}
+          {isFiltered ? <T k="home_no_match" /> : <T k="home_no_products" />}
         </p>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">

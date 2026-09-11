@@ -1128,6 +1128,35 @@ production build. This phase actually ran `next build` end-to-end (not just
   breakdown, total, and payment status. Only the order's own customer or
   the store's seller/admin can generate it.
 
+## Phase 49 — Filters moved up + styled, PDF invoice serverless fix, more Khmer coverage
+
+- **Filters + Sort moved to the top** of the home feed (right below the
+  Stories bar, above everything else) instead of being buried near the
+  bottom past the whole feed — no more scrolling past posts and products
+  just to reach them.
+- **Real color treatment** — the Filters button and Sort dropdown now use
+  the brand's purple/pink palette (filled with the brand gradient when
+  active, a tinted outline when not) instead of flat gray-on-gray.
+- **Fixed the PDF invoice download** (a real, well-known issue, not
+  guessed at): `pdfkit` reads its built-in font metrics (`Helvetica.afm`
+  etc.) from disk at runtime, but Vercel's serverless bundler doesn't
+  know to include those non-JS data files unless told to — this crashes
+  the invoice route in production with an `ENOENT` even though it works
+  fine in local dev (confirmed against real reports of this exact issue).
+  Fixed in `next.config.js` with `serverComponentsExternalPackages:
+  ["pdfkit"]` (keeps it a real `require()` Vercel's file tracer can
+  analyze) plus an explicit `outputFileTracingIncludes` for the invoice
+  route's font data directory.
+- **More Khmer translation coverage** — added a `<T k="...">` helper so
+  server components (like the home page) can render translated text
+  without becoming client components, and used it plus direct
+  `useLanguage()` calls to translate: the mobile bottom nav (Home, Chat,
+  Cart, Favorites, Profile, Log in — shown on nearly every mobile page),
+  and the home feed's "Picks for you," "More products," "Results," empty
+  states, and the Cart/Buy/Added labels on every product card site-wide.
+  Full page-by-page coverage of the entire app remains a larger, ongoing
+  effort — this pass targeted the highest-traffic, most-repeated strings.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

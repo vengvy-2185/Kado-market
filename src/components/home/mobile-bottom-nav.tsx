@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Heart, ShoppingCart, MessageCircle, User, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 export function MobileBottomNav({
   isLoggedIn,
@@ -17,18 +18,19 @@ export function MobileBottomNav({
   chatUnreadCount?: number;
 }) {
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   const items = isLoggedIn
     ? [
-        { href: "/", label: "Home", icon: Home, badge: 0 },
-        { href: "/chat", label: "Chat", icon: MessageCircle, badge: chatUnreadCount },
-        { href: "/cart", label: "Cart", icon: ShoppingCart, badge: cartCount },
-        { href: "/account/favorites", label: "Favorites", icon: Heart, badge: favoritesCount },
-        { href: "/account/profile", label: "Profile", icon: User, badge: 0 },
+        { href: "/", label: t("bottom_nav_home"), icon: Home, badge: 0 },
+        { href: "/chat", label: t("bottom_nav_chat"), icon: MessageCircle, badge: chatUnreadCount },
+        { href: "/cart", label: t("bottom_nav_cart"), icon: ShoppingCart, badge: cartCount },
+        { href: "/account/favorites", label: t("bottom_nav_favorites"), icon: Heart, badge: favoritesCount },
+        { href: "/account/profile", label: t("bottom_nav_profile"), icon: User, badge: 0 },
       ]
     : [
-        { href: "/", label: "Home", icon: Home, badge: 0 },
-        { href: "/login", label: "Log in", icon: LogIn, badge: 0 },
+        { href: "/", label: t("bottom_nav_home"), icon: Home, badge: 0 },
+        { href: "/login", label: t("bottom_nav_login"), icon: LogIn, badge: 0 },
       ];
 
   return (
