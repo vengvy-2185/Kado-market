@@ -1225,6 +1225,27 @@ production build. This phase actually ran `next build` end-to-end (not just
   deployed function (the same class of issue as the original PDF crash,
   now handled for this font too).
 
+## Phase 53 — Fixed chat input overflowing off-screen, login spinner gap
+
+- **Fixed a real mobile layout bug**: the chat input row (photo button,
+  location button, text field, Send button) had no `min-w-0` on the
+  flexible text input — flex items default to a minimum width based on
+  their content, not zero, so on narrow phone screens the row couldn't
+  actually shrink to fit and the Send button got pushed off the right
+  edge of the screen entirely (visible in the reported screenshot as
+  "Sen" cut off). Fixed with `min-w-0` on the input and `flex-shrink-0` on
+  the buttons so they hold their size while the input does the shrinking.
+  Applied to both the human chat and AI Assistant chat inputs. Also gave
+  the chat message area a bit more height on mobile specifically
+  (`h-[75vh]` on small screens, `h-[65vh]` from `sm:` up).
+- **Fixed a gap in the login button's loading spinner**: it stopped
+  spinning immediately after the auth check succeeded, but *before*
+  `router.push()`/`router.refresh()` had actually finished loading the
+  destination page — during that gap the button looked idle again even
+  though the user was still waiting, reading as "did that even work?"
+  Now the spinner keeps going through the redirect on success, and only
+  stops early on an actual error (so the form is usable again to retry).
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

@@ -216,7 +216,7 @@ export function ChatThread({
   }
 
   return (
-    <div className="flex h-[65vh] flex-col rounded-2xl border border-white/10 bg-surface/60">
+    <div className="flex h-[75vh] flex-col rounded-2xl border border-white/10 bg-surface/60 sm:h-[65vh]">
       <div className="no-scrollbar flex-1 space-y-2 overflow-y-auto p-4">
         {messages.map((m) => {
           const isMine = m.sender_id === currentUserId;
@@ -354,8 +354,8 @@ export function ChatThread({
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex gap-2 border-t border-white/10 p-3">
-        <label className="flex cursor-pointer items-center rounded-full border border-white/10 bg-white/5 px-3 text-white/60 hover:bg-white/10">
+      <form onSubmit={handleSubmit} className="flex items-center gap-1.5 border-t border-white/10 p-2.5 sm:gap-2 sm:p-3">
+        <label className="flex flex-shrink-0 cursor-pointer items-center rounded-full border border-white/10 bg-white/5 px-2.5 text-white/60 hover:bg-white/10 sm:px-3">
           <ImagePlus className="h-4 w-4" />
           <input type="file" accept="image/*" onChange={handlePickImage} className="hidden" disabled={Boolean(editing)} />
         </label>
@@ -363,7 +363,7 @@ export function ChatThread({
           type="button"
           onClick={() => setPickingLocation(true)}
           disabled={Boolean(editing)}
-          className="flex items-center rounded-full border border-white/10 bg-white/5 px-3 text-white/60 hover:bg-white/10 disabled:opacity-40"
+          className="flex flex-shrink-0 items-center rounded-full border border-white/10 bg-white/5 px-2.5 text-white/60 hover:bg-white/10 disabled:opacity-40 sm:px-3"
           aria-label="Share location"
         >
           <MapPin className="h-4 w-4" />
@@ -372,12 +372,12 @@ export function ChatThread({
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder={editing ? "Edit your message..." : "Type a message..."}
-          className="flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder:text-white/40 outline-none focus:border-primary"
+          className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/40 outline-none focus:border-primary sm:px-4"
         />
         <button
           type="submit"
           disabled={isPending || uploading || (!text.trim() && !pendingImage && !pendingLocation)}
-          className="rounded-full bg-brand-gradient px-4 py-2 text-sm font-semibold disabled:opacity-50"
+          className="flex-shrink-0 rounded-full bg-brand-gradient px-3 py-2 text-sm font-semibold disabled:opacity-50 sm:px-4"
         >
           {editing ? "Save" : "Send"}
         </button>

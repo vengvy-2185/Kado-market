@@ -242,12 +242,12 @@ export function AiChatThread({ threadId, initialMessages, storeName }: { threadI
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Ask the AI assistant... / សួរជាភាសាខ្មែរក៏បាន"
-          className="flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder:text-white/40 outline-none focus:border-primary"
+          className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder:text-white/40 outline-none focus:border-primary"
         />
         <button
           type="submit"
           disabled={thinking || !text.trim()}
-          className="rounded-full bg-brand-gradient px-4 py-2 text-sm font-semibold disabled:opacity-50"
+          className="flex-shrink-0 rounded-full bg-brand-gradient px-4 py-2 text-sm font-semibold disabled:opacity-50"
         >
           Ask
         </button>

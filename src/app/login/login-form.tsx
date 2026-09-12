@@ -29,13 +29,16 @@ export default function LoginForm() {
 
     const { error: signInError } = await loginWithRateLimit(email, password);
 
-    setLoading(false);
-
     if (signInError) {
+      setLoading(false);
       setError(signInError);
       return;
     }
 
+    // Keep the spinner going through the redirect itself — stopping it
+    // right after auth succeeds (but before the new page has actually
+    // loaded) left a gap where the button looked idle again while the
+    // user was still waiting, which read as "did that even work?"
     router.push(redirectTo);
     router.refresh();
   }
