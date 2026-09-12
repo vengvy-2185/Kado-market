@@ -694,6 +694,11 @@ export interface Database {
         Insert: Partial<Database["public"]["Tables"]["bakong_api_calls"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["bakong_api_calls"]["Row"]>;
       };
+      store_followers: {
+        Row: { id: string; store_id: string; user_id: string; created_at: string };
+        Insert: { store_id: string; user_id: string };
+        Update: Partial<Database["public"]["Tables"]["store_followers"]["Row"]>;
+      };
       notifications: {
         Row: {
           id: string;

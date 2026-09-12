@@ -10,7 +10,7 @@ export function HomeRightPanel({ chatUnreadCount }: { chatUnreadCount: number })
   ];
 
   return (
-    <aside className="sticky top-20 hidden h-fit w-64 flex-shrink-0 space-y-4 xl:block">
+    <aside className="sticky top-20 hidden h-fit w-64 flex-shrink-0 self-start space-y-4 xl:block">
       <div className="rounded-2xl border border-white/10 bg-surface/40 p-4">
         <p className="mb-3 text-sm font-bold text-white/80">Quick Access</p>
         <div className="space-y-1">

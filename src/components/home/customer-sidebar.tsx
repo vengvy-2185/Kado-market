@@ -19,7 +19,7 @@ export function CustomerSidebar({ isLoggedIn, hasStore }: { isLoggedIn: boolean;
   ];
 
   return (
-    <aside className="sticky top-20 hidden h-fit w-56 flex-shrink-0 lg:block">
+    <aside className="sticky top-20 hidden h-fit w-56 flex-shrink-0 self-start lg:block">
       <nav className="space-y-1 rounded-2xl border border-white/10 bg-surface/40 p-3">
         {links.map((link) => {
           const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href.split("#")[0]) && link.href !== "/";

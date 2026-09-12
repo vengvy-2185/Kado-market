@@ -9,6 +9,7 @@ import { ProductFilters } from "@/components/home/product-filters";
 import { CustomerSidebar } from "@/components/home/customer-sidebar";
 import { HomeRightPanel } from "@/components/home/home-right-panel";
 import { PopularShopsRow } from "@/components/home/popular-shops-row";
+import { HeroBannerCarousel } from "@/components/home/hero-banner-carousel";
 import { T } from "@/components/t";
 import { StoryBar, type StoryGroup } from "@/components/stories/story-bar";
 
@@ -201,12 +202,13 @@ export default async function HomePage({
       {/* Sticky header + category tabs — only the content below scrolls */}
       <SiteHeader showCategories searchDefaultValue={searchParams.q} activeCategory={searchParams.category} />
 
-      <div className="flex gap-6 px-4 py-6 md:px-6 md:py-8">
+      <div className="flex items-start gap-6 px-4 py-6 md:px-6 md:py-8">
         <CustomerSidebar isLoggedIn={Boolean(user)} hasStore={Boolean(myStoreId)} />
 
         <div className="mx-auto min-w-0 max-w-4xl flex-1 lg:mx-0">
 
       <StoryBar groups={storyGroups} />
+      {!isFiltered && <HeroBannerCarousel />}
       <ProductFilters />
       {!isFiltered && <PopularShopsRow shops={popularShops} />}
 

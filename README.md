@@ -1354,6 +1354,37 @@ rather than faked.
   needs product-view history tracking, and "Flash Sale" needs a
   time-limited-discount concept — neither exists in the schema yet.
 
+## Phase 57 — Hero banner carousel, sticky sidebar fix, real follow system, store page redesign
+
+- **Fixed the sidebar not staying sticky while scrolling** — the home
+  page's flex row didn't set `items-start`, so it defaulted to `stretch`,
+  and the sidebar itself was missing `self-start`. Both fixed; this is
+  the standard, correct pattern for a sticky sidebar inside a flex row.
+- **Real hero banner carousel** (`HeroBannerCarousel`) — auto-advances
+  every 5s with dot navigation, matching the visual style of the provided
+  mockup. Content is honest platform messaging (browse categories, start
+  a shop, new arrivals) rather than fabricated specific claims like a
+  hardcoded "50% off."
+- **Real follow/followers system, built from scratch** (migration `0050`,
+  `store_followers` table + RLS) — this was shown in two separate
+  mockups, a clear signal it was wanted for real rather than left as a
+  gap. `FollowButton` with optimistic UI, real counts everywhere they're
+  displayed (store header, Popular Shops could use this next).
+- **Store page fully redesigned** toward the provided mockup, all with
+  real data: wider 3-column layout (`StoreSidebar` | content | new
+  `StoreInfoPanel`), a Follow button next to Chat/AI Assistant, a real
+  average-rating line pulled from the store's actual reviews,
+  category tabs generated from the store's own products' real categories
+  (`StoreProductTabs`), a Reviews section listing genuine reviews, and a
+  right panel with real shop info (actual join date computed from
+  `created_at`, real follower count, the existing location map) plus
+  working share buttons (Facebook/Telegram share links, copy-link, native
+  share on mobile).
+- **Not fabricated**: the mockup's "Why choose us" bullet list is generic
+  marketing copy with no backing data — skipped rather than inventing
+  claims about a specific store. A seller-editable version of that
+  section would be a reasonable real feature to add later if wanted.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,
