@@ -1246,6 +1246,42 @@ production build. This phase actually ran `next build` end-to-end (not just
   Now the spinner keeps going through the redirect on success, and only
   stops early on an actual error (so the form is usable again to retry).
 
+## Phase 54 — Real Bakong Open API integration (verified against NBC's official spec)
+
+Genuine automatic payment verification, not just a manually-confirmed QR
+code — built against the **official NBC Bakong Open API PDF spec**
+(fetched and read directly, not guessed): `POST /v1/check_transaction_by_md5`,
+`Authorization: Bearer <token>`, exact request/response shapes.
+
+- **Fixed a latent correctness bug in the process**: the order page
+  previously *regenerated* the KHQR string live on every page view.
+  Since `generateKhqr()` embeds a timestamp, every regeneration produces
+  a different string — and therefore a different MD5 — than whatever the
+  customer actually scanned. Real verification is impossible against a
+  hash that keeps changing. Fixed by generating the KHQR **once**, at
+  order-creation time, and persisting both the exact string and its MD5
+  on the order (`orders.khqr_string`, `orders.khqr_md5` — migration
+  `0048`). The order page now displays that stored QR, not a fresh one.
+- **`src/lib/bakong-api.ts`** — a real client for
+  `check_transaction_by_md5`, handling all four documented outcomes
+  (paid / not found yet / failed / network error) distinctly.
+- **"Check Payment Status" button** on `/orders/[id]`
+  (`BakongVerifyButton`) — customer or seller can trigger a real check;
+  on success it records `orders.bakong_verified_at` and shows the actual
+  confirmed amount/sender account from NBC's response.
+- **Admin sets one platform-wide developer token**
+  (`/admin/settings` → `BakongApiSettingsForm`) — the Bakong API just
+  confirms "did money matching this hash move," so one KADO MARKET
+  integration token checks transactions for every store's KHQR, no
+  per-seller credentials needed. Includes a sandbox/production toggle.
+- **Confirmed production constraint, called out explicitly in the UI**:
+  NBC's production `check_transaction_by_md5` only accepts requests from
+  servers physically located in Cambodia — a Vercel-hosted deployment
+  cannot call it directly in production. Sandbox works from anywhere for
+  testing; going live requires either a Cambodia-based server for this
+  specific call, or a relay service (the admin settings panel flags this
+  rather than silently failing).
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

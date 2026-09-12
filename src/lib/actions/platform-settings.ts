@@ -37,3 +37,25 @@ export async function savePlatformKhqr(formData: FormData) {
   revalidatePath("/dashboard/ai-assistant");
   revalidatePath("/dashboard/boost");
 }
+
+export async function saveBakongApiSettings(formData: FormData) {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const role = await getUserRole(supabase, user.id);
+  if (!isAdminRole(role)) throw new Error("Not authorized.");
+
+  const token = String(formData.get("bakong_developer_token") ?? "").trim() || null;
+  const useSandbox = formData.get("bakong_use_sandbox") === "on";
+
+  const { error } = await supabase
+    .from("platform_settings")
+    .update({ bakong_developer_token: token, bakong_use_sandbox: useSandbox })
+    .eq("id", 1);
+
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/settings");
+}

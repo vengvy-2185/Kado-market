@@ -12,6 +12,8 @@
  * confirms receipt manually in their own banking app.
  */
 
+import crypto from "crypto";
+
 function tlv(id: string, value: string): string {
   const length = value.length.toString().padStart(2, "0");
   return `${id}${length}${value}`;
@@ -68,4 +70,15 @@ export function generateKhqr(params: {
   const crc = crc16(withoutCrc);
 
   return withoutCrc + crc;
+}
+
+/**
+ * The Bakong Open API's check_transaction_by_md5 endpoint identifies a
+ * transaction by the MD5 hash of the exact KHQR payload string that was
+ * scanned. Since generateKhqr() embeds a fresh timestamp every call, this
+ * must be computed from — and the result stored alongside — the specific
+ * KHQR string shown to the customer, not recomputed later from scratch.
+ */
+export function khqrMd5(khqrString: string): string {
+  return crypto.createHash("md5").update(khqrString).digest("hex");
 }

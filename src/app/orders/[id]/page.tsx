@@ -7,6 +7,7 @@ import { OrderStatusControl } from "@/components/product/order-status-control";
 import { BackButton } from "@/components/dashboard/back-button";
 import { KhqrDisplay } from "@/components/settings/khqr-display";
 import { generateKhqr } from "@/lib/khqr";
+import { BakongVerifyButton } from "@/components/product/bakong-verify-button";
 import { ReviewForm } from "@/components/reviews/review-form";
 import { OrderTracker } from "@/components/product/order-tracker";
 import { cn } from "@/lib/utils";
@@ -82,22 +83,26 @@ export default async function OrderDetailPage({ params }: { params: { id: string
         </div>
       )}
 
-      {store?.bakong_account_id && store?.bakong_phone && (
+      {(order.khqr_string || (store?.bakong_account_id && store?.bakong_phone)) && (
         <Card className="mb-4 flex flex-col items-center gap-2">
           <h2 className="text-sm font-semibold text-white/70">Pay via KHQR</h2>
           <KhqrDisplay
-            khqrString={generateKhqr({
-              bakongAccountId: store.bakong_account_id,
-              accountInformation: store.bakong_phone,
-              merchantName: store.store_name,
-              merchantCity: store.city ?? "Phnom Penh",
-              amount: Number(order.total),
-              currency: "USD",
-            })}
-            merchantName={store.store_name}
+            khqrString={
+              order.khqr_string ??
+              generateKhqr({
+                bakongAccountId: store!.bakong_account_id!,
+                accountInformation: store!.bakong_phone!,
+                merchantName: store!.store_name,
+                merchantCity: store!.city ?? "Phnom Penh",
+                amount: Number(order.total),
+                currency: "USD",
+              })
+            }
+            merchantName={store?.store_name ?? ""}
             amountLabel={`$${order.total}`}
           />
           <p className="text-xs text-white/40">Scan with any Cambodian banking app to pay</p>
+          {order.khqr_md5 && <BakongVerifyButton orderId={order.id} verifiedAt={order.bakong_verified_at} />}
         </Card>
       )}
 

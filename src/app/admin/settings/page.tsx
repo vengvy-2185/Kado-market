@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getUserRole, isAdminRole } from "@/lib/require-admin";
 import { PlatformKhqrForm } from "@/components/admin/platform-khqr-form";
 import { PlatformTelegramPanel } from "@/components/admin/platform-telegram-panel";
+import { BakongApiSettingsForm } from "@/components/admin/bakong-api-settings-form";
 
 export default async function AdminSettingsPage() {
   const supabase = createClient();
@@ -35,6 +36,7 @@ export default async function AdminSettingsPage() {
           botUsername={settings?.telegram_bot_username ?? null}
           isConnected={Boolean(settings?.telegram_chat_id)}
         />
+        <BakongApiSettingsForm hasToken={Boolean(settings?.bakong_developer_token)} useSandbox={settings?.bakong_use_sandbox ?? true} />
       </div>
     </div>
   );

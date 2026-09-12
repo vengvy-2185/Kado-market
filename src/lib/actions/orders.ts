@@ -2,10 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import type { OrderStatus } from "@/lib/types/database.types";
 import { sendTelegramMessage } from "@/lib/telegram";
 import { checkAndNotifyLowStock } from "@/lib/low-stock";
+import { generateKhqr, khqrMd5 } from "@/lib/khqr";
+import { checkBakongTransactionByMd5 } from "@/lib/bakong-api";
 
 function randomOrderNumber() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no ambiguous chars
@@ -86,6 +88,29 @@ export async function placeOrder(formData: FormData) {
   const images = (product.product_images as { url: string; sort_order: number }[] | null) ?? [];
   const thumbnail = [...images].sort((a, b) => a.sort_order - b.sort_order)[0]?.url ?? null;
 
+  // If the store has KHQR configured, generate the exact QR the customer
+  // will see and persist it + its MD5 now — the QR embeds a timestamp, so
+  // it's different every time it's generated, and Bakong's transaction
+  // lookup is keyed on the specific hash that was actually scanned.
+  let khqrString: string | null = null;
+  let khqrMd5Hash: string | null = null;
+  const { data: storeForKhqr } = await supabase
+    .from("stores")
+    .select("store_name, city, bakong_account_id, bakong_phone")
+    .eq("id", product.store_id)
+    .single();
+  if (storeForKhqr?.bakong_account_id && storeForKhqr?.bakong_phone) {
+    khqrString = generateKhqr({
+      bakongAccountId: storeForKhqr.bakong_account_id,
+      accountInformation: storeForKhqr.bakong_phone,
+      merchantName: storeForKhqr.store_name,
+      merchantCity: storeForKhqr.city ?? "Phnom Penh",
+      amount: total,
+      currency: "USD",
+    });
+    khqrMd5Hash = khqrMd5(khqrString);
+  }
+
   // unique order_number
   let orderNumber = randomOrderNumber();
   for (let i = 0; i < 5; i++) {
@@ -111,6 +136,8 @@ export async function placeOrder(formData: FormData) {
       shipping_address: { full_name: fullName, phone, address_line: addressLine, city, province, country },
       customer_note: customerNote,
       paid_at: new Date().toISOString(),
+      khqr_string: khqrString,
+      khqr_md5: khqrMd5Hash,
     })
     .select()
     .single();
@@ -197,4 +224,59 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
   revalidatePath(`/orders/${orderId}`);
   revalidatePath("/dashboard/orders");
   revalidatePath("/account/orders");
+}
+
+export async function verifyBakongPayment(orderId: string): Promise<
+  | { status: "success"; amount: number; currency: string; fromAccountId: string }
+  | { status: "not_found" | "failed" | "error" | "not_configured"; message: string }
+> {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: order } = await supabase
+    .from("orders")
+    .select("id, customer_id, total, khqr_md5, stores(seller_id)")
+    .eq("id", orderId)
+    .single();
+
+  if (!order) return { status: "error", message: "Order not found." };
+
+  const store = order.stores as unknown as { seller_id: string } | null;
+  const isAllowed = order.customer_id === user.id || store?.seller_id === user.id;
+  if (!isAllowed) return { status: "error", message: "Not authorized." };
+
+  if (!order.khqr_md5) {
+    return { status: "not_configured", message: "This order doesn't have a KHQR code to verify." };
+  }
+
+  const admin = createAdminClient();
+  const { data: settings } = await admin
+    .from("platform_settings")
+    .select("bakong_developer_token, bakong_use_sandbox")
+    .eq("id", 1)
+    .single();
+
+  if (!settings?.bakong_developer_token) {
+    return { status: "not_configured", message: "Bakong verification isn't set up yet (admin needs to add a developer token)." };
+  }
+
+  const result = await checkBakongTransactionByMd5({
+    md5: order.khqr_md5,
+    token: settings.bakong_developer_token,
+    useSandbox: settings.bakong_use_sandbox,
+  });
+
+  if (result.status === "success") {
+    await supabase
+      .from("orders")
+      .update({ bakong_verified_at: new Date().toISOString() })
+      .eq("id", orderId);
+    revalidatePath(`/orders/${orderId}`);
+    return { status: "success", amount: result.amount, currency: result.currency, fromAccountId: result.fromAccountId };
+  }
+
+  return { status: result.status, message: result.message };
 }

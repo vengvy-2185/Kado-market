@@ -288,6 +288,9 @@ export interface Database {
           customer_note: string | null;
           discount_code: string | null;
           discount_amount: number;
+          khqr_string: string | null;
+          khqr_md5: string | null;
+          bakong_verified_at: string | null;
           created_at: string;
           updated_at: string;
           paid_at: string | null;
@@ -634,6 +637,8 @@ export interface Database {
           telegram_bot_token: string | null;
           telegram_bot_username: string | null;
           telegram_chat_id: string | null;
+          bakong_developer_token: string | null;
+          bakong_use_sandbox: boolean;
           updated_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["platform_settings"]["Row"]>;
