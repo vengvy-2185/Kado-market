@@ -6,6 +6,8 @@ import { StockChart } from "@/components/dashboard/stock-chart";
 import { FeaturedProducts } from "@/components/dashboard/featured-products";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { T } from "@/components/dashboard/t";
+import { DollarSign, Eye, Users, Package, ShoppingCart, AlertTriangle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -19,7 +21,7 @@ export default async function DashboardPage() {
     .eq("seller_id", user!.id)
     .single();
 
-  let stats = { products: 0, lowStock: 0, outOfStock: 0, totalViews: 0, totalRevenue: 0 };
+  let stats = { products: 0, lowStock: 0, outOfStock: 0, totalViews: 0, totalRevenue: 0, orderCount: 0, followerCount: 0 };
   let chartData: { name: string; stock: number }[] = [];
   let featured: { id: string; name: string; price: number; stock: number; thumbnail: string | null }[] = [];
   let activity: { id: string; type: string; quantity: number; reason: string | null; created_at: string; product_name: string }[] = [];
@@ -33,6 +35,8 @@ export default async function DashboardPage() {
       { data: txns },
       { data: viewRows },
       { data: revenueRows },
+      { count: orderCount },
+      { count: followerCount },
     ] = await Promise.all([
         supabase.from("products").select("*", { count: "exact", head: true }).eq("store_id", store.id),
         supabase
@@ -64,6 +68,8 @@ export default async function DashboardPage() {
           .select("total")
           .eq("store_id", store.id)
           .in("status", ["paid", "processing", "packed", "shipped", "delivered"]),
+        supabase.from("orders").select("*", { count: "exact", head: true }).eq("store_id", store.id),
+        supabase.from("store_followers").select("*", { count: "exact", head: true }).eq("store_id", store.id),
       ]);
 
     stats = {
@@ -72,6 +78,8 @@ export default async function DashboardPage() {
       outOfStock: outOfStockCount ?? 0,
       totalViews: (viewRows ?? []).reduce((sum, r) => sum + (r.view_count ?? 0), 0),
       totalRevenue: (revenueRows ?? []).reduce((sum, r) => sum + Number(r.total ?? 0), 0),
+      orderCount: orderCount ?? 0,
+      followerCount: followerCount ?? 0,
     };
 
     chartData = (products ?? []).slice(0, 6).map((p) => ({ name: p.name, stock: p.stock }));
@@ -127,33 +135,26 @@ export default async function DashboardPage() {
             )}
           </Card>
 
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-5 md:gap-4">
-            <Card className="p-4 md:p-6">
-              <p className="text-xs text-white/50 md:text-sm">Revenue</p>
-              <p className="text-xl font-bold text-success md:text-2xl">${stats.totalRevenue.toFixed(2)}</p>
-            </Card>
-            <Card className="p-4 md:p-6">
-              <p className="text-xs text-white/50 md:text-sm">Views</p>
-              <p className="text-xl font-bold md:text-2xl">{stats.totalViews}</p>
-            </Card>
-            <Card className="p-4 md:p-6">
-              <p className="text-xs text-white/50 md:text-sm">
-                <T k="products" />
-              </p>
-              <p className="text-xl font-bold md:text-2xl">{stats.products}</p>
-            </Card>
-            <Card className="p-4 md:p-6">
-              <p className="text-xs text-white/50 md:text-sm">
-                <T k="low_stock" />
-              </p>
-              <p className="text-xl font-bold text-warning md:text-2xl">{stats.lowStock}</p>
-            </Card>
-            <Card className="p-4 md:p-6">
-              <p className="text-xs text-white/50 md:text-sm">
-                <T k="out_of_stock" />
-              </p>
-              <p className="text-xl font-bold text-danger md:text-2xl">{stats.outOfStock}</p>
-            </Card>
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6 md:gap-4">
+            {[
+              { label: "Revenue", value: `$${stats.totalRevenue.toFixed(2)}`, icon: DollarSign, color: "bg-emerald-500/15 text-emerald-400" },
+              { label: "Views", value: stats.totalViews, icon: Eye, color: "bg-blue-500/15 text-blue-400" },
+              { label: "Followers", value: stats.followerCount, icon: Users, color: "bg-purple-500/15 text-purple-400" },
+              { label: "Products", value: stats.products, icon: Package, color: "bg-amber-500/15 text-amber-400" },
+              { label: "Orders", value: stats.orderCount, icon: ShoppingCart, color: "bg-pink-500/15 text-pink-400" },
+              { label: "Low Stock", value: stats.lowStock, icon: AlertTriangle, color: "bg-orange-500/15 text-orange-400" },
+            ].map((stat) => {
+              const Icon = stat.icon;
+              return (
+                <Card key={stat.label} className="p-4">
+                  <span className={cn("mb-2 flex h-9 w-9 items-center justify-center rounded-xl", stat.color)}>
+                    <Icon className="h-4.5 w-4.5" />
+                  </span>
+                  <p className="text-xs text-white/50">{stat.label}</p>
+                  <p className="text-lg font-bold md:text-xl">{stat.value}</p>
+                </Card>
+              );
+            })}
           </div>
 
           <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">

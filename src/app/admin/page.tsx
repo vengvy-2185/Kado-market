@@ -1,4 +1,4 @@
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, XCircle, Users, Store, Clock, LifeBuoy, CreditCard, Bot, Zap } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { AdminBarChart } from "@/components/admin/admin-bar-chart";
@@ -97,37 +97,42 @@ export default async function AdminPage() {
       <h1 className="mb-6 text-2xl font-bold">Admin Dashboard</h1>
 
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Card className="p-4">
-          <p className="text-xs text-white/50">Total Users</p>
-          <p className="text-xl font-bold md:text-2xl">{userCount ?? 0}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-xs text-white/50">Total Stores</p>
-          <p className="text-xl font-bold md:text-2xl">{storeCount ?? 0}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-xs text-white/50">Pending Review</p>
-          <p className="text-xl font-bold text-warning md:text-2xl">{pendingStoreCount ?? 0}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-xs text-white/50">Open Tickets</p>
-          <p className="text-xl font-bold text-highlight md:text-2xl">{openTicketCount ?? 0}</p>
-        </Card>
+        {[
+          { label: "Total Users", value: userCount ?? 0, icon: Users, color: "bg-blue-500/15 text-blue-400" },
+          { label: "Total Stores", value: storeCount ?? 0, icon: Store, color: "bg-purple-500/15 text-purple-400" },
+          { label: "Pending Review", value: pendingStoreCount ?? 0, icon: Clock, color: "bg-amber-500/15 text-amber-400" },
+          { label: "Open Tickets", value: openTicketCount ?? 0, icon: LifeBuoy, color: "bg-pink-500/15 text-pink-400" },
+        ].map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <Card key={stat.label} className="p-4">
+              <span className={cn("mb-2 flex h-9 w-9 items-center justify-center rounded-xl", stat.color)}>
+                <Icon className="h-4.5 w-4.5" />
+              </span>
+              <p className="text-xs text-white/50">{stat.label}</p>
+              <p className="text-xl font-bold md:text-2xl">{stat.value}</p>
+            </Card>
+          );
+        })}
       </div>
 
       <div className="mb-6 grid grid-cols-3 gap-3">
-        <Card className="p-4">
-          <p className="text-xs text-white/50">Active store plans</p>
-          <p className="text-xl font-bold md:text-2xl">{activeStoreSubs ?? 0}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-xs text-white/50">Active AI plans</p>
-          <p className="text-xl font-bold md:text-2xl">{activeAiSubs ?? 0}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-xs text-white/50">Active boosts</p>
-          <p className="text-xl font-bold md:text-2xl">{activeBoosts ?? 0}</p>
-        </Card>
+        {[
+          { label: "Active store plans", value: activeStoreSubs ?? 0, icon: CreditCard, color: "bg-emerald-500/15 text-emerald-400" },
+          { label: "Active AI plans", value: activeAiSubs ?? 0, icon: Bot, color: "bg-cyan-500/15 text-cyan-400" },
+          { label: "Active boosts", value: activeBoosts ?? 0, icon: Zap, color: "bg-orange-500/15 text-orange-400" },
+        ].map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <Card key={stat.label} className="p-4">
+              <span className={cn("mb-2 flex h-9 w-9 items-center justify-center rounded-xl", stat.color)}>
+                <Icon className="h-4.5 w-4.5" />
+              </span>
+              <p className="text-xs text-white/50">{stat.label}</p>
+              <p className="text-xl font-bold md:text-2xl">{stat.value}</p>
+            </Card>
+          );
+        })}
       </div>
 
       <div className="mb-6 grid gap-4 lg:grid-cols-2">

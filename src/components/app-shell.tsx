@@ -58,11 +58,9 @@ export async function AppShell({
       <AppSidebar isLoggedIn={Boolean(user)} hasStore={hasStore} />
       <div className="flex min-w-0 flex-1 flex-col">
         <SiteHeader showCategories={showCategories} searchDefaultValue={searchDefaultValue} activeCategory={activeCategory} />
-        <div className="mx-auto flex w-full max-w-6xl flex-1 pb-20 lg:pb-8">
-          <main className="min-w-0 flex-1">{children}</main>
-          {rightPanel && <HomeRightPanel chatUnreadCount={chatUnreadCount} />}
-        </div>
+        <main className="mx-auto w-full max-w-4xl flex-1 pb-20 lg:pb-8">{children}</main>
       </div>
+      {rightPanel && <HomeRightPanel chatUnreadCount={chatUnreadCount} />}
       <MobileBottomNav isLoggedIn={Boolean(user)} cartCount={cartCount} favoritesCount={favoritesCount} chatUnreadCount={chatUnreadCount} />
     </div>
   );

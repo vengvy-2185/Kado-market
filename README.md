@@ -1516,6 +1516,28 @@ identically everywhere:
   page not yet identified. A screenshot of the browser's address bar at
   the moment of the error would resolve this quickly.
 
+## Phase 63 — Right panel actually fixed now, richer carousel, colorful dashboard stats
+
+- **Fixed the real reason the right panel still scrolled**: it was nested
+  one level too deep — inside the content column, *after* `SiteHeader` —
+  instead of being a direct sibling of `AppSidebar` at the outermost
+  level. Since it didn't start at the very top of the page (y=0), its
+  `h-screen` height didn't correctly span the page's full scrollable
+  height the same way the sidebar's does, so it "ran out" of sticky room
+  earlier than the sidebar and appeared to scroll. Moved it to be a true
+  top-level sibling — same structural fix that made `AppSidebar` correct.
+- **Hero carousel visual polish** — layered blur shapes (one now gently
+  floating), a subtle repeating dot-grid texture, a soft icon badge
+  instead of a bare icon, a per-slide gradient tint, hover-reveal
+  prev/next arrows, and a hover scale effect on the CTA button.
+- **Seller Dashboard and Admin Dashboard stat cards redesigned** with
+  colorful icon badges matching the provided reference (each stat gets
+  its own colored icon chip — emerald for revenue, blue for views/users,
+  purple for followers/stores, etc.). Added two genuinely new real stats
+  to the seller dashboard that weren't tracked before: **order count**
+  and **follower count** (the latter using the `store_followers` table
+  from Phase 57) — not placeholders, real `count` queries.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,
