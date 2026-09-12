@@ -1488,6 +1488,34 @@ identically everywhere:
   content layout instead, since having two different sidebars on one
   page was itself part of the problem.
 
+## Phase 62 — Fixed active-link bug, right panel now truly fixed, carousel height jump, store sticky header
+
+- **Fixed "Home" and "All Categories" both showing active at once**:
+  `"/#categories".split("#")[0]` evaluates to `"/"`, so
+  `pathname.startsWith("/")` was true on *every* page — a genuine logic
+  bug, not a styling issue. Hash-fragment links are now never treated as
+  the "active" nav item at all, since they don't represent a distinct
+  route.
+- **`HomeRightPanel` now uses the same proven fixed pattern as the main
+  sidebar** (`xl:sticky xl:top-0 xl:h-screen`) — it still scrolled with
+  the page before because it never got the fix applied to the left
+  sidebar.
+- **Fixed the hero carousel visibly growing/shrinking** between slides —
+  each slide's text was a different length, so the container's height
+  changed every 5 seconds. Gave the slide content a fixed `min-height`.
+- **Store page: cover + shop header now stay in place while only the
+  product list scrolls** — wrapped the back button, cover photo, and
+  shop header/buttons in their own sticky block positioned just below
+  the main site header, separate from the products/reviews column below
+  it, matching the requested "only the product area scrolls" behavior
+  specifically for this page.
+- **On the still-reported error page**: this needs the exact page/URL
+  where it happens to fix with confidence — the two most likely causes
+  are (a) a still-unrun migration for a table a page queries (see the
+  Phase 61 migration list), or (b) a genuine remaining bug on a specific
+  page not yet identified. A screenshot of the browser's address bar at
+  the moment of the error would resolve this quickly.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

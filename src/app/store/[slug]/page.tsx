@@ -152,7 +152,7 @@ export default async function StorePage({ params }: { params: { slug: string } }
   return (
     <AppShell>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(storeJsonLd) }} />
-      <div className="px-4 md:px-6">
+      <div className="lg:sticky lg:top-16 lg:z-20 lg:bg-background lg:px-4 lg:pb-3 lg:pt-2 md:px-6 px-4">
         <div className="mb-4 mt-4">
           <BackButton />
         </div>
@@ -223,7 +223,9 @@ export default async function StorePage({ params }: { params: { slug: string } }
               </div>
             )}
           </div>
+        </div>
 
+        <div className="px-4 md:px-6">
         <div className="flex flex-col gap-6 pb-16 xl:flex-row">
           <div id="store-top" className="min-w-0 flex-1">
           <StoryBar groups={storyGroups} />
@@ -263,7 +265,7 @@ export default async function StorePage({ params }: { params: { slug: string } }
           storeUrl={`${siteUrl}/store/${store.slug}`}
         />
         </div>
-      </div>
+        </div>
     </AppShell>
   );
 }

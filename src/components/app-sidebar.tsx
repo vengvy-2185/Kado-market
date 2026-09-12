@@ -29,7 +29,8 @@ export function AppSidebar({ isLoggedIn, hasStore }: { isLoggedIn: boolean; hasS
 
       <nav className="no-scrollbar flex-1 space-y-1 overflow-y-auto p-3">
         {links.map((link) => {
-          const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href.split("#")[0]) && link.href !== "/";
+          const isHashLink = link.href.includes("#");
+          const isActive = isHashLink ? false : link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
           const Icon = link.icon;
           return (
             <Link

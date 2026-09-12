@@ -10,7 +10,8 @@ export function HomeRightPanel({ chatUnreadCount }: { chatUnreadCount: number })
   ];
 
   return (
-    <aside className="hidden w-64 flex-shrink-0 space-y-4 border-l border-white/10 p-4 xl:block">
+    <aside className="no-scrollbar hidden w-64 flex-shrink-0 overflow-y-auto border-l border-white/10 xl:sticky xl:top-0 xl:block xl:h-screen">
+      <div className="space-y-4 p-4">
       <div className="rounded-2xl border border-white/10 bg-surface/40 p-4">
         <p className="mb-3 text-sm font-bold text-white/80">Quick Access</p>
         <div className="space-y-1">
@@ -51,6 +52,7 @@ export function HomeRightPanel({ chatUnreadCount }: { chatUnreadCount: number })
           Shop deals <ChevronRight className="h-3.5 w-3.5" />
         </span>
       </Link>
+      </div>
     </aside>
   );
 }

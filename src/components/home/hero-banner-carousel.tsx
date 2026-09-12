@@ -44,7 +44,7 @@ export function HeroBannerCarousel() {
     <div className="relative mb-6 overflow-hidden rounded-2xl bg-brand-gradient">
       <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
       <div className="absolute -bottom-10 left-1/3 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
-      <div key={index} className="relative animate-fade-in px-6 py-8 md:px-10 md:py-12">
+      <div key={index} className="relative flex min-h-[190px] animate-fade-in flex-col justify-center px-6 py-8 md:min-h-[210px] md:px-10 md:py-12">
         <Icon className="mb-3 h-8 w-8 text-white/90" />
         <h2 className="mb-1.5 text-xl font-extrabold text-white md:text-2xl">{slide.title}</h2>
         <p className="mb-4 max-w-md text-sm text-white/80">{slide.subtitle}</p>
