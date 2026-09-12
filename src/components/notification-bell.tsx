@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { Bell, Check } from "lucide-react";
+import { Bell, Check, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { markNotificationRead, markAllNotificationsRead } from "@/lib/actions/notifications";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,7 @@ type Notification = {
 export function NotificationBell({ userId, initialNotifications }: { userId: string; initialNotifications: Notification[] }) {
   const [notifications, setNotifications] = useState(initialNotifications);
   const [open, setOpen] = useState(false);
+  const [toast, setToast] = useState<Notification | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
@@ -31,7 +32,9 @@ export function NotificationBell({ userId, initialNotifications }: { userId: str
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
         (payload) => {
-          setNotifications((prev) => [payload.new as Notification, ...prev].slice(0, 20));
+          const n = payload.new as Notification;
+          setNotifications((prev) => [n, ...prev].slice(0, 20));
+          setToast(n);
         }
       )
       .subscribe();
@@ -40,6 +43,12 @@ export function NotificationBell({ userId, initialNotifications }: { userId: str
       supabase.removeChannel(channel);
     };
   }, [userId]);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 6000);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -59,6 +68,37 @@ export function NotificationBell({ userId, initialNotifications }: { userId: str
 
   return (
     <div className="relative" ref={panelRef}>
+      {toast && (
+        <div className="fixed right-4 top-20 z-[60] w-80 max-w-[calc(100vw-2rem)] animate-fade-in-up rounded-2xl border border-primary/30 bg-surface p-4 shadow-2xl">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-start gap-2.5">
+              <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/15">
+                <Bell className="h-4 w-4 text-primary" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold">{toast.title}</p>
+                <p className="mt-0.5 text-xs text-white/60">{toast.message}</p>
+              </div>
+            </div>
+            <button onClick={() => setToast(null)} className="flex-shrink-0 text-white/30 hover:text-white">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          {toast.link && (
+            <Link
+              href={toast.link}
+              onClick={() => {
+                handleOpenNotification(toast);
+                setToast(null);
+              }}
+              className="mt-2 inline-block text-xs font-semibold text-accent hover:underline"
+            >
+              View →
+            </Link>
+          )}
+        </div>
+      )}
+
       <button
         onClick={() => setOpen((o) => !o)}
         className="relative rounded-full border border-white/10 bg-white/5 p-2.5 text-white/70 hover:bg-white/10"

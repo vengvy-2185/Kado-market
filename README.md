@@ -1582,6 +1582,24 @@ identically everywhere:
   to the category row already visible at the top of the home page, which
   wasn't worth a dedicated nav item.
 
+## Phase 67 — Removed redundant mobile nav item, online indicator, real-time notification toast
+
+- **Removed "Products" from the mobile bottom nav** — same reasoning as
+  removing "All Categories" from the desktop sidebar earlier: it only
+  scrolled to the category row already visible at the top of the home
+  page. Mobile nav is now Menu, Home, Cart, Profile.
+- **Green "online" indicator on the current user's own avatar**
+  (`SiteHeader`) — a small dot badge, matching the reference mockup.
+  This reflects "I'm logged in and viewing the app right now," not a
+  full presence system tracking other users' online/offline state (that
+  would need Supabase Presence channels — a bigger feature to build
+  separately if genuinely wanted for showing *other* people's status).
+- **Real-time notification pop-up toast** — `NotificationBell` already
+  had a live Realtime subscription for new notifications (updating the
+  badge count silently); it now also shows a dismissible toast card in
+  the corner the moment a new one arrives, auto-dismissing after 6
+  seconds, with a "View →" link straight to it if it has one.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Heart, ShoppingCart, MessageCircle, User, LogIn, Grid3x3, Menu as MenuIcon, X, Store, ShoppingBag, Settings } from "lucide-react";
+import { Home, Heart, ShoppingCart, MessageCircle, User, LogIn, Menu as MenuIcon, X, Store, ShoppingBag, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/lib/i18n/language-context";
 
@@ -26,7 +26,6 @@ export function MobileBottomNav({
     ? [
         { href: "#menu", label: "Menu", icon: MenuIcon, badge: 0, isMenu: true },
         { href: "/", label: t("bottom_nav_home"), icon: Home, badge: 0 },
-        { href: "/#categories", label: "Products", icon: Grid3x3, badge: 0 },
         { href: "/cart", label: t("bottom_nav_cart"), icon: ShoppingCart, badge: cartCount },
         { href: "/account/profile", label: t("bottom_nav_profile"), icon: User, badge: 0 },
       ]

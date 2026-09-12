@@ -63,6 +63,7 @@ export async function SiteHeader({
                     <User className="h-4 w-4" />
                   </div>
                 )}
+                <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-background bg-success" title="Online" />
               </Link>
               <form action="/auth/signout" method="post">
                 <button
