@@ -1202,6 +1202,29 @@ production build. This phase actually ran `next build` end-to-end (not just
   `askAiAssistant()`, so there's no independent "other party" message to
   poll for the way there is in human-to-human chat.
 
+## Phase 52 — Real Khmer text support in PDF invoices (verified rendering)
+
+- **Fixed Khmer text showing as garbage/wrong characters in invoice
+  PDFs**: `pdfkit`'s built-in fonts (Helvetica, the "standard 14" PDF
+  fonts) have **zero Khmer glyphs** — any Khmer text (product names,
+  customer names, addresses) was being rendered with a font that
+  literally cannot represent those characters, so it came out wrong no
+  matter what. Fixed by embedding a real Khmer-supporting font,
+  **Noto Sans Khmer** (Google, OFL-licensed, covers Khmer + Latin + digits
+  in one file) at `src/lib/fonts/NotoSansKhmer-Regular.ttf`, registered
+  once via `doc.font(...)` so it applies to the whole invoice — no need to
+  switch fonts depending on which language a given field happens to be in.
+- **This was actually verified, not just assumed to work**: generated a
+  real test PDF with pdfkit + this exact font, converted it to an image
+  with `pdftoppm`, and visually confirmed the Khmer glyphs render
+  correctly (proper shaping, not boxes or mismatched characters) before
+  shipping this.
+- **Also covered the Vercel serverless bundling gap** from Phase 49 — the
+  custom font file is now included in `outputFileTracingIncludes`
+  alongside pdfkit's own font data, so it's actually present in the
+  deployed function (the same class of issue as the original PDF crash,
+  now handled for this font too).
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

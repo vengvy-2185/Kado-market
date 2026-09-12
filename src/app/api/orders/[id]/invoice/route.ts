@@ -1,8 +1,16 @@
 import { NextResponse } from "next/server";
+import path from "path";
 import PDFDocument from "pdfkit";
 import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
+
+// Bundled locally (not fetched at runtime) so it's always available —
+// pdfkit's built-in fonts (Helvetica etc.) have zero Khmer glyphs, so
+// without a real Khmer-supporting font registered, any Khmer text in an
+// order (product names, addresses, customer names) renders as garbage.
+// Noto Sans Khmer (Google, OFL-licensed) covers both Khmer and Latin.
+const KHMER_FONT_PATH = path.join(process.cwd(), "src/lib/fonts/NotoSansKhmer-Regular.ttf");
 
 async function fetchImageBuffer(url: string | null): Promise<Buffer | null> {
   if (!url) return null;
@@ -39,6 +47,17 @@ function generateInvoicePdf(params: {
     doc.on("data", (chunk) => chunks.push(chunk));
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
+
+    // Use the Khmer-capable font for the whole document — it also
+    // renders Latin text and numbers fine, so there's no need to switch
+    // fonts depending on what language a given field happens to be in.
+    try {
+      doc.font(KHMER_FONT_PATH);
+    } catch {
+      // If the font file is somehow missing at runtime, fall back to
+      // pdfkit's default rather than crashing the whole invoice — Latin
+      // text will still render correctly, only Khmer text would be affected.
+    }
 
     // Header — the seller's own store branding first (this is their
     // receipt to their customer), KADO MARKET as the small platform note.

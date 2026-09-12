@@ -54,7 +54,7 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ["pdfkit"],
     outputFileTracingIncludes: {
-      "/api/orders/[id]/invoice": ["./node_modules/pdfkit/js/data/**/*"],
+      "/api/orders/[id]/invoice": ["./node_modules/pdfkit/js/data/**/*", "./src/lib/fonts/**/*"],
     },
   },
 };
