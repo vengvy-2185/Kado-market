@@ -1538,6 +1538,19 @@ identically everywhere:
   and **follower count** (the latter using the `store_followers` table
   from Phase 57) — not placeholders, real `count` queries.
 
+## Phase 64 — Softer glow instead of harsh rings, hover states everywhere
+
+- **Category circle "active" state** replaced the stark `ring-2
+  ring-white/70` hard border with a soft colored glow (blurred
+  `box-shadow`) — same idea (show what's selected) without the jarring
+  bright outline. Also added a proper hover state (scale up slightly +
+  brighten) that was missing entirely — before this, only the pressed
+  (`active:`) state had any feedback.
+- **Filled in missing hover states** found while auditing: `PopularShopsRow`
+  avatars (no feedback at all before), the primary "Follow" button
+  (only the "Following" state had a hover), and the "Buy" button in
+  `QuickActions` (present on every product card).
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

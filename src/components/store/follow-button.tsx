@@ -41,8 +41,10 @@ export function FollowButton({
       onClick={toggle}
       disabled={isPending}
       className={cn(
-        "flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-60",
-        following ? "border border-white/15 bg-white/5 text-white/70 hover:bg-danger/10 hover:text-danger" : "bg-brand-gradient text-white"
+        "flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 disabled:opacity-60",
+        following
+          ? "border border-white/15 bg-white/5 text-white/70 hover:bg-danger/10 hover:text-danger"
+          : "bg-brand-gradient text-white hover:brightness-110 hover:shadow-[0_0_16px_rgba(168,85,247,0.5)]"
       )}
     >
       {following ? <UserCheck className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}

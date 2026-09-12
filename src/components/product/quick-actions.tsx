@@ -58,7 +58,7 @@ export function QuickActions({
       <button
         onClick={handleBuyNow}
         aria-label="Buy now"
-        className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-brand-gradient py-1.5 text-xs font-semibold"
+        className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-brand-gradient py-1.5 text-xs font-semibold transition-all hover:brightness-110"
       >
         <Zap className="h-3.5 w-3.5" />
         {t("product_card_buy")}
