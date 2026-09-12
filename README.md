@@ -1600,6 +1600,27 @@ identically everywhere:
   the corner the moment a new one arrives, auto-dismissing after 6
   seconds, with a "View →" link straight to it if it has one.
 
+## Phase 68 — Fixed clipped online dot, "All" tab icon control, Google sign-in error handling
+
+- **Fixed the green online dot being clipped into a crescent shape** — it
+  was a child of the avatar's `overflow-hidden rounded-full` container,
+  so the circular clip-path cut it off. Restructured so the badge is a
+  sibling positioned over the avatar instead of inside it.
+- **"All" category tab can now have a custom icon too** — it isn't a real
+  row in the `categories` table (it's a hardcoded UI element), so it
+  couldn't use Phase 65's per-category icon upload. Added a dedicated
+  control for it on `/admin/categories` (`platform_settings.all_category_icon_url`,
+  migration `0052`), auto-recolored white the same way per-category icons are.
+- **Made Google sign-in fail loudly instead of silently** when it can't
+  actually complete — previously, if the OAuth request itself failed
+  (most likely cause: the Google provider not yet configured in Supabase,
+  per the earlier setup guide) or the callback's code exchange failed,
+  the button stayed stuck on "Redirecting..." forever with zero feedback,
+  or the user got silently bounced to the home page while still logged
+  out with no explanation either way. Both paths now show a clear message
+  ("Google sign-in isn't available right now — use email instead") on the
+  login page instead.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

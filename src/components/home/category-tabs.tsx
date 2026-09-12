@@ -20,10 +20,12 @@ export function CategoryTabs({
   categories,
   activeCategory,
   query,
+  allIconUrl,
 }: {
   categories: Category[];
   activeCategory?: string;
   query?: string;
+  allIconUrl?: string | null;
 }) {
   function hrefFor(categorySlug?: string) {
     const params = new URLSearchParams();
@@ -38,11 +40,16 @@ export function CategoryTabs({
       <Link href={hrefFor(undefined)} className="group flex w-16 flex-shrink-0 flex-col items-center gap-1.5 text-center">
         <span
           className={cn(
-            "flex h-14 w-14 items-center justify-center rounded-full text-xl shadow-lg transition-all duration-200 group-hover:scale-110 group-hover:brightness-110 group-active:scale-95",
+            "flex h-14 w-14 items-center justify-center overflow-hidden rounded-full text-xl shadow-lg transition-all duration-200 group-hover:scale-110 group-hover:brightness-110 group-active:scale-95",
             !activeCategory ? "bg-brand-gradient shadow-[0_0_24px_rgba(168,85,247,0.55)]" : "bg-white/10 group-hover:bg-white/20"
           )}
         >
-          🏷️
+          {allIconUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={allIconUrl} alt="" className="h-7 w-7 object-contain [filter:brightness(0)_invert(1)]" />
+          ) : (
+            "🏷️"
+          )}
         </span>
         <span className={cn("text-xs font-medium transition-colors", !activeCategory ? "text-white" : "text-white/50 group-hover:text-white/80")}>All</span>
       </Link>

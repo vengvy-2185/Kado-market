@@ -153,3 +153,11 @@ export async function deleteCategory(id: string) {
   revalidatePath("/admin/categories");
   revalidatePath("/");
 }
+
+export async function saveAllCategoryIcon(url: string | null) {
+  const supabase = await requireAdmin();
+  const { error } = await supabase.from("platform_settings").update({ all_category_icon_url: url }).eq("id", 1);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/categories");
+  revalidatePath("/");
+}

@@ -641,6 +641,7 @@ export interface Database {
           telegram_chat_id: string | null;
           bakong_developer_token: string | null;
           bakong_use_sandbox: boolean;
+          all_category_icon_url: string | null;
           updated_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["platform_settings"]["Row"]>;

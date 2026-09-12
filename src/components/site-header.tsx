@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { User, LogOut } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/home/search-bar";
 import { CategoryTabs } from "@/components/home/category-tabs";
@@ -39,9 +39,13 @@ export async function SiteHeader({
   }
 
   let categories: { slug: string; name: string; icon?: string | null; icon_url?: string | null }[] = [];
+  let allCategoryIconUrl: string | null = null;
   if (showCategories) {
     const { data } = await supabase.from("categories").select("slug, name, icon, icon_url").eq("is_active", true).order("sort_order");
     categories = data ?? [];
+    const admin = createAdminClient();
+    const { data: settings } = await admin.from("platform_settings").select("all_category_icon_url").eq("id", 1).single();
+    allCategoryIconUrl = settings?.all_category_icon_url ?? null;
   }
 
   return (
@@ -55,15 +59,17 @@ export async function SiteHeader({
           {user ? (
             <>
               <NotificationBell userId={user.id} initialNotifications={initialNotifications} />
-              <Link href="/account/profile" className="relative h-9 w-9 flex-shrink-0 overflow-hidden rounded-full border border-white/10 bg-white/5">
-                {avatarUrl ? (
-                  <Image src={avatarUrl} alt="Profile" fill className="object-cover" />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-white/60">
-                    <User className="h-4 w-4" />
-                  </div>
-                )}
-                <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-background bg-success" title="Online" />
+              <Link href="/account/profile" className="relative h-9 w-9 flex-shrink-0">
+                <div className="relative h-full w-full overflow-hidden rounded-full border border-white/10 bg-white/5">
+                  {avatarUrl ? (
+                    <Image src={avatarUrl} alt="Profile" fill className="object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-white/60">
+                      <User className="h-4 w-4" />
+                    </div>
+                  )}
+                </div>
+                <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background bg-success" title="Online" />
               </Link>
               <form action="/auth/signout" method="post">
                 <button
@@ -91,7 +97,9 @@ export async function SiteHeader({
         </div>
       </div>
 
-      {showCategories && <CategoryTabs categories={categories} activeCategory={activeCategory} query={searchDefaultValue} />}
+      {showCategories && (
+        <CategoryTabs categories={categories} activeCategory={activeCategory} query={searchDefaultValue} allIconUrl={allCategoryIconUrl} />
+      )}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getUserRole, isAdminRole } from "@/lib/require-admin";
 import { Card } from "@/components/ui/card";
 import { CategoryRow } from "@/components/admin/category-row";
+import { AllCategoryIconForm } from "@/components/admin/all-category-icon-form";
 import { NewCategoryForm } from "@/components/admin/new-plan-forms";
 
 export default async function AdminCategoriesPage() {
@@ -16,6 +17,7 @@ export default async function AdminCategoriesPage() {
   if (!isAdminRole(role)) redirect("/");
 
   const { data: categories } = await supabase.from("categories").select("*").order("sort_order");
+  const { data: settings } = await supabase.from("platform_settings").select("all_category_icon_url").eq("id", 1).single();
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-10">
@@ -26,6 +28,8 @@ export default async function AdminCategoriesPage() {
       <p className="mb-6 text-sm text-white/40">
         These appear as tabs on the home feed. Changes save automatically.
       </p>
+
+      <AllCategoryIconForm initialIconUrl={settings?.all_category_icon_url ?? null} />
 
       <Card>
         <NewCategoryForm />
