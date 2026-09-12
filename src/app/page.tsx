@@ -187,7 +187,7 @@ export default async function HomePage({
   }
 
   return (
-    <AppShell showCategories searchDefaultValue={searchParams.q} activeCategory={searchParams.category}>
+    <AppShell showCategories rightPanel searchDefaultValue={searchParams.q} activeCategory={searchParams.category}>
       <div className="px-4 py-6 md:px-6 md:py-8">
 
       <StoryBar groups={storyGroups} />

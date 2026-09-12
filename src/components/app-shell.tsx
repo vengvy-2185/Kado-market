@@ -2,17 +2,20 @@ import { createClient } from "@/lib/supabase/server";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { MobileBottomNav } from "@/components/home/mobile-bottom-nav";
+import { HomeRightPanel } from "@/components/home/home-right-panel";
 
 export async function AppShell({
   children,
   showCategories = false,
   searchDefaultValue,
   activeCategory,
+  rightPanel = false,
 }: {
   children: React.ReactNode;
   showCategories?: boolean;
   searchDefaultValue?: string;
   activeCategory?: string;
+  rightPanel?: boolean;
 }) {
   const supabase = createClient();
   const {
@@ -55,7 +58,10 @@ export async function AppShell({
       <AppSidebar isLoggedIn={Boolean(user)} hasStore={hasStore} />
       <div className="flex min-w-0 flex-1 flex-col">
         <SiteHeader showCategories={showCategories} searchDefaultValue={searchDefaultValue} activeCategory={activeCategory} />
-        <main className="mx-auto w-full max-w-5xl flex-1 pb-20 lg:pb-8">{children}</main>
+        <div className="mx-auto flex w-full max-w-6xl flex-1 pb-20 lg:pb-8">
+          <main className="min-w-0 flex-1">{children}</main>
+          {rightPanel && <HomeRightPanel chatUnreadCount={chatUnreadCount} />}
+        </div>
       </div>
       <MobileBottomNav isLoggedIn={Boolean(user)} cartCount={cartCount} favoritesCount={favoritesCount} chatUnreadCount={chatUnreadCount} />
     </div>

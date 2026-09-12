@@ -10,9 +10,8 @@ export function HomeRightPanel({ chatUnreadCount }: { chatUnreadCount: number })
   ];
 
   return (
-    <aside className="no-scrollbar hidden w-64 flex-shrink-0 xl:block xl:overflow-y-auto">
-      <div className="space-y-4 xl:py-8">
-        <div className="rounded-2xl border border-white/10 bg-surface/40 p-4">
+    <aside className="hidden w-64 flex-shrink-0 space-y-4 border-l border-white/10 p-4 xl:block">
+      <div className="rounded-2xl border border-white/10 bg-surface/40 p-4">
         <p className="mb-3 text-sm font-bold text-white/80">Quick Access</p>
         <div className="space-y-1">
           {quickLinks.map((link) => {
@@ -39,20 +38,19 @@ export function HomeRightPanel({ chatUnreadCount }: { chatUnreadCount: number })
             );
           })}
         </div>
-        </div>
-
-        <Link
-          href="/?sort=price_asc"
-          className="block rounded-2xl border border-highlight/20 bg-gradient-to-br from-highlight/10 to-primary/10 p-4"
-        >
-          <Gift className="mb-2 h-6 w-6 text-highlight" />
-          <p className="mb-1 text-sm font-bold">Special Offers</p>
-          <p className="mb-3 text-xs text-white/50">Browse discounted products from sellers across the marketplace.</p>
-          <span className="flex items-center gap-1 text-xs font-semibold text-highlight">
-            Shop deals <ChevronRight className="h-3.5 w-3.5" />
-          </span>
-        </Link>
       </div>
+
+      <Link
+        href="/?sort=price_asc"
+        className="block rounded-2xl border border-highlight/20 bg-gradient-to-br from-highlight/10 to-primary/10 p-4"
+      >
+        <Gift className="mb-2 h-6 w-6 text-highlight" />
+        <p className="mb-1 text-sm font-bold">Special Offers</p>
+        <p className="mb-3 text-xs text-white/50">Browse discounted products from sellers across the marketplace.</p>
+        <span className="flex items-center gap-1 text-xs font-semibold text-highlight">
+          Shop deals <ChevronRight className="h-3.5 w-3.5" />
+        </span>
+      </Link>
     </aside>
   );
 }
