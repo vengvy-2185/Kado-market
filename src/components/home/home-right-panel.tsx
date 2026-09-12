@@ -10,7 +10,7 @@ export function HomeRightPanel({ chatUnreadCount }: { chatUnreadCount: number })
   ];
 
   return (
-    <aside className="hidden w-64 flex-shrink-0 xl:block xl:overflow-y-auto">
+    <aside className="no-scrollbar hidden w-64 flex-shrink-0 xl:block xl:overflow-y-auto">
       <div className="space-y-4 xl:py-8">
         <div className="rounded-2xl border border-white/10 bg-surface/40 p-4">
         <p className="mb-3 text-sm font-bold text-white/80">Quick Access</p>

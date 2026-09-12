@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { MobileBottomNav } from "@/components/home/mobile-bottom-nav";
 import { BackButton } from "@/components/dashboard/back-button";
+import { SiteHeader } from "@/components/site-header";
+import { CustomerSidebar } from "@/components/home/customer-sidebar";
 
 export default async function ChatInboxPage() {
   const supabase = createClient();
@@ -26,7 +28,12 @@ export default async function ChatInboxPage() {
     .order("updated_at", { ascending: false });
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-10 md:px-6">
+    <main className="mx-auto flex max-w-7xl flex-col lg:h-screen lg:overflow-hidden">
+      <SiteHeader />
+      <div className="flex flex-1 gap-6 px-4 py-6 md:px-6 md:py-8 lg:overflow-hidden lg:py-0">
+        <CustomerSidebar isLoggedIn hasStore={Boolean(myStoreId)} />
+
+        <div className="no-scrollbar mx-auto min-w-0 max-w-2xl flex-1 lg:mx-0 lg:overflow-y-auto lg:py-8">
       <div className="mb-4">
         <BackButton />
       </div>
@@ -72,6 +79,8 @@ export default async function ChatInboxPage() {
       )}
 
       <div className="h-16 md:hidden" aria-hidden />
+        </div>
+      </div>
       <MobileBottomNav isLoggedIn />
     </main>
   );

@@ -230,7 +230,7 @@ export default async function StorePage({ params }: { params: { slug: string } }
         <div className="flex gap-6 pb-16 lg:sticky lg:top-0 lg:h-screen lg:items-stretch lg:overflow-hidden lg:pb-0">
           <StoreSidebar reviewCount={reviewCount ?? 0} />
 
-          <div id="store-top" className="min-w-0 flex-1 lg:overflow-y-auto lg:pb-16 lg:pt-4">
+          <div id="store-top" className="no-scrollbar min-w-0 flex-1 lg:overflow-y-auto lg:pb-16 lg:pt-4">
           <StoryBar groups={storyGroups} />
 
           {store.description && (

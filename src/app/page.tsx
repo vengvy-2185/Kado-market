@@ -205,7 +205,7 @@ export default async function HomePage({
       <div className="flex flex-1 gap-6 px-4 py-6 md:px-6 md:py-8 lg:overflow-hidden lg:py-0">
         <CustomerSidebar isLoggedIn={Boolean(user)} hasStore={Boolean(myStoreId)} />
 
-        <div className="mx-auto min-w-0 max-w-4xl flex-1 lg:mx-0 lg:overflow-y-auto lg:py-8">
+        <div className="no-scrollbar mx-auto min-w-0 max-w-4xl flex-1 lg:mx-0 lg:overflow-y-auto lg:py-8">
 
       <StoryBar groups={storyGroups} />
       {!isFiltered && <HeroBannerCarousel />}

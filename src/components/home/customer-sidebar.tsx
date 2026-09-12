@@ -19,7 +19,7 @@ export function CustomerSidebar({ isLoggedIn, hasStore }: { isLoggedIn: boolean;
   ];
 
   return (
-    <aside className="hidden w-56 flex-shrink-0 lg:block lg:overflow-y-auto">
+    <aside className="no-scrollbar hidden w-56 flex-shrink-0 lg:block lg:overflow-y-auto">
       <div className="space-y-4 lg:py-8">
         <nav className="space-y-1 rounded-2xl border border-white/10 bg-surface/40 p-3">
           {links.map((link) => {

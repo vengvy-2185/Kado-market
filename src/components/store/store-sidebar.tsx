@@ -15,7 +15,7 @@ export function StoreSidebar({ reviewCount }: { reviewCount: number }) {
   ];
 
   return (
-    <aside className="hidden w-56 flex-shrink-0 lg:block lg:overflow-y-auto lg:py-4">
+    <aside className="no-scrollbar hidden w-56 flex-shrink-0 lg:block lg:overflow-y-auto lg:py-4">
       <nav className="space-y-1 rounded-2xl border border-white/10 bg-surface/40 p-3">
         {items.map((item) => {
           const Icon = item.icon;

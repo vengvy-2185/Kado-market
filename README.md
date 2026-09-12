@@ -1441,6 +1441,18 @@ rather than faked.
   explicitly as the next thing to pick up rather than leaving it silently
   incomplete.
 
+## Phase 60 — Hidden internal scrollbars, sidebar added to Chat page
+
+- **Hid the visible scrollbars** on every internally-scrolling pane from
+  Phase 59's app-shell layout (home page center column, store page center
+  column, and all four sidebar/panel asides) using the existing
+  `.no-scrollbar` utility — they still scroll perfectly via mouse wheel,
+  trackpad, or touch, just without an ugly scrollbar bar rendering in the
+  middle of the screen.
+- **Chat inbox (`/chat`) now has the same sidebar + app-shell layout**
+  as the home and store pages — was previously a bare page with no
+  `SiteHeader` or sidebar at all.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,
