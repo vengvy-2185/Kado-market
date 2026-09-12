@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import Image from "next/image";
-import { Download } from "lucide-react";
+import { Download, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { OrderStatusControl } from "@/components/product/order-status-control";
@@ -86,23 +86,31 @@ export default async function OrderDetailPage({ params }: { params: { id: string
       {(order.khqr_string || (store?.bakong_account_id && store?.bakong_phone)) && (
         <Card className="mb-4 flex flex-col items-center gap-2">
           <h2 className="text-sm font-semibold text-white/70">Pay via KHQR</h2>
-          <KhqrDisplay
-            khqrString={
-              order.khqr_string ??
-              generateKhqr({
-                bakongAccountId: store!.bakong_account_id!,
-                accountInformation: store!.bakong_phone!,
-                merchantName: store!.store_name,
-                merchantCity: store!.city ?? "Phnom Penh",
-                amount: Number(order.total),
-                currency: "USD",
-              })
-            }
-            merchantName={store?.store_name ?? ""}
-            amountLabel={`$${order.total}`}
-          />
-          <p className="text-xs text-white/40">Scan with any Cambodian banking app to pay</p>
-          {order.khqr_md5 && <BakongVerifyButton orderId={order.id} verifiedAt={order.bakong_verified_at} />}
+          {order.payment_status === "success" || order.bakong_verified_at ? (
+            <p className="flex items-center gap-1.5 py-2 text-sm font-semibold text-success">
+              <CheckCircle2 className="h-4 w-4" /> Payment received — no need to scan again
+            </p>
+          ) : (
+            <>
+              <KhqrDisplay
+                khqrString={
+                  order.khqr_string ??
+                  generateKhqr({
+                    bakongAccountId: store!.bakong_account_id!,
+                    accountInformation: store!.bakong_phone!,
+                    merchantName: store!.store_name,
+                    merchantCity: store!.city ?? "Phnom Penh",
+                    amount: Number(order.total),
+                    currency: "USD",
+                  })
+                }
+                merchantName={store?.store_name ?? ""}
+                amountLabel={`$${order.total}`}
+              />
+              <p className="text-xs text-white/40">Scan with any Cambodian banking app to pay</p>
+              {order.khqr_md5 && <BakongVerifyButton orderId={order.id} verifiedAt={order.bakong_verified_at} />}
+            </>
+          )}
         </Card>
       )}
 

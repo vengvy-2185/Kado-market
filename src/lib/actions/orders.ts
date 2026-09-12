@@ -226,9 +226,12 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
   revalidatePath("/account/orders");
 }
 
+const DAILY_QUOTA_SAFETY_LIMIT = 90; // stay under NBC's hard 100/day cap with a buffer
+const PER_ORDER_COOLDOWN_MS = 60_000; // don't let one order's repeated clicks burn the shared quota
+
 export async function verifyBakongPayment(orderId: string): Promise<
   | { status: "success"; amount: number; currency: string; fromAccountId: string }
-  | { status: "not_found" | "failed" | "error" | "not_configured"; message: string }
+  | { status: "not_found" | "failed" | "error" | "not_configured" | "rate_limited"; message: string }
 > {
   const supabase = createClient();
   const {
@@ -238,7 +241,7 @@ export async function verifyBakongPayment(orderId: string): Promise<
 
   const { data: order } = await supabase
     .from("orders")
-    .select("id, customer_id, total, khqr_md5, stores(seller_id)")
+    .select("id, customer_id, total, khqr_md5, bakong_last_checked_at, stores(seller_id)")
     .eq("id", orderId)
     .single();
 
@@ -252,6 +255,16 @@ export async function verifyBakongPayment(orderId: string): Promise<
     return { status: "not_configured", message: "This order doesn't have a KHQR code to verify." };
   }
 
+  // Per-order cooldown — stops one person's repeated clicks alone from
+  // eating meaningfully into the shared daily quota.
+  if (order.bakong_last_checked_at) {
+    const elapsed = Date.now() - new Date(order.bakong_last_checked_at).getTime();
+    if (elapsed < PER_ORDER_COOLDOWN_MS) {
+      const waitSeconds = Math.ceil((PER_ORDER_COOLDOWN_MS - elapsed) / 1000);
+      return { status: "rate_limited", message: `Please wait ${waitSeconds}s before checking again.` };
+    }
+  }
+
   const admin = createAdminClient();
   const { data: settings } = await admin
     .from("platform_settings")
@@ -262,6 +275,25 @@ export async function verifyBakongPayment(orderId: string): Promise<
   if (!settings?.bakong_developer_token) {
     return { status: "not_configured", message: "Bakong verification isn't set up yet (admin needs to add a developer token)." };
   }
+
+  // Platform-wide daily quota — NBC allows only 100 requests/day total for
+  // the whole integration, shared across every store and order.
+  const since = new Date();
+  since.setHours(0, 0, 0, 0);
+  const { count: callsToday } = await admin
+    .from("bakong_api_calls")
+    .select("*", { count: "exact", head: true })
+    .gte("called_at", since.toISOString());
+
+  if ((callsToday ?? 0) >= DAILY_QUOTA_SAFETY_LIMIT) {
+    return {
+      status: "rate_limited",
+      message: "Today's Bakong verification quota is used up — please check your banking app directly, or try again tomorrow.",
+    };
+  }
+
+  await supabase.from("orders").update({ bakong_last_checked_at: new Date().toISOString() }).eq("id", orderId);
+  await admin.from("bakong_api_calls").insert({ order_id: orderId });
 
   const result = await checkBakongTransactionByMd5({
     md5: order.khqr_md5,

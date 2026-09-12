@@ -1282,6 +1282,39 @@ code — built against the **official NBC Bakong Open API PDF spec**
   specific call, or a relay service (the admin settings panel flags this
   rather than silently failing).
 
+## Phase 55 — Bakong quota protection, hide QR when paid, bulk duplicate products
+
+- **Protected the shared 100/day Bakong quota** (migration `0049`): two
+  layers, both server-side (a client-side cooldown alone can't stop a
+  determined or buggy client from burning the quota). A per-order
+  60-second cooldown (`orders.bakong_last_checked_at`) stops one person's
+  repeated clicks from mattering much, and a platform-wide daily counter
+  (`bakong_api_calls`) refuses to call NBC at all once 90 calls have
+  happened today (a safety buffer under the real 100 cap), returning a
+  clear "quota used up, check your banking app directly" message instead.
+- **QR now hides once payment is confirmed** on `/orders/[id]` — checked
+  against both `bakong_verified_at` (real Bakong confirmation) and
+  `payment_status === 'success'` (so demo-mode orders, which are marked
+  paid immediately, don't show a stale "scan to pay" QR either). Replaced
+  with a plain "Payment received" confirmation. The subscription/boost/AI
+  plan QR toggles were checked too — those already have a manual
+  show/hide button and aren't tied to the order-verification flow, so
+  they didn't need this change.
+- **Bulk select + duplicate for products** (`/dashboard/products`) —
+  press-and-hold (or click, once in selection mode) any product to enter
+  selection mode, with a "Select all" toggle and a bottom action bar to
+  duplicate everything selected in one action. Duplicates land as
+  **drafts** (never auto-published) with images copied over, so the
+  seller can adjust the name/price/stock before making them live — useful
+  for near-identical listings that only differ in a couple of fields.
+- **Checked into the "products need clear Size/Color options" request**:
+  this already exists end-to-end from an earlier phase — sellers can add
+  named variants (e.g. "256GB / Black") with their own price/stock on the
+  product form, and buyers see a proper "Option" dropdown on the product
+  page that adjusts price/stock/availability per choice, threading through
+  to cart and checkout correctly. No changes were needed; flagged here so
+  it's not mistaken for a gap.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

@@ -221,3 +221,62 @@ export async function updateLowStockThreshold(productId: string, threshold: numb
 
   revalidatePath("/dashboard/inventory");
 }
+
+/**
+ * Duplicates one or more of the seller's own products — copies every
+ * editable field plus product images, as a fresh draft (so the seller can
+ * review/adjust before it goes live, e.g. giving it a distinct name,
+ * updating stock, or setting size/color variants) rather than
+ * accidentally publishing an identical duplicate immediately.
+ */
+export async function duplicateProducts(productIds: string[]): Promise<{ count: number }> {
+  const { supabase, store } = await getMyStoreOrRedirect();
+  if (productIds.length === 0) return { count: 0 };
+
+  const { data: sourceProducts } = await supabase
+    .from("products")
+    .select("*, product_images(url, sort_order)")
+    .eq("store_id", store.id)
+    .in("id", productIds);
+
+  if (!sourceProducts || sourceProducts.length === 0) return { count: 0 };
+
+  let count = 0;
+  for (const source of sourceProducts) {
+    const images = (source.product_images as { url: string; sort_order: number }[] | null) ?? [];
+    const baseSlug = `${source.slug}-copy-${Date.now().toString(36)}`;
+
+    const { data: newProduct, error } = await supabase
+      .from("products")
+      .insert({
+        store_id: store.id,
+        category_id: source.category_id,
+        name: `${source.name} (Copy)`,
+        slug: baseSlug,
+        description: source.description,
+        price: source.price,
+        compare_at_price: source.compare_at_price,
+        sku: null, // SKUs should stay unique — don't carry the original over
+        brand: source.brand,
+        stock: source.stock,
+        low_stock_threshold: source.low_stock_threshold,
+        status: "draft", // always land as draft, never auto-published
+        condition: source.condition,
+        weight: source.weight,
+      })
+      .select("id")
+      .single();
+
+    if (error || !newProduct) continue;
+
+    if (images.length > 0) {
+      await supabase.from("product_images").insert(
+        images.map((img) => ({ product_id: newProduct.id, url: img.url, sort_order: img.sort_order }))
+      );
+    }
+    count++;
+  }
+
+  revalidatePath("/dashboard/products");
+  return { count };
+}

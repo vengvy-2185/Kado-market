@@ -291,6 +291,7 @@ export interface Database {
           khqr_string: string | null;
           khqr_md5: string | null;
           bakong_verified_at: string | null;
+          bakong_last_checked_at: string | null;
           created_at: string;
           updated_at: string;
           paid_at: string | null;
@@ -687,6 +688,11 @@ export interface Database {
           rating: number;
         };
         Update: Partial<Database["public"]["Tables"]["reviews"]["Row"]>;
+      };
+      bakong_api_calls: {
+        Row: { id: string; order_id: string | null; called_at: string };
+        Insert: Partial<Database["public"]["Tables"]["bakong_api_calls"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["bakong_api_calls"]["Row"]>;
       };
       notifications: {
         Row: {
