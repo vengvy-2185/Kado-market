@@ -6,6 +6,9 @@ import { PostCard } from "@/components/posts/post-card";
 import { MobileBottomNav } from "@/components/home/mobile-bottom-nav";
 import { HomeProductCard } from "@/components/home/home-product-card";
 import { ProductFilters } from "@/components/home/product-filters";
+import { CustomerSidebar } from "@/components/home/customer-sidebar";
+import { HomeRightPanel } from "@/components/home/home-right-panel";
+import { PopularShopsRow } from "@/components/home/popular-shops-row";
 import { T } from "@/components/t";
 import { StoryBar, type StoryGroup } from "@/components/stories/story-bar";
 
@@ -29,12 +32,6 @@ export default async function HomePage({
     profile = data;
   }
 
-  const { data: categories } = await supabase
-    .from("categories")
-    .select("slug, name")
-    .eq("is_active", true)
-    .order("sort_order");
-
   let categoryId: string | null = null;
   if (searchParams.category) {
     const { data: cat } = await supabase
@@ -51,8 +48,8 @@ export default async function HomePage({
     .from("products")
     .select(
       hasLocationFilter
-        ? "id, name, slug, price, compare_at_price, store_id, sales_count, product_images(url, sort_order), stores!inner(store_name, slug, verified, city, province)"
-        : "id, name, slug, price, compare_at_price, store_id, sales_count, product_images(url, sort_order), stores(store_name, slug, verified, city, province)"
+        ? "id, name, slug, price, compare_at_price, store_id, sales_count, avg_rating, review_count, product_images(url, sort_order), stores!inner(store_name, slug, verified, city, province)"
+        : "id, name, slug, price, compare_at_price, store_id, sales_count, avg_rating, review_count, product_images(url, sort_order), stores(store_name, slug, verified, city, province)"
     )
     .eq("status", "active")
     .limit(24);
@@ -147,6 +144,21 @@ export default async function HomePage({
     ? (await supabase.from("stores").select("id").eq("seller_id", user.id).maybeSingle()).data?.id ?? null
     : null;
 
+  // Popular shops — real ranking by product count, no fabricated follower numbers
+  let popularShops: { store_name: string; slug: string; verified: boolean; logo_url: string | null; product_count: number }[] = [];
+  if (!isFiltered) {
+    const { data: shopRows } = await supabase
+      .from("stores")
+      .select("store_name, slug, verified, logo_url, products(count)")
+      .eq("status", "active")
+      .limit(50);
+    popularShops = ((shopRows ?? []) as unknown as { store_name: string; slug: string; verified: boolean; logo_url: string | null; products: { count: number }[] }[])
+      .map((s) => ({ store_name: s.store_name, slug: s.slug, verified: s.verified, logo_url: s.logo_url, product_count: s.products?.[0]?.count ?? 0 }))
+      .filter((s) => s.product_count > 0)
+      .sort((a, b) => b.product_count - a.product_count)
+      .slice(0, 10);
+  }
+
   // Stories — real, expiring after 24h (filtered server-side by expires_at)
   let storyGroups: StoryGroup[] = [];
   if (!isFiltered) {
@@ -185,14 +197,18 @@ export default async function HomePage({
   }
 
   return (
-    <main className="mx-auto max-w-4xl">
+    <main className="mx-auto max-w-7xl">
       {/* Sticky header + category tabs — only the content below scrolls */}
       <SiteHeader showCategories searchDefaultValue={searchParams.q} activeCategory={searchParams.category} />
 
-      <div className="px-4 py-6 md:px-6 md:py-8">
+      <div className="flex gap-6 px-4 py-6 md:px-6 md:py-8">
+        <CustomerSidebar isLoggedIn={Boolean(user)} hasStore={Boolean(myStoreId)} />
+
+        <div className="mx-auto min-w-0 max-w-4xl flex-1 lg:mx-0">
 
       <StoryBar groups={storyGroups} />
       <ProductFilters />
+      {!isFiltered && <PopularShopsRow shops={popularShops} />}
 
       {/* Compact welcome / role links */}
       {user && profile ? (
@@ -313,6 +329,9 @@ export default async function HomePage({
         </div>
       )}
       <div className="h-16 md:hidden" aria-hidden />
+      </div>
+
+        <HomeRightPanel chatUnreadCount={chatUnreadCount} />
       </div>
       <MobileBottomNav isLoggedIn={Boolean(user)} cartCount={cartCount} favoritesCount={savedIds.size} chatUnreadCount={chatUnreadCount} />
     </main>

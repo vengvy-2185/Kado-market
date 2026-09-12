@@ -1315,6 +1315,45 @@ code — built against the **official NBC Bakong Open API PDF spec**
   to cart and checkout correctly. No changes were needed; flagged here so
   it's not mistaken for a gap.
 
+## Phase 56 — Home page redesign toward the provided mockup (real data only)
+
+Rebuilt significant parts of the home page to match a provided desktop +
+mobile mockup. Built with genuinely working functionality — anything the
+mockup implied that would need fake data (follower counts, view-history
+tracking) was either built with real data instead or explicitly deferred
+rather than faked.
+
+- **Desktop 3-column layout** — left `CustomerSidebar` (Home, All
+  Categories, My Orders, My Shop, Messages, Favorites, Settings, plus a
+  "Start Your Own Shop" card for non-sellers) and right `HomeRightPanel`
+  (Quick Access links with a real unread-chat badge, a "Special Offers"
+  card linking to price-sorted results) on `lg:`/`xl:` screens. Center
+  column keeps its familiar width; sidebars use newly-available space
+  rather than displacing existing layout. Mobile is unaffected — still
+  the bottom nav bar.
+- **Circular category icons** (`CategoryTabs` redesigned) — colorful
+  gradient circles with each category's real `icon` emoji (already a
+  column on `categories`, just never rendered before) instead of pill
+  tabs, matching the mockup. "All Categories" in the sidebar links to a
+  `#categories` anchor added to this row.
+- **Product cards now show a discount badge and star rating** — the
+  discount % is computed from `compare_at_price` vs `price` (real math,
+  not hardcoded), and the rating uses the existing `avg_rating`/
+  `review_count` columns (populated since the Phase 36 reviews feature) —
+  cards with no reviews yet simply don't show a rating line, rather than
+  showing a fake "0 stars."
+- **"Popular Shops" row** — real stores ranked by their actual product
+  count (`PopularShopsRow`), shown with a genuine verified badge if
+  applicable. The mockup showed follower counts; there's no followers
+  feature in this app yet, so product count is shown instead as an
+  honest substitute rather than inventing fake follower numbers. A
+  proper follow/followers system would be a real feature worth building
+  separately if wanted.
+- **Not built in this pass** (would need new features, not just a
+  redesign, so flagging rather than faking): a "Recently Viewed" section
+  needs product-view history tracking, and "Flash Sale" needs a
+  time-limited-discount concept — neither exists in the schema yet.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

@@ -1,7 +1,20 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-type Category = { slug: string; name: string };
+type Category = { slug: string; name: string; icon?: string | null };
+
+const CIRCLE_COLORS = [
+  "bg-gradient-to-br from-pink-500 to-rose-500",
+  "bg-gradient-to-br from-blue-500 to-cyan-500",
+  "bg-gradient-to-br from-fuchsia-500 to-pink-400",
+  "bg-gradient-to-br from-emerald-500 to-teal-500",
+  "bg-gradient-to-br from-orange-500 to-amber-500",
+  "bg-gradient-to-br from-indigo-500 to-violet-500",
+  "bg-gradient-to-br from-red-500 to-orange-500",
+  "bg-gradient-to-br from-sky-500 to-blue-400",
+  "bg-gradient-to-br from-purple-500 to-fuchsia-500",
+  "bg-gradient-to-br from-teal-500 to-emerald-400",
+];
 
 export function CategoryTabs({
   categories,
@@ -21,28 +34,35 @@ export function CategoryTabs({
   }
 
   return (
-    <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 md:-mx-6 md:px-6">
-      <Link
-        href={hrefFor(undefined)}
-        className={cn(
-          "flex-shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
-          !activeCategory ? "bg-brand-gradient text-white" : "bg-white/5 text-white/60 hover:bg-white/10"
-        )}
-      >
-        All
-      </Link>
-      {categories.map((c) => (
-        <Link
-          key={c.slug}
-          href={hrefFor(c.slug)}
+    <div id="categories" className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto px-4 pb-1 md:-mx-6 md:px-6">
+      <Link href={hrefFor(undefined)} className="flex w-16 flex-shrink-0 flex-col items-center gap-1.5 text-center">
+        <span
           className={cn(
-            "flex-shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
-            activeCategory === c.slug ? "bg-brand-gradient text-white" : "bg-white/5 text-white/60 hover:bg-white/10"
+            "flex h-14 w-14 items-center justify-center rounded-full text-xl shadow-lg transition-transform active:scale-95",
+            !activeCategory ? "bg-brand-gradient ring-2 ring-white/40" : "bg-white/10"
           )}
         >
-          {c.name}
-        </Link>
-      ))}
+          🏷️
+        </span>
+        <span className={cn("text-xs font-medium", !activeCategory ? "text-white" : "text-white/50")}>All</span>
+      </Link>
+      {categories.map((c, i) => {
+        const isActive = activeCategory === c.slug;
+        return (
+          <Link key={c.slug} href={hrefFor(c.slug)} className="flex w-16 flex-shrink-0 flex-col items-center gap-1.5 text-center">
+            <span
+              className={cn(
+                "flex h-14 w-14 items-center justify-center rounded-full text-xl shadow-lg transition-transform active:scale-95",
+                CIRCLE_COLORS[i % CIRCLE_COLORS.length],
+                isActive && "ring-2 ring-white/70"
+              )}
+            >
+              {c.icon || "🏷️"}
+            </span>
+            <span className={cn("truncate text-xs font-medium", isActive ? "text-white" : "text-white/50")}>{c.name}</span>
+          </Link>
+        );
+      })}
     </div>
   );
 }

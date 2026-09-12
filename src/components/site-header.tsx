@@ -40,7 +40,7 @@ export async function SiteHeader({
 
   let categories: { slug: string; name: string }[] = [];
   if (showCategories) {
-    const { data } = await supabase.from("categories").select("slug, name").eq("is_active", true).order("sort_order");
+    const { data } = await supabase.from("categories").select("slug, name, icon").eq("is_active", true).order("sort_order");
     categories = data ?? [];
   }
 
