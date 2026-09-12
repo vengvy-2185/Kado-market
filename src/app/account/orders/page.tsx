@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { MobileBottomNav } from "@/components/home/mobile-bottom-nav";
+import { AppShell } from "@/components/app-shell";
 import { BackButton } from "@/components/dashboard/back-button";
 import type { Database } from "@/lib/types/database.types";
 
@@ -38,7 +38,8 @@ export default async function MyOrdersPage() {
   const orders = (ordersRaw ?? []) as unknown as OrderRow[];
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10 md:px-6">
+    <AppShell>
+      <div className="mx-auto max-w-2xl px-4 py-6 md:px-6 md:py-8">
       <div className="mb-4">
         <BackButton />
       </div>
@@ -70,8 +71,7 @@ export default async function MyOrdersPage() {
           })}
         </div>
       )}
-      <div className="h-16 md:hidden" aria-hidden />
-      <MobileBottomNav isLoggedIn />
-    </div>
+      </div>
+    </AppShell>
   );
 }

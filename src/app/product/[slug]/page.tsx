@@ -6,9 +6,8 @@ import { MessageCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { BuyNowPanel } from "@/components/product/buy-now-panel";
 import { SaveButton } from "@/components/product/save-button";
-import { MobileBottomNav } from "@/components/home/mobile-bottom-nav";
 import { BackButton } from "@/components/dashboard/back-button";
-import { SiteHeader } from "@/components/site-header";
+import { AppShell } from "@/components/app-shell";
 import { startConversation } from "@/lib/actions/chat";
 import { StarRating } from "@/components/reviews/star-rating";
 import { ReviewForm } from "@/components/reviews/review-form";
@@ -123,10 +122,9 @@ export default async function ProductPage({ params }: { params: { slug: string }
   };
 
   return (
-    <main className="mx-auto max-w-4xl">
+    <AppShell>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
-      <SiteHeader />
-      <div className="px-4 py-10 md:px-6">
+      <div className="px-4 py-6 md:px-6 md:py-8">
       <div className="mb-4">
         <BackButton />
       </div>
@@ -212,10 +210,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
         ))}
         <ReviewsList reviews={reviews} />
       </div>
-
-      <div className="h-16 md:hidden" aria-hidden />
-      <MobileBottomNav isLoggedIn={Boolean(user)} />
       </div>
-    </main>
+    </AppShell>
   );
 }

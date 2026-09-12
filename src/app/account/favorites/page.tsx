@@ -5,7 +5,7 @@ import { Package } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { SaveButton } from "@/components/product/save-button";
-import { MobileBottomNav } from "@/components/home/mobile-bottom-nav";
+import { AppShell } from "@/components/app-shell";
 import { BackButton } from "@/components/dashboard/back-button";
 
 export default async function FavoritesPage() {
@@ -30,7 +30,8 @@ export default async function FavoritesPage() {
   const products = saved.map((s) => s.products).filter((p): p is NonNullable<typeof p> => Boolean(p) && p!.status === "active");
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 md:px-6">
+    <AppShell>
+      <div className="mx-auto max-w-4xl px-4 py-6 md:px-6 md:py-8">
       <div className="mb-4">
         <BackButton />
       </div>
@@ -68,8 +69,7 @@ export default async function FavoritesPage() {
           })}
         </div>
       )}
-      <div className="h-16 md:hidden" aria-hidden />
-      <MobileBottomNav isLoggedIn />
-    </div>
+      </div>
+    </AppShell>
   );
 }

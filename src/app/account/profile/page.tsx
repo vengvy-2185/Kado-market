@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EditProfileForm } from "@/components/account/edit-profile-form";
-import { MobileBottomNav } from "@/components/home/mobile-bottom-nav";
+import { AppShell } from "@/components/app-shell";
 import { BackButton } from "@/components/dashboard/back-button";
 
 export default async function ProfilePage() {
@@ -15,14 +15,14 @@ export default async function ProfilePage() {
   if (!profile) redirect("/");
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-10 md:px-6">
-      <div className="mb-4">
-        <BackButton />
+    <AppShell>
+      <div className="mx-auto max-w-lg px-4 py-6 md:px-6 md:py-8">
+        <div className="mb-4">
+          <BackButton />
+        </div>
+        <h1 className="mb-6 text-2xl font-bold">My Profile</h1>
+        <EditProfileForm profile={profile} />
       </div>
-      <h1 className="mb-6 text-2xl font-bold">My Profile</h1>
-      <EditProfileForm profile={profile} />
-      <div className="h-16 md:hidden" aria-hidden />
-      <MobileBottomNav isLoggedIn />
-    </div>
+    </AppShell>
   );
 }

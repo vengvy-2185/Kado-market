@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { CartItemRow } from "@/components/product/cart-item-row";
 import { CartStoreCheckout } from "@/components/product/cart-store-checkout";
-import { MobileBottomNav } from "@/components/home/mobile-bottom-nav";
+import { AppShell } from "@/components/app-shell";
 import { BackButton } from "@/components/dashboard/back-button";
 
 type CartRow = {
@@ -65,7 +65,8 @@ export default async function CartPage() {
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-10 md:px-6">
+    <AppShell>
+      <div className="px-4 py-6 md:px-6 md:py-8">
       <div className="mb-4">
         <BackButton />
       </div>
@@ -122,8 +123,7 @@ export default async function CartPage() {
           })}
         </div>
       )}
-      <div className="h-16 md:hidden" aria-hidden />
-      <MobileBottomNav isLoggedIn />
-    </main>
+      </div>
+    </AppShell>
   );
 }

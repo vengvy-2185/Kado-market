@@ -3,15 +3,13 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { MapPin, ShieldCheck, MessageCircle, Bot, Star } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { MobileBottomNav } from "@/components/home/mobile-bottom-nav";
 import { startConversation } from "@/lib/actions/chat";
 import { getOrStartAiThread } from "@/lib/actions/ai-assistant";
 import { BackButton } from "@/components/dashboard/back-button";
-import { SiteHeader } from "@/components/site-header";
+import { AppShell } from "@/components/app-shell";
 import { StoryBar, type StoryGroup } from "@/components/stories/story-bar";
 import { FollowButton } from "@/components/store/follow-button";
 import { CollapsibleCover } from "@/components/store/collapsible-cover";
-import { StoreSidebar } from "@/components/store/store-sidebar";
 import { StoreInfoPanel } from "@/components/store/store-info-panel";
 import { StoreProductTabs } from "@/components/store/store-product-tabs";
 import { ReviewsList } from "@/components/reviews/reviews-list";
@@ -152,9 +150,8 @@ export default async function StorePage({ params }: { params: { slug: string } }
   };
 
   return (
-    <main className="mx-auto max-w-7xl">
+    <AppShell>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(storeJsonLd) }} />
-      <SiteHeader />
       <div className="px-4 md:px-6">
         <div className="mb-4 mt-4">
           <BackButton />
@@ -165,7 +162,7 @@ export default async function StorePage({ params }: { params: { slug: string } }
           </div>
         )}
 
-        {/* Cover — full width, above the sidebar/content/panel row, with a collapse toggle */}
+        {/* Cover — full width, with a collapse toggle */}
         <CollapsibleCover coverImageUrl={store.cover_image_url} />
 
         {/* Header */}
@@ -227,19 +224,17 @@ export default async function StorePage({ params }: { params: { slug: string } }
             )}
           </div>
 
-        <div className="flex gap-6 pb-16 lg:sticky lg:top-0 lg:h-screen lg:items-stretch lg:overflow-hidden lg:pb-0">
-          <StoreSidebar reviewCount={reviewCount ?? 0} />
-
-          <div id="store-top" className="no-scrollbar min-w-0 flex-1 lg:overflow-y-auto lg:pb-16 lg:pt-4">
+        <div className="flex flex-col gap-6 pb-16 xl:flex-row">
+          <div id="store-top" className="min-w-0 flex-1">
           <StoryBar groups={storyGroups} />
 
           {store.description && (
-            <p id="store-about" className="mb-6 scroll-mt-24 text-sm text-white/70">
+            <p id="store-about" className="mb-6 text-sm text-white/70">
               {store.description}
             </p>
           )}
 
-          <h2 id="store-products" className="mb-3 scroll-mt-24 text-sm font-semibold text-white/70">
+          <h2 id="store-products" className="mb-3 text-sm font-semibold text-white/70">
             Products {products.length > 0 ? `(${products.length})` : ""}
           </h2>
 
@@ -249,14 +244,12 @@ export default async function StorePage({ params }: { params: { slug: string } }
             <StoreProductTabs products={products} storeId={store.id} hasAiAssistant={hasAiAssistant} isLoggedIn={Boolean(user)} />
           )}
 
-          <div id="store-reviews" className="mt-8 scroll-mt-24">
+          <div id="store-reviews" className="mt-8">
             <h2 className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-white/70">
               <Star className="h-4 w-4" /> Reviews {reviewCount ? `(${reviewCount})` : ""}
             </h2>
             <ReviewsList reviews={reviewRows ?? []} />
           </div>
-
-          <div className="h-16 md:hidden" aria-hidden />
         </div>
 
         <StoreInfoPanel
@@ -271,7 +264,6 @@ export default async function StorePage({ params }: { params: { slug: string } }
         />
         </div>
       </div>
-      <MobileBottomNav isLoggedIn={Boolean(user)} />
-    </main>
+    </AppShell>
   );
 }

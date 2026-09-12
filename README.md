@@ -1453,6 +1453,41 @@ rather than faked.
   as the home and store pages — was previously a bare page with no
   `SiteHeader` or sidebar at all.
 
+## Phase 61 — One true unified sidebar across every customer page (`AppShell`)
+
+Root cause of the "menus don't match / My Shop missing for customers /
+sidebar still scrolls on this page" reports: there were **two separate,
+divergently-built sidebar implementations** — `CustomerSidebar` (built for
+the home/store/chat redesign) and the original `AccountSidebar` (still in
+place, untouched, on `/account/*` pages) — with different link sets,
+different styling, and different (both imperfect) scroll-fix attempts.
+Deleted both, replaced with one real shared implementation used
+identically everywhere:
+
+- **`AppSidebar`** — the single sidebar component now used app-wide.
+  Replicates the exact pattern already proven correct in the seller
+  `DashboardShell` (`sticky top-0 h-screen`, starting at the very top of
+  the page) rather than any of the sticky/app-shell variants tried
+  earlier that only *sort of* worked. Links: Home, All Categories, My
+  Orders, My Shop (or "Become a Seller" if the viewer has no store yet —
+  fixing the "My Shop missing for a plain customer" report), Messages,
+  Favorites, My Profile, Log Out.
+- **`AppShell`** — one server component every customer page now wraps
+  its content in. Fetches the user, whether they have a store, and cart/
+  favorites/unread-chat counts *once*, then renders `AppSidebar` + the
+  existing `SiteHeader` (search bar, notifications, avatar) + the page's
+  content + `MobileBottomNav` — identically, every time. It is
+  structurally impossible for two pages to end up with different sidebars
+  now, since they all go through this one component.
+- **Applied to every customer-facing page**: home, store detail, chat
+  inbox, chat thread, cart, product detail, and all three `/account/*`
+  pages (profile, orders, favorites) — closing the exact gap that caused
+  the inconsistency in the first place.
+- The store page's own secondary "About/Reviews" jump-links (previously
+  a second, competing sidebar) were simplified into a normal two-column
+  content layout instead, since having two different sidebars on one
+  page was itself part of the problem.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

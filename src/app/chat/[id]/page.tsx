@@ -4,6 +4,7 @@ import { Store as StoreIcon, User } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ChatThread } from "@/components/chat/chat-thread";
 import { BackButton } from "@/components/dashboard/back-button";
+import { AppShell } from "@/components/app-shell";
 
 export default async function ChatThreadPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -33,7 +34,8 @@ export default async function ChatThreadPage({ params }: { params: { id: string 
     .order("created_at", { ascending: true });
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-10 md:px-6">
+    <AppShell>
+      <div className="px-4 py-6 md:px-6 md:py-8">
       <div className="mb-4 flex items-center gap-3">
         <BackButton />
         <div className="relative h-9 w-9 flex-shrink-0 overflow-hidden rounded-full bg-white/5">
@@ -49,6 +51,7 @@ export default async function ChatThreadPage({ params }: { params: { id: string 
       </div>
 
       <ChatThread conversationId={conversation.id} initialMessages={messages ?? []} currentUserId={user.id} />
-    </main>
+      </div>
+    </AppShell>
   );
 }

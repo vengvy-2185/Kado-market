@@ -1,13 +1,10 @@
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { SiteHeader } from "@/components/site-header";
+import { AppShell } from "@/components/app-shell";
 import { PostCard } from "@/components/posts/post-card";
-import { MobileBottomNav } from "@/components/home/mobile-bottom-nav";
 import { HomeProductCard } from "@/components/home/home-product-card";
 import { ProductFilters } from "@/components/home/product-filters";
-import { CustomerSidebar } from "@/components/home/customer-sidebar";
-import { HomeRightPanel } from "@/components/home/home-right-panel";
 import { PopularShopsRow } from "@/components/home/popular-shops-row";
 import { HeroBannerCarousel } from "@/components/home/hero-banner-carousel";
 import { T } from "@/components/t";
@@ -88,17 +85,9 @@ export default async function HomePage({
   const aiEnabledStoreIds = new Set((aiStoreRows ?? []).map((r) => r.store_id));
 
   let savedIds = new Set<string>();
-  let cartCount = 0;
-  let chatUnreadCount = 0;
   if (user) {
-    const [{ data: saved }, { data: cartItems }, { count: unread }] = await Promise.all([
-      supabase.from("saved_products").select("product_id").eq("user_id", user.id),
-      supabase.from("cart_items").select("quantity").eq("user_id", user.id),
-      supabase.from("messages").select("*", { count: "exact", head: true }).is("read_at", null).neq("sender_id", user.id),
-    ]);
+    const { data: saved } = await supabase.from("saved_products").select("product_id").eq("user_id", user.id);
     savedIds = new Set((saved ?? []).map((s) => s.product_id));
-    cartCount = (cartItems ?? []).reduce((sum, i) => sum + i.quantity, 0);
-    chatUnreadCount = unread ?? 0;
   }
 
   const isFiltered = Boolean(
@@ -198,14 +187,8 @@ export default async function HomePage({
   }
 
   return (
-    <main className="mx-auto flex max-w-7xl flex-col lg:h-screen lg:overflow-hidden">
-      {/* Header stays fixed height — only the panes below it scroll independently on large screens */}
-      <SiteHeader showCategories searchDefaultValue={searchParams.q} activeCategory={searchParams.category} />
-
-      <div className="flex flex-1 gap-6 px-4 py-6 md:px-6 md:py-8 lg:overflow-hidden lg:py-0">
-        <CustomerSidebar isLoggedIn={Boolean(user)} hasStore={Boolean(myStoreId)} />
-
-        <div className="no-scrollbar mx-auto min-w-0 max-w-4xl flex-1 lg:mx-0 lg:overflow-y-auto lg:py-8">
+    <AppShell showCategories searchDefaultValue={searchParams.q} activeCategory={searchParams.category}>
+      <div className="px-4 py-6 md:px-6 md:py-8">
 
       <StoryBar groups={storyGroups} />
       {!isFiltered && <HeroBannerCarousel />}
@@ -330,12 +313,7 @@ export default async function HomePage({
           ))}
         </div>
       )}
-      <div className="h-16 md:hidden" aria-hidden />
       </div>
-
-        <HomeRightPanel chatUnreadCount={chatUnreadCount} />
-      </div>
-      <MobileBottomNav isLoggedIn={Boolean(user)} cartCount={cartCount} favoritesCount={savedIds.size} chatUnreadCount={chatUnreadCount} />
-    </main>
+    </AppShell>
   );
 }
