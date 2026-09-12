@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import type { Metadata } from "next";
-import { Store as StoreIcon, MapPin, ShieldCheck, MessageCircle, Bot, Star } from "lucide-react";
+import { MapPin, ShieldCheck, MessageCircle, Bot, Star } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { MobileBottomNav } from "@/components/home/mobile-bottom-nav";
 import { startConversation } from "@/lib/actions/chat";
@@ -10,6 +10,7 @@ import { BackButton } from "@/components/dashboard/back-button";
 import { SiteHeader } from "@/components/site-header";
 import { StoryBar, type StoryGroup } from "@/components/stories/story-bar";
 import { FollowButton } from "@/components/store/follow-button";
+import { CollapsibleCover } from "@/components/store/collapsible-cover";
 import { StoreSidebar } from "@/components/store/store-sidebar";
 import { StoreInfoPanel } from "@/components/store/store-info-panel";
 import { StoreProductTabs } from "@/components/store/store-product-tabs";
@@ -154,89 +155,82 @@ export default async function StorePage({ params }: { params: { slug: string } }
     <main className="mx-auto max-w-7xl">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(storeJsonLd) }} />
       <SiteHeader />
-      <div className="flex items-start gap-6 px-4 pb-16 md:px-6">
-        <StoreSidebar reviewCount={reviewCount ?? 0} />
-
-        <div id="store-top" className="min-w-0 flex-1">
-          <div className="mb-4">
-            <BackButton />
+      <div className="px-4 md:px-6">
+        <div className="mb-4 mt-4">
+          <BackButton />
+        </div>
+        {store.status !== "active" && user?.id === store.seller_id && (
+          <div className="mb-4 rounded-xl border border-warning/30 bg-warning/10 px-4 py-2.5 text-xs text-warning">
+            Preview only — this store is <span className="font-semibold capitalize">{store.status.replace("_", " ")}</span> and isn&apos;t visible to customers yet.
           </div>
-          {store.status !== "active" && user?.id === store.seller_id && (
-            <div className="mb-4 rounded-xl border border-warning/30 bg-warning/10 px-4 py-2.5 text-xs text-warning">
-              Preview only — this store is <span className="font-semibold capitalize">{store.status.replace("_", " ")}</span> and isn&apos;t visible to customers yet.
-            </div>
-          )}
+        )}
 
-          {/* Cover */}
-          <div className="relative h-40 w-full overflow-hidden rounded-2xl bg-white/5 md:h-56">
-            {store.cover_image_url ? (
-              <Image src={store.cover_image_url} alt="" fill className="object-cover" priority />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-white/20">
-                <StoreIcon className="h-10 w-10" />
-              </div>
-            )}
-          </div>
+        {/* Cover — full width, above the sidebar/content/panel row, with a collapse toggle */}
+        <CollapsibleCover coverImageUrl={store.cover_image_url} />
 
-          {/* Header */}
-          <div className="relative -mt-10 mb-6 flex flex-wrap items-end justify-between gap-4 px-2">
-            <div className="flex items-end gap-4">
-              <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl border-4 border-background bg-surface md:h-24 md:w-24">
-                {store.logo_url ? (
-                  <Image src={store.logo_url} alt={store.store_name} fill className="object-cover" />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-brand-gradient text-2xl font-bold">
-                    {store.store_name.charAt(0).toUpperCase()}
-                  </div>
-                )}
-              </div>
-              <div className="pb-1">
-                <div className="flex items-center gap-1.5">
-                  <h1 className="text-xl font-bold">{store.store_name}</h1>
-                  {store.verified && <ShieldCheck className="h-5 w-5 text-accent" />}
+        {/* Header */}
+        <div className="relative -mt-10 mb-6 flex flex-wrap items-end justify-between gap-4 px-2">
+          <div className="flex items-end gap-4">
+            <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl border-4 border-background bg-surface md:h-24 md:w-24">
+              {store.logo_url ? (
+                <Image src={store.logo_url} alt={store.store_name} fill className="object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-brand-gradient text-2xl font-bold">
+                  {store.store_name.charAt(0).toUpperCase()}
                 </div>
-                {store.city && (
-                  <p className="flex items-center gap-1 text-sm text-white/50">
-                    <MapPin className="h-3.5 w-3.5" />
-                    {[store.city, store.country].filter(Boolean).join(", ")}
-                  </p>
-                )}
-                {avgRating !== null && (
-                  <div className="mt-0.5 flex items-center gap-1.5 text-sm">
-                    <StarRating rating={avgRating} />
-                    <span className="text-white/40">
-                      {avgRating.toFixed(1)} ({reviewCount} review{reviewCount === 1 ? "" : "s"})
-                    </span>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
-            {user?.id !== store.seller_id && (
-              <div className="flex flex-wrap gap-2 pb-1">
-                <FollowButton storeId={store.id} storeSlug={store.slug} isLoggedIn={Boolean(user)} initialFollowing={isFollowing} />
-                {user && hasAiAssistant && (
-                  <form action={getOrStartAiThread.bind(null, store.id)}>
-                    <button
-                      type="submit"
-                      className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold hover:bg-white/10"
-                    >
-                      <Bot className="h-4 w-4 text-accent" />
-                      Ask AI Assistant
-                    </button>
-                  </form>
-                )}
-                {user && (
-                  <form action={startConversation.bind(null, store.id)}>
-                    <button type="submit" className="flex items-center gap-2 rounded-xl bg-brand-gradient px-4 py-2 text-sm font-semibold">
-                      <MessageCircle className="h-4 w-4" />
-                      Chat with Seller
-                    </button>
-                  </form>
-                )}
+            <div className="pb-1">
+              <div className="flex items-center gap-1.5">
+                <h1 className="text-xl font-bold">{store.store_name}</h1>
+                {store.verified && <ShieldCheck className="h-5 w-5 text-accent" />}
+              </div>
+              {store.city && (
+                <p className="flex items-center gap-1 text-sm text-white/50">
+                  <MapPin className="h-3.5 w-3.5" />
+                  {[store.city, store.country].filter(Boolean).join(", ")}
+                </p>
+              )}
+              {avgRating !== null && (
+                <div className="mt-0.5 flex items-center gap-1.5 text-sm">
+                  <StarRating rating={avgRating} />
+                  <span className="text-white/40">
+                    {avgRating.toFixed(1)} ({reviewCount} review{reviewCount === 1 ? "" : "s"})
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+          {user?.id !== store.seller_id && (
+            <div className="flex flex-wrap gap-2 pb-1">
+              <FollowButton storeId={store.id} storeSlug={store.slug} isLoggedIn={Boolean(user)} initialFollowing={isFollowing} />
+              {user && hasAiAssistant && (
+                <form action={getOrStartAiThread.bind(null, store.id)}>
+                  <button
+                    type="submit"
+                    className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold hover:bg-white/10"
+                  >
+                    <Bot className="h-4 w-4 text-accent" />
+                    Ask AI Assistant
+                  </button>
+                </form>
+              )}
+              {user && (
+                <form action={startConversation.bind(null, store.id)}>
+                  <button type="submit" className="flex items-center gap-2 rounded-xl bg-brand-gradient px-4 py-2 text-sm font-semibold">
+                    <MessageCircle className="h-4 w-4" />
+                    Chat with Seller
+                  </button>
+                </form>
+              )}
               </div>
             )}
           </div>
 
+        <div className="flex gap-6 pb-16">
+          <StoreSidebar reviewCount={reviewCount ?? 0} />
+
+          <div id="store-top" className="min-w-0 flex-1">
           <StoryBar groups={storyGroups} />
 
           {store.description && (
@@ -275,6 +269,7 @@ export default async function StorePage({ params }: { params: { slug: string } }
           storeName={store.store_name}
           storeUrl={`${siteUrl}/store/${store.slug}`}
         />
+        </div>
       </div>
       <MobileBottomNav isLoggedIn={Boolean(user)} />
     </main>

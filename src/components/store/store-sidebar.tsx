@@ -15,8 +15,8 @@ export function StoreSidebar({ reviewCount }: { reviewCount: number }) {
   ];
 
   return (
-    <aside className="sticky top-20 hidden h-fit w-56 flex-shrink-0 self-start lg:block">
-      <nav className="space-y-1 rounded-2xl border border-white/10 bg-surface/40 p-3">
+    <aside className="hidden w-56 flex-shrink-0 lg:block">
+      <nav className="sticky top-20 space-y-1 rounded-2xl border border-white/10 bg-surface/40 p-3">
         {items.map((item) => {
           const Icon = item.icon;
           return (

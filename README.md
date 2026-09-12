@@ -1385,6 +1385,30 @@ rather than faked.
   claims about a specific store. A seller-editable version of that
   section would be a reasonable real feature to add later if wanted.
 
+## Phase 58 — Fixed sticky sidebars for real this time, full-width store cover, collapsible header
+
+- **The sticky sidebar fix in Phase 57 was actually wrong** — adding
+  `self-start` made the sidebar's own box only as tall as its short nav
+  content, and `position: sticky` can only hold an element within the
+  bounds of its own containing block. Once you scrolled past that short
+  box, it correctly (per spec) stopped sticking and scrolled away — which
+  is what was still being seen. The real fix is the opposite: let the
+  flex container stay at default `stretch` so the sidebar's outer box
+  matches the full height of the taller content column, and put `sticky`
+  on an *inner* wrapper instead of the outer flex item. Applied correctly
+  now to all four sidebars (`CustomerSidebar`, `HomeRightPanel`,
+  `StoreSidebar`, `StoreInfoPanel`).
+- **Store page cover photo is now full page width**, sitting above the
+  sidebar/content/panel row (matching the mockup) instead of being
+  squeezed into just the center column between two sidebars.
+- **Collapsible cover** (`CollapsibleCover`) — a toggle button on the
+  cover photo shrinks it from a tall banner down to a slim strip and back,
+  so it doesn't permanently eat vertical space once someone's scrolled
+  past it and just wants to browse products.
+- Fixed a real JSX structural bug introduced while restructuring the
+  store page (one extra stray closing `</div>` that broke the build) —
+  caught by running the actual build rather than only counting braces.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

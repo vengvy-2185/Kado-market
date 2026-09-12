@@ -30,8 +30,9 @@ export function StoreInfoPanel({
   })();
 
   return (
-    <aside className="sticky top-20 hidden h-fit w-64 flex-shrink-0 self-start space-y-4 xl:block">
-      <div className="rounded-2xl border border-white/10 bg-surface/40 p-4">
+    <aside className="hidden w-64 flex-shrink-0 xl:block">
+      <div className="sticky top-20 space-y-4">
+        <div className="rounded-2xl border border-white/10 bg-surface/40 p-4">
         <p className="mb-3 text-sm font-bold text-white/80">Shop Info</p>
         <div className="space-y-2.5 text-sm">
           {city && (
@@ -49,17 +50,18 @@ export function StoreInfoPanel({
             {followerCount} follower{followerCount === 1 ? "" : "s"}
           </p>
         </div>
-      </div>
-
-      {latitude && longitude && (
-        <div className="rounded-2xl border border-white/10 bg-surface/40 p-4">
-          <p className="mb-3 text-sm font-bold text-white/80">Shop Location</p>
-          <LocationCard latitude={latitude} longitude={longitude} label={`View ${storeName} on map`} />
         </div>
-      )}
 
-      <div className="rounded-2xl border border-white/10 bg-surface/40 p-4">
-        <ShareShopButtons storeUrl={storeUrl} storeName={storeName} />
+        {latitude && longitude && (
+          <div className="rounded-2xl border border-white/10 bg-surface/40 p-4">
+            <p className="mb-3 text-sm font-bold text-white/80">Shop Location</p>
+            <LocationCard latitude={latitude} longitude={longitude} label={`View ${storeName} on map`} />
+          </div>
+        )}
+
+        <div className="rounded-2xl border border-white/10 bg-surface/40 p-4">
+          <ShareShopButtons storeUrl={storeUrl} storeName={storeName} />
+        </div>
       </div>
     </aside>
   );
