@@ -1569,6 +1569,19 @@ identically everywhere:
   project doesn't load Font Awesome — an uploaded image or a plain emoji
   are the two supported options now.
 
+## Phase 66 — Real branded image slideshow, removed unused "All Categories" link
+
+- **Hero carousel now uses the 4 provided KADO MARKET promotional images**
+  (`public/hero/slide-1.png` … `slide-4.png`) instead of the generic
+  gradient+text placeholder from earlier phases. Every slide renders in
+  the exact same fixed aspect-ratio box (`aspect-[16/9]`, wider on `sm:`)
+  with `object-cover`, so width and height stay identical across slides
+  regardless of each source image's original dimensions (they weren't all
+  the same aspect ratio) — no more resizing/jumping between slides.
+- **Removed "All Categories" from the sidebar** — it only ever scrolled
+  to the category row already visible at the top of the home page, which
+  wasn't worth a dedicated nav item.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

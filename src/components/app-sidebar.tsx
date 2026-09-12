@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, LayoutGrid, ShoppingBag, Package, Store, MessageSquare, Heart, User as UserIcon, LogOut, ArrowRight } from "lucide-react";
+import { Home, ShoppingBag, Package, Store, MessageSquare, Heart, User as UserIcon, LogOut, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
 
@@ -11,7 +11,6 @@ export function AppSidebar({ isLoggedIn, hasStore }: { isLoggedIn: boolean; hasS
 
   const links = [
     { href: "/", label: "Home", icon: Home },
-    { href: "/#categories", label: "All Categories", icon: LayoutGrid },
     { href: "/account/orders", label: "My Orders", icon: ShoppingBag },
     hasStore
       ? { href: "/dashboard", label: "My Shop", icon: Store }
