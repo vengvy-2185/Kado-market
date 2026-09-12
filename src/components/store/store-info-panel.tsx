@@ -30,8 +30,8 @@ export function StoreInfoPanel({
   })();
 
   return (
-    <aside className="hidden w-64 flex-shrink-0 xl:block">
-      <div className="sticky top-20 space-y-4">
+    <aside className="hidden w-64 flex-shrink-0 xl:block xl:overflow-y-auto xl:py-4">
+      <div className="space-y-4">
         <div className="rounded-2xl border border-white/10 bg-surface/40 p-4">
         <p className="mb-3 text-sm font-bold text-white/80">Shop Info</p>
         <div className="space-y-2.5 text-sm">

@@ -198,14 +198,14 @@ export default async function HomePage({
   }
 
   return (
-    <main className="mx-auto max-w-7xl">
-      {/* Sticky header + category tabs — only the content below scrolls */}
+    <main className="mx-auto flex max-w-7xl flex-col lg:h-screen lg:overflow-hidden">
+      {/* Header stays fixed height — only the panes below it scroll independently on large screens */}
       <SiteHeader showCategories searchDefaultValue={searchParams.q} activeCategory={searchParams.category} />
 
-      <div className="flex gap-6 px-4 py-6 md:px-6 md:py-8">
+      <div className="flex flex-1 gap-6 px-4 py-6 md:px-6 md:py-8 lg:overflow-hidden lg:py-0">
         <CustomerSidebar isLoggedIn={Boolean(user)} hasStore={Boolean(myStoreId)} />
 
-        <div className="mx-auto min-w-0 max-w-4xl flex-1 lg:mx-0">
+        <div className="mx-auto min-w-0 max-w-4xl flex-1 lg:mx-0 lg:overflow-y-auto lg:py-8">
 
       <StoryBar groups={storyGroups} />
       {!isFiltered && <HeroBannerCarousel />}

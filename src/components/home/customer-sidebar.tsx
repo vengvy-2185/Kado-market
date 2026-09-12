@@ -19,8 +19,8 @@ export function CustomerSidebar({ isLoggedIn, hasStore }: { isLoggedIn: boolean;
   ];
 
   return (
-    <aside className="hidden w-56 flex-shrink-0 lg:block">
-      <div className="sticky top-20 space-y-4">
+    <aside className="hidden w-56 flex-shrink-0 lg:block lg:overflow-y-auto">
+      <div className="space-y-4 lg:py-8">
         <nav className="space-y-1 rounded-2xl border border-white/10 bg-surface/40 p-3">
           {links.map((link) => {
             const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href.split("#")[0]) && link.href !== "/";

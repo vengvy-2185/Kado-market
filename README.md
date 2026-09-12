@@ -1409,6 +1409,38 @@ rather than faked.
   store page (one extra stray closing `</div>` that broke the build) —
   caught by running the actual build rather than only counting braces.
 
+## Phase 59 — True non-scrolling sidebars (app-shell layout), real Khmer font, redesigned mobile menu
+
+- **Sidebars now genuinely never scroll** — the two previous attempts
+  (sticky variants) both still let the sidebar scroll away under some
+  condition, because sticky positioning is fundamentally "stays put
+  *while its own box is on screen*," not "never moves." Switched to a
+  real app-shell layout instead: on large screens, the home page's outer
+  container is height-constrained to the viewport
+  (`lg:h-screen lg:overflow-hidden`) with only the center content column
+  scrolling internally (`lg:overflow-y-auto`) — the sidebar and right
+  panel are simply never part of a scrolling area at all. The store page
+  uses the same idea for its sidebar/content/panel row specifically
+  (`lg:sticky lg:top-0 lg:h-screen`), since its cover photo above that row
+  is still meant to scroll normally with the page.
+- **Fixed genuinely garbled Khmer text** (spotted in the Cart/Buy button
+  labels) — there was no Khmer-capable font configured anywhere; the site
+  fell back entirely on the OS's default Khmer substitution font, which
+  varies by platform and can mis-shape complex Khmer consonant stacking,
+  especially at small sizes. Added Noto Sans Khmer as a real `next/font/local`
+  web font, placed *after* the existing Latin font stack in Tailwind's
+  config so it only kicks in for characters (Khmer) the primary fonts
+  don't have — Latin/English text is completely unaffected.
+- **Mobile bottom nav redesigned** to match the provided mockup: Menu,
+  Home, Products, Cart, Profile. "Menu" opens a bottom sheet with the
+  links that don't fit in five bottom-nav slots (My Orders, My Shop,
+  Messages, Favorites, Settings) — everything that was reachable before
+  still is, just organized to match the requested layout.
+- **Not done in this pass**: the My Profile page redesign shown in the
+  fourth reference image (avatar upload styling, layout) — flagging this
+  explicitly as the next thing to pick up rather than leaving it silently
+  incomplete.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,
