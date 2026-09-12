@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
  * this helper just builds the path, the database enforces who's allowed.
  */
 export async function uploadPublicFile(
-  bucket: "avatars" | "store-logos" | "store-covers" | "product-images" | "post-media" | "story-media" | "chat-attachments" | "review-images",
+  bucket: "avatars" | "store-logos" | "store-covers" | "product-images" | "post-media" | "story-media" | "chat-attachments" | "review-images" | "category-icons",
   folder: string,
   file: File
 ): Promise<string> {

@@ -136,7 +136,7 @@ export async function createCategory(formData: FormData) {
   revalidatePath("/");
 }
 
-export async function updateCategoryField(id: string, field: string, value: string | number | boolean) {
+export async function updateCategoryField(id: string, field: string, value: string | number | boolean | null) {
   const supabase = await requireAdmin();
   const { error } = await supabase.from("categories").update({ [field]: value }).eq("id", id);
   if (error) throw new Error(error.message);

@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Trash2 } from "lucide-react";
+import Image from "next/image";
+import { Trash2, ImagePlus, X } from "lucide-react";
 import { updateCategoryField, deleteCategory } from "@/lib/actions/admin-plans";
+import { uploadPublicFile } from "@/lib/storage";
 import type { Database } from "@/lib/types/database.types";
 
 type Category = Database["public"]["Tables"]["categories"]["Row"];
@@ -13,22 +15,57 @@ const labelClass = "mb-1 block text-[10px] uppercase tracking-wide text-white/30
 export function CategoryRow({ category }: { category: Category }) {
   const [isPending, startTransition] = useTransition();
   const [local, setLocal] = useState(category);
+  const [uploading, setUploading] = useState(false);
 
-  function save(field: string, value: string | number | boolean) {
+  function save(field: string, value: string | number | boolean | null) {
     setLocal((prev) => ({ ...prev, [field]: value }));
     startTransition(() => updateCategoryField(category.id, field, value));
+  }
+
+  async function handleIconUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const url = await uploadPublicFile("category-icons", category.id, file);
+      save("icon_url", url);
+    } catch {
+      alert("Failed to upload icon image.");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
   }
 
   return (
     <div className="grid grid-cols-2 gap-3 border-b border-white/5 py-3 text-sm last:border-0 md:grid-cols-12 md:items-center md:gap-2 md:py-2">
       <div className="md:col-span-2">
         <label className={labelClass}>Icon</label>
-        <input
-          className={`${inputClass} text-center`}
-          defaultValue={local.icon ?? ""}
-          placeholder="🏷️"
-          onBlur={(e) => e.target.value !== local.icon && save("icon", e.target.value)}
-        />
+        {local.icon_url ? (
+          <div className="relative mx-auto h-9 w-9">
+            <Image src={local.icon_url} alt="" fill className="rounded-full object-cover" />
+            <button
+              onClick={() => save("icon_url", null)}
+              className="absolute -right-1 -top-1 rounded-full bg-danger p-0.5"
+              aria-label="Remove icon image"
+            >
+              <X className="h-2.5 w-2.5" />
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1">
+            <input
+              className={`${inputClass} text-center`}
+              defaultValue={local.icon ?? ""}
+              placeholder="🏷️"
+              onBlur={(e) => e.target.value !== local.icon && save("icon", e.target.value)}
+            />
+            <label className="flex h-7 w-7 flex-shrink-0 cursor-pointer items-center justify-center rounded-lg border border-dashed border-white/20 text-white/40 hover:border-white/40 hover:text-white/60">
+              <ImagePlus className="h-3.5 w-3.5" />
+              <input type="file" accept="image/*" onChange={handleIconUpload} className="hidden" disabled={uploading} />
+            </label>
+          </div>
+        )}
       </div>
       <div className="col-span-2 md:col-span-4">
         <label className={labelClass}>Name</label>

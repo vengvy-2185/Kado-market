@@ -1551,6 +1551,24 @@ identically everywhere:
   (only the "Following" state had a hover), and the "Buy" button in
   `QuickActions` (present on every product card).
 
+## Phase 65 — Edge fade on scrollable categories, real icon image upload
+
+- **Soft fade at both edges of the horizontally-scrollable category
+  row** — a gradient overlay (background color → transparent) on the
+  left and right, hinting there's more to scroll without a harsh cutoff.
+  This is different from Phase 64's glow (that was the "selected" state
+  indicator) — this is specifically the "more content this way" scroll
+  hint that was actually being asked for.
+- **Answered the "emoji or image icon?" question with a real feature**:
+  categories can now use an uploaded image instead of an emoji
+  (`categories.icon_url`, migration `0051`, new `category-icons` storage
+  bucket, admin-only write). The admin category editor has a small upload
+  button next to the emoji field — uploading an image takes priority over
+  the emoji automatically. Font Awesome-style icon classes (`<i
+  class="fa-regular fa-camera">`) specifically won't work since this
+  project doesn't load Font Awesome — an uploaded image or a plain emoji
+  are the two supported options now.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,

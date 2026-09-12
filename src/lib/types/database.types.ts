@@ -51,6 +51,7 @@ export interface Database {
           name: string;
           slug: string;
           icon: string | null;
+          icon_url: string | null;
           parent_id: string | null;
           sort_order: number;
           is_active: boolean;
