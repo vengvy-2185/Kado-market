@@ -22,41 +22,21 @@ export function KhqrDisplay({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // No center logo overlay here on purpose — KHQR payloads are long
+    // (merchant name, city, amount, timestamp all encoded in), which
+    // pushes the QR to a higher version with smaller modules. A logo that
+    // looks like a small, safe decoration at a glance can end up
+    // obscuring more actual data modules than expected at that density,
+    // and real banking-app scanners are often less forgiving than ideal
+    // decoders. For an actual payment code, scan reliability matters more
+    // than a logo — so this renders a clean, standard QR only.
     QRCode.toCanvas(canvas, khqrString, {
       width: size,
-      margin: 1,
-      errorCorrectionLevel: "H", // high correction — leaves room for a center logo without breaking scans
+      margin: 2,
+      errorCorrectionLevel: "M",
     })
       .then(() => {
-        if (cancelled) return;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
-
-        // Center logo mark — a simple KADO badge, not a Bakong/bank logo
-        const logoSize = size * 0.22;
-        const cx = size / 2;
-        const cy = size / 2;
-
-        ctx.fillStyle = "#ffffff";
-        ctx.beginPath();
-        ctx.arc(cx, cy, logoSize / 2 + 4, 0, Math.PI * 2);
-        ctx.fill();
-
-        const gradient = ctx.createLinearGradient(cx - logoSize / 2, cy - logoSize / 2, cx + logoSize / 2, cy + logoSize / 2);
-        gradient.addColorStop(0, "#7C3AED");
-        gradient.addColorStop(1, "#EC4899");
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(cx, cy, logoSize / 2, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = "#ffffff";
-        ctx.font = `bold ${Math.round(logoSize * 0.55)}px sans-serif`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("K", cx, cy + 1);
-
-        setReady(true);
+        if (!cancelled) setReady(true);
       })
       .catch(() => setReady(false));
 

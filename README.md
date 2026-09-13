@@ -1621,6 +1621,30 @@ identically everywhere:
   ("Google sign-in isn't available right now — use email instead") on the
   login page instead.
 
+## Phase 69 — Fixed KHQR codes not scanning in banking apps (real bug, verified fix)
+
+- **Found and fixed the actual cause**: `KhqrDisplay` drew a decorative
+  "K" logo circle directly on top of the QR code's center pixels via
+  canvas. KHQR payloads are long (merchant name, city, amount, timestamp
+  all encoded in), pushing the QR to a higher version with smaller
+  modules — a logo that looks like a small, safe decoration at a glance
+  ends up obscuring more actual data modules than expected at that
+  density, and real banking-app scanners are often less forgiving than
+  ideal decoders. Removed the logo entirely; the payment QR now renders
+  clean.
+- **This was verified, not just assumed**: generated a real KHQR string
+  with the exact algorithm in `khqr.ts`, rendered it as an actual QR
+  image, and decoded that image back with a real QR decoder (`pyzbar`) —
+  the decoded string matched the original byte-for-byte, confirming the
+  underlying KHQR encoding itself is sound and the image round-trips
+  correctly without the logo.
+- **Also spot-checked the KHQR tag structure itself** against real
+  published Bakong examples (official NBC guideline + community SDKs) —
+  the tag 29 sub-field layout (`00` = Bakong account ID, `01` = account
+  info) and the tag 99 timestamp format both match real examples
+  byte-for-byte, so this wasn't a deeper structural problem — just the
+  logo overlay.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,
