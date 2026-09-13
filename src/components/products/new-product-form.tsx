@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
+import { CategoryOptions } from "@/components/products/category-options";
 import type { Database } from "@/lib/types/database.types";
 import { createProduct } from "@/lib/actions/products";
 
@@ -101,11 +102,7 @@ export function NewProductForm({ storeId, categories }: { storeId: string; categ
             <Label htmlFor="category_id">Category</Label>
             <Select id="category_id" name="category_id" defaultValue="">
               <option value="">Uncategorized</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
+              <CategoryOptions categories={categories} />
             </Select>
           </div>
           <div>

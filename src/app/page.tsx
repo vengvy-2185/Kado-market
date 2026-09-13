@@ -30,14 +30,25 @@ export default async function HomePage({
     profile = data;
   }
 
-  let categoryId: string | null = null;
+  // A selected top-level category (e.g. "Food") should surface products
+  // tagged directly to it AND to any of its sub-categories (e.g. "Snacks",
+  // "Drinks") — otherwise creating sub-categories would just hide products
+  // instead of organizing them. A selected sub-category filters narrowly.
+  let categoryIds: string[] | null = null;
   if (searchParams.category) {
     const { data: cat } = await supabase
       .from("categories")
-      .select("id")
+      .select("id, parent_id")
       .eq("slug", searchParams.category)
       .maybeSingle();
-    categoryId = cat?.id ?? null;
+    if (cat) {
+      if (cat.parent_id) {
+        categoryIds = [cat.id];
+      } else {
+        const { data: children } = await supabase.from("categories").select("id").eq("parent_id", cat.id);
+        categoryIds = [cat.id, ...(children ?? []).map((c) => c.id)];
+      }
+    }
   }
 
   const hasLocationFilter = Boolean(searchParams.location?.trim());
@@ -53,7 +64,7 @@ export default async function HomePage({
     .limit(24);
 
   if (searchParams.q) productQuery = productQuery.ilike("name", `%${searchParams.q}%`);
-  if (categoryId) productQuery = productQuery.eq("category_id", categoryId);
+  if (categoryIds) productQuery = productQuery.in("category_id", categoryIds);
   if (searchParams.minPrice) productQuery = productQuery.gte("price", Number(searchParams.minPrice));
   if (searchParams.maxPrice) productQuery = productQuery.lte("price", Number(searchParams.maxPrice));
   if (hasLocationFilter) {

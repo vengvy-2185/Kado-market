@@ -38,10 +38,14 @@ export async function SiteHeader({
     initialNotifications = notifRows ?? [];
   }
 
-  let categories: { slug: string; name: string; icon?: string | null; icon_url?: string | null }[] = [];
+  let categories: { id: string; slug: string; name: string; icon?: string | null; icon_url?: string | null; parent_id: string | null }[] = [];
   let allCategoryIconUrl: string | null = null;
   if (showCategories) {
-    const { data } = await supabase.from("categories").select("slug, name, icon, icon_url").eq("is_active", true).order("sort_order");
+    const { data } = await supabase
+      .from("categories")
+      .select("id, slug, name, icon, icon_url, parent_id")
+      .eq("is_active", true)
+      .order("sort_order");
     categories = data ?? [];
     const admin = createAdminClient();
     const { data: settings } = await admin.from("platform_settings").select("all_category_icon_url").eq("id", 1).single();

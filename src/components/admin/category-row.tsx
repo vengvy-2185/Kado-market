@@ -12,7 +12,15 @@ type Category = Database["public"]["Tables"]["categories"]["Row"];
 const inputClass = "w-full rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-sm md:py-1";
 const labelClass = "mb-1 block text-[10px] uppercase tracking-wide text-white/30 md:hidden";
 
-export function CategoryRow({ category }: { category: Category }) {
+export function CategoryRow({
+  category,
+  topLevelCategories = [],
+  isSubcategory = false,
+}: {
+  category: Category;
+  topLevelCategories?: { id: string; name: string }[];
+  isSubcategory?: boolean;
+}) {
   const [isPending, startTransition] = useTransition();
   const [local, setLocal] = useState(category);
   const [uploading, setUploading] = useState(false);
@@ -38,7 +46,11 @@ export function CategoryRow({ category }: { category: Category }) {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-3 border-b border-white/5 py-3 text-sm last:border-0 md:grid-cols-12 md:items-center md:gap-2 md:py-2">
+    <div
+      className={`grid grid-cols-2 gap-3 border-b border-white/5 py-3 text-sm last:border-0 md:grid-cols-[repeat(14,minmax(0,1fr))] md:items-center md:gap-2 md:py-2 ${
+        isSubcategory ? "md:pl-4 bg-white/[0.015]" : ""
+      }`}
+    >
       <div className="md:col-span-2">
         <label className={labelClass}>Icon</label>
         {local.icon_url ? (
@@ -67,9 +79,30 @@ export function CategoryRow({ category }: { category: Category }) {
           </div>
         )}
       </div>
-      <div className="col-span-2 md:col-span-4">
+      <div className="col-span-2 md:col-span-3">
         <label className={labelClass}>Name</label>
-        <input className={inputClass} defaultValue={local.name} onBlur={(e) => e.target.value !== local.name && save("name", e.target.value)} />
+        <input
+          className={inputClass}
+          defaultValue={local.name}
+          onBlur={(e) => e.target.value !== local.name && save("name", e.target.value)}
+        />
+      </div>
+      <div className="col-span-2 md:col-span-3">
+        <label className={labelClass}>Parent (sub-category of)</label>
+        <select
+          className={inputClass}
+          value={local.parent_id ?? ""}
+          onChange={(e) => save("parent_id", e.target.value || null)}
+        >
+          <option value="">— top level —</option>
+          {topLevelCategories
+            .filter((c) => c.id !== category.id)
+            .map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+        </select>
       </div>
       <div className="md:col-span-2">
         <label className={labelClass}>Slug</label>
@@ -84,11 +117,13 @@ export function CategoryRow({ category }: { category: Category }) {
           onBlur={(e) => Number(e.target.value) !== local.sort_order && save("sort_order", Number(e.target.value))}
         />
       </div>
-      <div className="col-span-2 flex items-center justify-between md:col-span-2 md:justify-center">
+      <div className="col-span-2 flex items-center justify-between md:col-span-1 md:justify-center">
         <label className="flex items-center gap-1.5 text-xs text-white/50">
           <input type="checkbox" defaultChecked={local.is_active} onChange={(e) => save("is_active", e.target.checked)} />
           Active
         </label>
+      </div>
+      <div className="col-span-2 flex items-center justify-end md:col-span-1 md:justify-center">
         <button
           onClick={() => startTransition(() => deleteCategory(category.id))}
           disabled={isPending}

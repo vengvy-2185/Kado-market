@@ -8,11 +8,14 @@ export function KhqrDisplay({
   size = 220,
   merchantName,
   amountLabel,
+  logoUrl = "/logo.png",
 }: {
   khqrString: string;
   size?: number;
   merchantName?: string;
   amountLabel?: string;
+  /** Small badge drawn in the center of the QR, KHQR-app style. Set to null to render a plain QR with no badge. */
+  logoUrl?: string | null;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [ready, setReady] = useState(false);
@@ -22,28 +25,70 @@ export function KhqrDisplay({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // No center logo overlay here on purpose — KHQR payloads are long
-    // (merchant name, city, amount, timestamp all encoded in), which
-    // pushes the QR to a higher version with smaller modules. A logo that
-    // looks like a small, safe decoration at a glance can end up
-    // obscuring more actual data modules than expected at that density,
-    // and real banking-app scanners are often less forgiving than ideal
-    // decoders. For an actual payment code, scan reliability matters more
-    // than a logo — so this renders a clean, standard QR only.
+    // errorCorrectionLevel "H" reserves ~30% of the payload for redundancy —
+    // this is the same level Bakong's own app uses for its center-logo QR
+    // display. As long as the badge we draw over the middle stays within
+    // ~20% of the QR's width (with a solid white plate behind it so no
+    // logo pixel is ever mistaken for a dark module), the decoder can
+    // reconstruct everything the badge covers from redundancy alone. That
+    // margin is what makes it safe to add a logo to a real, scannable
+    // payment code instead of a purely decorative one.
     QRCode.toCanvas(canvas, khqrString, {
       width: size,
       margin: 2,
-      errorCorrectionLevel: "M",
+      errorCorrectionLevel: "H",
     })
       .then(() => {
-        if (!cancelled) setReady(true);
+        if (cancelled) return;
+        if (!logoUrl) {
+          setReady(true);
+          return;
+        }
+        const ctx = canvas.getContext("2d");
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          if (cancelled || !ctx) return;
+          const badgeSize = size * 0.2; // ~20% of width — inside the safe zone for H-level correction
+          const cx = size / 2;
+          const cy = size / 2;
+          const plateRadius = badgeSize / 2 + 5;
+
+          // White plate + soft ring so the badge reads cleanly on any QR density
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(cx, cy, plateRadius, 0, Math.PI * 2);
+          ctx.fillStyle = "#ffffff";
+          ctx.fill();
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = "rgba(0,0,0,0.08)";
+          ctx.stroke();
+          ctx.restore();
+
+          // Clip the logo itself to a circle so non-square logos sit neatly
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(cx, cy, badgeSize / 2, 0, Math.PI * 2);
+          ctx.closePath();
+          ctx.clip();
+          ctx.drawImage(img, cx - badgeSize / 2, cy - badgeSize / 2, badgeSize, badgeSize);
+          ctx.restore();
+
+          setReady(true);
+        };
+        img.onerror = () => {
+          // Logo failed to load (e.g. CORS on a hotlinked seller image) —
+          // fall back to a plain, still fully scannable QR rather than block.
+          if (!cancelled) setReady(true);
+        };
+        img.src = logoUrl;
       })
       .catch(() => setReady(false));
 
     return () => {
       cancelled = true;
     };
-  }, [khqrString, size]);
+  }, [khqrString, size, logoUrl]);
 
   return (
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-white" style={{ width: size }}>

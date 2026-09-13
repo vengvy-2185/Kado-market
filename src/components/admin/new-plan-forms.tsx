@@ -84,12 +84,22 @@ export function NewBoostPlanForm() {
   );
 }
 
-export function NewCategoryForm() {
+export function NewCategoryForm({ topLevelCategories = [] }: { topLevelCategories?: { id: string; name: string }[] }) {
   const { formRef, submitting, error, handleSubmit } = useCreateForm(createCategory);
   return (
     <form ref={formRef} action={handleSubmit} className="mb-3 flex flex-wrap items-end gap-2">
       <input name="icon" placeholder="🏷️" className={`${inputClass} w-16 text-center`} />
       <input name="name" placeholder="Category name" required className={inputClass} />
+      {topLevelCategories.length > 0 && (
+        <select name="parent_id" defaultValue="" className={`${inputClass} w-40`}>
+          <option value="">Top-level category</option>
+          {topLevelCategories.map((c) => (
+            <option key={c.id} value={c.id}>
+              Sub-category of {c.name}
+            </option>
+          ))}
+        </select>
+      )}
       <input name="sort_order" type="number" placeholder="Order" defaultValue={0} className={`${inputClass} w-20`} />
       <Button type="submit" loading={submitting} className="px-3 py-1.5 text-xs">
         <Plus className="h-3.5 w-3.5" /> Add category

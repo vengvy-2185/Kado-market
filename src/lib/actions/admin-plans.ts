@@ -124,14 +124,16 @@ export async function createCategory(formData: FormData) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
+  const parentId = String(formData.get("parent_id") ?? "").trim() || null;
   const { error } = await supabase.from("categories").insert({
     name,
     slug,
     icon: String(formData.get("icon") ?? "").trim() || null,
+    parent_id: parentId,
     sort_order: Number(formData.get("sort_order") ?? 0),
   });
   if (error) throw new Error(error.message);
-  await logAudit(supabase, "category.created", "category", null, { name });
+  await logAudit(supabase, "category.created", "category", null, { name, parent_id: parentId });
   revalidatePath("/admin/categories");
   revalidatePath("/");
 }
