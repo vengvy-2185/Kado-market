@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { OrderStatusControl } from "@/components/product/order-status-control";
 import { BackButton } from "@/components/dashboard/back-button";
 import { KhqrDisplay } from "@/components/settings/khqr-display";
-import { generateKhqr } from "@/lib/khqr";
+import { generateKhqr, khqrMd5 } from "@/lib/khqr";
 import { BakongVerifyButton } from "@/components/product/bakong-verify-button";
 import { ReviewForm } from "@/components/reviews/review-form";
 import { OrderTracker } from "@/components/product/order-tracker";
@@ -42,6 +42,36 @@ export default async function OrderDetailPage({ params }: { params: { id: string
 
   const store = order.stores as unknown as { store_name: string; city: string | null; seller_id: string; bakong_account_id: string | null; bakong_phone: string | null } | null;
   const isSeller = store?.seller_id === user.id;
+
+  // KHQR codes embed a timestamp and expire after a short window on the
+  // scanning side (real Bakong error Q0626 = "QR code has expired") — a
+  // QR generated once at order-creation time and never touched again
+  // goes stale the moment that window passes, permanently, even though
+  // the order is still unpaid and perfectly payable. So: regenerate a
+  // fresh QR (new timestamp) on every view while payment is still
+  // pending, and keep the stored khqr_string/khqr_md5 in sync with
+  // whatever's actually on screen — Bakong verification is checked
+  // against the MD5 of the exact QR that was scanned, so these must
+  // always match. Once paid, stop touching it; the QR that was actually
+  // used to pay is worth keeping as-is for the record.
+  let khqrStringToShow = order.khqr_string;
+  let khqrMd5ToShow = order.khqr_md5;
+  if (order.payment_status !== "success" && store?.bakong_account_id && store?.bakong_phone) {
+    const freshKhqr = generateKhqr({
+      bakongAccountId: store.bakong_account_id,
+      accountInformation: store.bakong_phone,
+      merchantName: store.store_name,
+      merchantCity: store.city ?? "Phnom Penh",
+      amount: Number(order.total),
+      currency: "USD",
+    });
+    const freshMd5 = khqrMd5(freshKhqr);
+    khqrStringToShow = freshKhqr;
+    khqrMd5ToShow = freshMd5;
+    // Fire-and-forget — this refresh shouldn't block rendering the page,
+    // and a failed write here just means next view regenerates again.
+    supabase.from("orders").update({ khqr_string: freshKhqr, khqr_md5: freshMd5 }).eq("id", order.id).then();
+  }
 
   let reviewedItemIds = new Set<string>();
   if (!isSeller && order.status === "delivered") {
@@ -83,7 +113,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
         </div>
       )}
 
-      {(order.khqr_string || (store?.bakong_account_id && store?.bakong_phone)) && (
+      {(khqrStringToShow || (store?.bakong_account_id && store?.bakong_phone)) && (
         <Card className="mb-4 flex flex-col items-center gap-2">
           <h2 className="text-sm font-semibold text-white/70">Pay via KHQR</h2>
           {order.payment_status === "success" || order.bakong_verified_at ? (
@@ -92,23 +122,9 @@ export default async function OrderDetailPage({ params }: { params: { id: string
             </p>
           ) : (
             <>
-              <KhqrDisplay
-                khqrString={
-                  order.khqr_string ??
-                  generateKhqr({
-                    bakongAccountId: store!.bakong_account_id!,
-                    accountInformation: store!.bakong_phone!,
-                    merchantName: store!.store_name,
-                    merchantCity: store!.city ?? "Phnom Penh",
-                    amount: Number(order.total),
-                    currency: "USD",
-                  })
-                }
-                merchantName={store?.store_name ?? ""}
-                amountLabel={`$${order.total}`}
-              />
+              <KhqrDisplay khqrString={khqrStringToShow!} merchantName={store?.store_name ?? ""} amountLabel={`$${order.total}`} />
               <p className="text-xs text-white/40">Scan with any Cambodian banking app to pay</p>
-              {order.khqr_md5 && <BakongVerifyButton orderId={order.id} verifiedAt={order.bakong_verified_at} />}
+              {khqrMd5ToShow && <BakongVerifyButton orderId={order.id} verifiedAt={order.bakong_verified_at} />}
             </>
           )}
         </Card>

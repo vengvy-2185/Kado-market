@@ -1645,6 +1645,24 @@ identically everywhere:
   byte-for-byte, so this wasn't a deeper structural problem — just the
   logo overlay.
 
+## Phase 70 — Fixed "QR code has expired" (Bakong error Q0626)
+
+- **Real cause**: KHQR codes embed a timestamp and Bakong-compliant
+  scanners enforce a short validity window on it (confirmed by the actual
+  error code, Q0626). Phase 54 deliberately generated the QR **once** at
+  order-creation time and stored it permanently, specifically so its MD5
+  hash would stay stable for verification — but that meant the QR's
+  timestamp went stale (and the code started reading as "expired") the
+  moment that window passed, even though the order was still perfectly
+  unpaid and payable.
+- **Fix**: the order page now regenerates the KHQR with a fresh timestamp
+  on every view **while payment is still pending**, and updates the
+  stored `khqr_string`/`khqr_md5` to match — so the code on screen is
+  always within its valid window, and Bakong verification (which checks
+  the MD5 of the exact QR that was scanned) always matches what's
+  currently displayed. Once payment succeeds, it stops touching the
+  record, preserving the QR that was actually used to pay.
+
 ## What's deliberately *not* here yet
 
 Everything past the foundation — store setup wizard, products/inventory,
