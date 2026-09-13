@@ -1,8 +1,24 @@
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { colorForIndex } from "@/lib/category-visuals";
 
 type Category = { slug: string; name: string; icon?: string | null; icon_url?: string | null; parent_id?: string | null; id?: string };
+
+function CategoryIcon({ category, index, size = "lg" }: { category: Category; index: number; size?: "lg" | "sm" }) {
+  const dims = size === "lg" ? "h-14 w-14 text-xl" : "h-11 w-11 text-lg";
+  const imgDims = size === "lg" ? "h-7 w-7" : "h-6 w-6";
+  return (
+    <span className={cn("flex items-center justify-center overflow-hidden rounded-full shadow-md", dims, colorForIndex(index).bg)}>
+      {category.icon_url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={category.icon_url} alt="" className={cn(imgDims, "object-contain [filter:brightness(0)_invert(1)]")} />
+      ) : (
+        category.icon || "🏷️"
+      )}
+    </span>
+  );
+}
 
 export function CategoryTabs({
   categories,
@@ -24,25 +40,23 @@ export function CategoryTabs({
   }
 
   // Only top-level categories get their own tab, so the row stays short and
-  // scannable no matter how finely a store owner splits things up (e.g.
-  // "Food" instead of "Food", "Snacks", "Drinks", "Bakery" all as tabs).
-  // Their sub-categories show up as a card panel below once that tab is
-  // selected, one tap deeper rather than cluttering the main row.
+  // scannable no matter how finely a store owner splits things up.
   const topLevel = categories.filter((c) => !c.parent_id);
   const activeRow = categories.find((c) => c.slug === activeCategory);
   const activeTop = activeRow ? (activeRow.parent_id ? topLevel.find((t) => t.id === activeRow.parent_id) : activeRow) : undefined;
   const activeTopIndex = activeTop ? topLevel.findIndex((t) => t.id === activeTop.id) : -1;
   const children = activeTop ? categories.filter((c) => c.parent_id === activeTop.id) : [];
-  const isTopActive = !activeCategory || activeCategory === activeTop?.slug;
 
-  return (
-    <div>
+  // No category picked yet ("All"): show the full top-level row, same as
+  // any storefront category strip.
+  if (!activeTop) {
+    return (
       <div id="categories" className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto px-4 pb-1 md:-mx-6 md:px-6">
         <Link href={hrefFor(undefined)} className="group flex w-16 flex-shrink-0 flex-col items-center gap-1.5 text-center">
           <span
             className={cn(
               "flex h-14 w-14 items-center justify-center overflow-hidden rounded-full text-xl shadow-lg transition-all duration-200 group-hover:scale-110 group-hover:brightness-110 group-active:scale-95",
-              !activeCategory ? "bg-brand-gradient shadow-[0_0_24px_rgba(168,85,247,0.55)]" : "bg-white/10 group-hover:bg-white/20"
+              "bg-brand-gradient shadow-[0_0_24px_rgba(168,85,247,0.55)]"
             )}
           >
             {allIconUrl ? (
@@ -52,81 +66,62 @@ export function CategoryTabs({
               "🏷️"
             )}
           </span>
-          <span className={cn("text-xs font-medium transition-colors", !activeCategory ? "text-white" : "text-white/50 group-hover:text-white/80")}>All</span>
+          <span className="text-xs font-medium text-white">All</span>
         </Link>
-        {topLevel.map((c, i) => {
-          const isActive = activeCategory === c.slug || activeTop?.slug === c.slug;
-          return (
-            <Link key={c.slug} href={hrefFor(c.slug)} className="group flex w-16 flex-shrink-0 flex-col items-center gap-1.5 text-center">
-              <span
-                className={cn(
-                  "flex h-14 w-14 items-center justify-center overflow-hidden rounded-full text-xl shadow-lg transition-all duration-200 group-hover:scale-110 group-hover:brightness-110 group-active:scale-95",
-                  colorForIndex(i).bg,
-                  isActive && "shadow-[0_0_24px_rgba(255,255,255,0.45)]"
-                )}
-              >
-                {c.icon_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={c.icon_url} alt="" className="h-7 w-7 object-contain [filter:brightness(0)_invert(1)]" />
-                ) : (
-                  c.icon || "🏷️"
-                )}
-              </span>
-              <span className={cn("truncate text-xs font-medium transition-colors", isActive ? "text-white" : "text-white/50 group-hover:text-white/80")}>
-                {c.name}
-              </span>
-            </Link>
-          );
-        })}
+        {topLevel.map((c, i) => (
+          <Link key={c.slug} href={hrefFor(c.slug)} className="group flex w-16 flex-shrink-0 flex-col items-center gap-1.5 text-center">
+            <div className="transition-transform group-hover:scale-110 group-active:scale-95">
+              <CategoryIcon category={c} index={i} />
+            </div>
+            <span className="truncate text-xs font-medium text-white/50 group-hover:text-white/80">{c.name}</span>
+          </Link>
+        ))}
+      </div>
+    );
+  }
+
+  // A top-level category is selected: collapse the full row down to a
+  // single "back to All Categories" bar plus the selected category's own
+  // sub-categories, instead of showing the whole top row AND a panel
+  // underneath at the same time -- that combination just eats vertical
+  // space without adding anything the back bar doesn't already cover.
+  return (
+    <div id="categories">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1">
+        <Link
+          href={hrefFor(undefined)}
+          className="flex flex-shrink-0 items-center gap-1 rounded-full border border-white/10 bg-white/5 py-1.5 pl-2 pr-3 text-xs font-medium text-white/60 hover:bg-white/10 hover:text-white"
+        >
+          <ChevronLeft className="h-3.5 w-3.5" /> All Categories
+        </Link>
+        <span className="flex flex-shrink-0 items-center gap-2 rounded-full bg-white/5 py-1 pl-1 pr-3">
+          <CategoryIcon category={activeTop} index={activeTopIndex} size="sm" />
+          <span className="text-sm font-semibold text-white">{activeTop.name}</span>
+        </span>
       </div>
 
-      {activeTop && children.length > 0 && (
-        <div className="mt-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3 md:p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <p className="text-sm font-semibold text-white/70">{activeTop.name} categories</p>
-            <Link
-              href={hrefFor(activeTop.slug)}
-              className={cn(
-                "flex-shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors",
-                isTopActive ? "bg-brand-gradient text-white shadow-glow" : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/80"
-              )}
-            >
-              View all
-            </Link>
-          </div>
-          <div className="no-scrollbar -mx-1 flex gap-3 overflow-x-auto px-1 pb-1">
-            {children.map((child, i) => {
-              const isChildActive = activeCategory === child.slug;
-              return (
-                <Link
-                  key={child.slug}
-                  href={hrefFor(child.slug)}
-                  className={cn(
-                    "group flex w-16 flex-shrink-0 flex-col items-center gap-1.5 rounded-xl p-2 text-center transition-colors",
-                    isChildActive ? "bg-white/10" : "hover:bg-white/5"
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "flex h-11 w-11 items-center justify-center overflow-hidden rounded-full text-lg shadow-md transition-transform group-hover:scale-105",
-                      colorForIndex(activeTopIndex + i + 1).bg,
-                      isChildActive && "shadow-[0_0_16px_rgba(255,255,255,0.4)]"
-                    )}
-                  >
-                    {child.icon_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={child.icon_url} alt="" className="h-6 w-6 object-contain [filter:brightness(0)_invert(1)]" />
-                    ) : (
-                      child.icon || "🏷️"
-                    )}
-                  </span>
-                  <span className={cn("truncate text-[11px] font-medium leading-tight", isChildActive ? "text-white" : "text-white/60 group-hover:text-white/80")}>
-                    {child.name}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
+      {children.length > 0 && (
+        <div className="no-scrollbar -mx-1 mt-2 flex gap-3 overflow-x-auto px-1 pb-1">
+          {children.map((child, i) => {
+            const isChildActive = activeCategory === child.slug;
+            return (
+              <Link
+                key={child.slug}
+                href={hrefFor(child.slug)}
+                className={cn(
+                  "group flex w-16 flex-shrink-0 flex-col items-center gap-1.5 rounded-xl p-2 text-center transition-colors",
+                  isChildActive ? "bg-white/10" : "hover:bg-white/5"
+                )}
+              >
+                <div className={cn("transition-transform group-hover:scale-105", isChildActive && "shadow-[0_0_16px_rgba(255,255,255,0.4)]")}>
+                  <CategoryIcon category={child} index={activeTopIndex + i + 1} size="sm" />
+                </div>
+                <span className={cn("truncate text-[11px] font-medium leading-tight", isChildActive ? "text-white" : "text-white/60 group-hover:text-white/80")}>
+                  {child.name}
+                </span>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
