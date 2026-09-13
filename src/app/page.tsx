@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/app-shell";
 import { PostCard } from "@/components/posts/post-card";
 import { HomeProductCard } from "@/components/home/home-product-card";
+import { CategoryShowcase, type ShowcaseSection } from "@/components/home/category-showcase";
 import { ProductFilters } from "@/components/home/product-filters";
 import { PopularShopsRow } from "@/components/home/popular-shops-row";
 import { HeroBannerCarousel } from "@/components/home/hero-banner-carousel";
@@ -35,23 +36,80 @@ export default async function HomePage({
   // "Drinks") — otherwise creating sub-categories would just hide products
   // instead of organizing them. A selected sub-category filters narrowly.
   let categoryIds: string[] | null = null;
+  let browseParent: { id: string; slug: string } | null = null;
+  let browseChildren: { id: string; slug: string; name: string; icon: string | null; icon_url: string | null }[] = [];
   if (searchParams.category) {
     const { data: cat } = await supabase
       .from("categories")
-      .select("id, parent_id")
+      .select("id, slug, parent_id")
       .eq("slug", searchParams.category)
       .maybeSingle();
     if (cat) {
       if (cat.parent_id) {
         categoryIds = [cat.id];
       } else {
-        const { data: children } = await supabase.from("categories").select("id").eq("parent_id", cat.id);
+        const { data: children } = await supabase
+          .from("categories")
+          .select("id, slug, name, icon, icon_url")
+          .eq("parent_id", cat.id)
+          .eq("is_active", true)
+          .order("sort_order");
         categoryIds = [cat.id, ...(children ?? []).map((c) => c.id)];
+        browseParent = { id: cat.id, slug: cat.slug };
+        browseChildren = children ?? [];
       }
     }
   }
 
+  // The "browse a parent category" case (tapped "Food", nothing more
+  // specific, no other filters) gets its own per-sub-category horizontal
+  // rows instead of one flat grid, so scrolling stays organized by
+  // sub-category rather than an unsorted mix of everything under "Food".
+  const isPlainParentBrowse = Boolean(
+    browseParent &&
+      browseChildren.length > 0 &&
+      !searchParams.q &&
+      !searchParams.minPrice &&
+      !searchParams.maxPrice &&
+      !searchParams.location &&
+      !searchParams.sort
+  );
+
   const hasLocationFilter = Boolean(searchParams.location?.trim());
+
+  let showcaseSections: ShowcaseSection[] = [];
+  if (isPlainParentBrowse && browseParent) {
+    const params = new URLSearchParams();
+    if (searchParams.q) params.set("q", searchParams.q);
+    const hrefFor = (slug: string) => {
+      const p = new URLSearchParams(params);
+      p.set("category", slug);
+      return `/?${p.toString()}`;
+    };
+
+    const sectionResults = await Promise.all(
+      browseChildren.map((child) =>
+        supabase
+          .from("products")
+          .select(
+            "id, name, slug, price, compare_at_price, store_id, sales_count, created_at, avg_rating, review_count, product_images(url, sort_order), stores(store_name, slug, verified, city, province)"
+          )
+          .eq("status", "active")
+          .eq("category_id", child.id)
+          .order("created_at", { ascending: false })
+          .limit(12)
+      )
+    );
+
+    showcaseSections = browseChildren
+      .map((child, i) => ({
+        category: child,
+        colorIndex: i + 1,
+        viewAllHref: hrefFor(child.slug),
+        products: (sectionResults[i].data ?? []) as unknown as ShowcaseSection["products"],
+      }))
+      .filter((section) => section.products.length > 0);
+  }
 
   let productQuery = supabase
     .from("products")
@@ -296,18 +354,33 @@ export default async function HomePage({
       )}
 
       {/* Remaining products (or full results grid when searching/filtering) */}
-      <h2 className="mb-4 text-sm font-semibold text-white/70">
-        {isFiltered ? (
-          <>
-            <T k="home_results_for" />
-            {searchParams.q ? ` for "${searchParams.q}"` : ""}
-          </>
-        ) : (
-          <T k="home_more_products" />
-        )}
-      </h2>
+      {!isPlainParentBrowse && (
+        <h2 className="mb-4 text-sm font-semibold text-white/70">
+          {isFiltered ? (
+            <>
+              <T k="home_results_for" />
+              {searchParams.q ? ` for "${searchParams.q}"` : ""}
+            </>
+          ) : (
+            <T k="home_more_products" />
+          )}
+        </h2>
+      )}
 
-      {!products || products.length === 0 ? (
+      {isPlainParentBrowse ? (
+        showcaseSections.length === 0 ? (
+          <p className="text-sm text-white/40">
+            <T k="home_no_match" />
+          </p>
+        ) : (
+          <CategoryShowcase
+            sections={showcaseSections}
+            isLoggedIn={Boolean(user)}
+            savedProductIds={Array.from(savedIds)}
+            aiEnabledStoreIds={Array.from(aiEnabledStoreIds)}
+          />
+        )
+      ) : !products || products.length === 0 ? (
         <p className="text-sm text-white/40">
           {isFiltered ? <T k="home_no_match" /> : <T k="home_no_products" />}
         </p>

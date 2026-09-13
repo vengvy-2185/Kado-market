@@ -113,6 +113,7 @@ export function CategoryTabs({
               <Link
                 key={child.slug}
                 href={hrefFor(child.slug)}
+                data-cat-chip={child.slug}
                 className={cn(
                   "flex flex-shrink-0 items-center gap-1.5 rounded-full py-1 pl-1 pr-3 text-xs font-medium transition-colors",
                   isChildActive ? "bg-white/15 text-white" : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/80"
