@@ -2,10 +2,12 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 export function BackButton() {
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useLanguage();
 
   if (pathname === "/dashboard" || pathname === "/admin") return null;
 
@@ -16,7 +18,7 @@ export function BackButton() {
       aria-label="Go back"
     >
       <ArrowLeft className="h-4 w-4" />
-      Back
+      {t("back_button")}
     </button>
   );
 }

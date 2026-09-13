@@ -176,7 +176,12 @@ export async function deleteProduct(productId: string) {
   const { error } = await supabase.from("products").delete().eq("id", productId);
   if (error) throw new Error(error.message);
   revalidatePath("/dashboard/products");
-  redirect("/dashboard/products");
+  // No redirect() here on purpose: this action is called from a client
+  // component's try/catch, and Next.js's redirect() works by throwing a
+  // special signal internally -- a surrounding catch block swallows that
+  // throw as if it were a real error, showing a false "delete failed"
+  // message even though the row was already removed. The caller
+  // navigates itself once this resolves without throwing.
 }
 
 export async function adjustStock(formData: FormData) {

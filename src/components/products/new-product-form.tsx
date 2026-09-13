@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { CategoryOptions } from "@/components/products/category-options";
+import { CategorySelect } from "@/components/products/category-select";
+import { useLanguage } from "@/lib/i18n/language-context";
 import type { Database } from "@/lib/types/database.types";
 import { createProduct } from "@/lib/actions/products";
 
@@ -24,6 +25,7 @@ type Variant = {
 };
 
 export function NewProductForm({ storeId, categories }: { storeId: string; categories: Category[] }) {
+  const { t } = useLanguage();
   const [images, setImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [variants, setVariants] = useState<Variant[]>([]);
@@ -41,7 +43,7 @@ export function NewProductForm({ storeId, categories }: { storeId: string; categ
         setImages((imgs) => [...imgs, url]);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed");
+      setError(err instanceof Error ? err.message : t("product_form_upload_failed"));
     } finally {
       setUploading(false);
     }
@@ -81,89 +83,81 @@ export function NewProductForm({ storeId, categories }: { storeId: string; categ
       await createProduct(formData);
     } catch (err) {
       setSubmitting(false);
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setError(err instanceof Error ? err.message : t("product_form_generic_error"));
     }
   }
 
   return (
     <form action={handleSubmit} className="space-y-6">
       <Card className="space-y-4">
-        <h2 className="text-lg font-bold">Basic info</h2>
+        <h2 className="text-lg font-bold">{t("product_form_basic_info")}</h2>
         <div>
-          <Label htmlFor="name">Product name</Label>
+          <Label htmlFor="name">{t("product_form_name")}</Label>
           <Input id="name" name="name" required />
         </div>
         <div>
-          <Label htmlFor="description">Description</Label>
+          <Label htmlFor="description">{t("product_form_description")}</Label>
           <Textarea id="description" name="description" rows={4} />
         </div>
         <div className="grid grid-cols-2 gap-4">
+          <CategorySelect categories={categories} />
           <div>
-            <Label htmlFor="category_id">Category</Label>
-            <Select id="category_id" name="category_id" defaultValue="">
-              <option value="">Uncategorized</option>
-              <CategoryOptions categories={categories} />
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="brand">Brand</Label>
+            <Label htmlFor="brand">{t("product_form_brand")}</Label>
             <Input id="brand" name="brand" />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="condition">Condition</Label>
+            <Label htmlFor="condition">{t("product_form_condition")}</Label>
             <Select id="condition" name="condition" defaultValue="new">
-              <option value="new">New</option>
-              <option value="used">Used</option>
-              <option value="refurbished">Refurbished</option>
+              <option value="new">{t("product_condition_new")}</option>
+              <option value="used">{t("product_condition_used")}</option>
+              <option value="refurbished">{t("product_condition_refurbished")}</option>
             </Select>
           </div>
           <div>
-            <Label htmlFor="status">Status</Label>
+            <Label htmlFor="status">{t("product_form_status")}</Label>
             <Select id="status" name="status" defaultValue="active">
-              <option value="active">Active (visible now)</option>
-              <option value="draft">Draft (hidden)</option>
+              <option value="active">{t("product_status_active_now")}</option>
+              <option value="draft">{t("product_status_draft")}</option>
             </Select>
           </div>
         </div>
       </Card>
 
       <Card className="space-y-4">
-        <h2 className="text-lg font-bold">Pricing & stock</h2>
+        <h2 className="text-lg font-bold">{t("product_form_pricing_stock")}</h2>
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <Label htmlFor="price">Price ($)</Label>
+            <Label htmlFor="price">{t("product_form_price")}</Label>
             <Input id="price" name="price" type="number" step="0.01" min="0" required />
           </div>
           <div>
-            <Label htmlFor="compare_at_price">Compare-at price ($)</Label>
+            <Label htmlFor="compare_at_price">{t("product_form_compare_price")}</Label>
             <Input id="compare_at_price" name="compare_at_price" type="number" step="0.01" min="0" />
           </div>
           <div>
-            <Label htmlFor="sku">SKU</Label>
+            <Label htmlFor="sku">{t("product_form_sku")}</Label>
             <Input id="sku" name="sku" />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="initial_stock">Initial stock</Label>
+            <Label htmlFor="initial_stock">{t("product_form_initial_stock")}</Label>
             <Input id="initial_stock" name="initial_stock" type="number" min="0" defaultValue="0" />
           </div>
           <div>
-            <Label htmlFor="low_stock_threshold">Low stock alert below</Label>
+            <Label htmlFor="low_stock_threshold">{t("product_form_low_stock")}</Label>
             <Input id="low_stock_threshold" name="low_stock_threshold" type="number" min="0" defaultValue="5" />
           </div>
         </div>
-        <p className="text-xs text-white/40">
-          Leave initial stock at 0 if this product only sells through variants below.
-        </p>
+        <p className="text-xs text-white/40">{t("product_form_stock_hint")}</p>
       </Card>
 
       <Card className="space-y-4">
-        <h2 className="text-lg font-bold">Images</h2>
+        <h2 className="text-lg font-bold">{t("product_form_images")}</h2>
         <input type="file" accept="image/*" multiple onChange={handleImagePick} className="text-sm text-white/70" />
-        {uploading && <p className="text-xs text-white/40">Uploading...</p>}
+        {uploading && <p className="text-xs text-white/40">{t("product_form_uploading")}</p>}
         {images.length > 0 && (
           <div className="flex flex-wrap gap-3">
             {images.map((url, i) => (
@@ -184,27 +178,33 @@ export function NewProductForm({ storeId, categories }: { storeId: string; categ
 
       <Card className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold">Variants (optional)</h2>
+          <h2 className="text-lg font-bold">{t("product_form_variants_optional")}</h2>
           <Button type="button" variant="outline" onClick={addVariant}>
-            + Add variant
+            {t("product_form_add_variant")}
           </Button>
         </div>
         {variants.map((v, i) => (
           <div key={i} className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] items-end gap-2 rounded-xl border border-white/10 p-3">
             <div>
-              <Label>Name</Label>
+              <Label>{t("product_form_variant_name")}</Label>
               <Input placeholder="256GB / Black" value={v.variant_name} onChange={(e) => updateVariant(i, "variant_name", e.target.value)} />
             </div>
             <div>
-              <Label>SKU</Label>
+              <Label>{t("product_form_sku")}</Label>
               <Input value={v.sku} onChange={(e) => updateVariant(i, "sku", e.target.value)} />
             </div>
             <div>
-              <Label>Price override</Label>
-              <Input type="number" step="0.01" placeholder="optional" value={v.price} onChange={(e) => updateVariant(i, "price", e.target.value)} />
+              <Label>{t("product_form_variant_price_override")}</Label>
+              <Input
+                type="number"
+                step="0.01"
+                placeholder={t("product_form_optional")}
+                value={v.price}
+                onChange={(e) => updateVariant(i, "price", e.target.value)}
+              />
             </div>
             <div>
-              <Label>Stock</Label>
+              <Label>{t("product_form_variant_stock")}</Label>
               <Input type="number" min="0" value={v.stock} onChange={(e) => updateVariant(i, "stock", e.target.value)} />
             </div>
             <button type="button" onClick={() => removeVariant(i)} className="mb-2 rounded-lg p-2 text-danger hover:bg-danger/10">
@@ -217,7 +217,7 @@ export function NewProductForm({ storeId, categories }: { storeId: string; categ
       {error && <p className="text-sm text-danger">{error}</p>}
 
       <Button type="submit" loading={submitting || uploading} className="w-full">
-        Create product
+        {t("product_form_create_button")}
       </Button>
     </form>
   );

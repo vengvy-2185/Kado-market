@@ -1,5 +1,6 @@
 import { getMyStoreOrRedirect } from "@/lib/store";
 import { NewProductForm } from "@/components/products/new-product-form";
+import { T } from "@/components/t";
 
 export default async function NewProductPage() {
   const { supabase, store } = await getMyStoreOrRedirect();
@@ -11,7 +12,9 @@ export default async function NewProductPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-10">
-      <h1 className="mb-6 text-2xl font-bold">Add a product</h1>
+      <h1 className="mb-6 text-2xl font-bold">
+        <T k="product_form_add_title" />
+      </h1>
       <NewProductForm storeId={store.id} categories={categories ?? []} />
     </div>
   );
