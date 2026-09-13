@@ -148,6 +148,18 @@ export async function updateCategoryField(id: string, field: string, value: stri
   revalidatePath("/");
 }
 
+export async function updateCategoryFields(
+  id: string,
+  fields: Partial<{ name: string; icon: string | null; icon_url: string | null; parent_id: string | null; is_active: boolean; sort_order: number }>
+) {
+  const supabase = await requireAdmin();
+  const { error } = await supabase.from("categories").update(fields).eq("id", id);
+  if (error) throw new Error(error.message);
+  await logAudit(supabase, "category.updated", "category", id, fields);
+  revalidatePath("/admin/categories");
+  revalidatePath("/");
+}
+
 export async function deleteCategory(id: string) {
   const supabase = await requireAdmin();
   const { error } = await supabase.from("categories").delete().eq("id", id);
