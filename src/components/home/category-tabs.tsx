@@ -94,7 +94,7 @@ export function CategoryTabs({
               View all
             </Link>
           </div>
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
+          <div className="no-scrollbar -mx-1 flex gap-3 overflow-x-auto px-1 pb-1">
             {children.map((child, i) => {
               const isChildActive = activeCategory === child.slug;
               return (
@@ -102,7 +102,7 @@ export function CategoryTabs({
                   key={child.slug}
                   href={hrefFor(child.slug)}
                   className={cn(
-                    "group flex flex-col items-center gap-1.5 rounded-xl p-2 text-center transition-colors",
+                    "group flex w-16 flex-shrink-0 flex-col items-center gap-1.5 rounded-xl p-2 text-center transition-colors",
                     isChildActive ? "bg-white/10" : "hover:bg-white/5"
                   )}
                 >

@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Plus, Pencil, Trash2, X, ImagePlus, ChevronRight } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Plus, Pencil, Trash2, X, ImagePlus, ChevronRight, ChevronDown, Check } from "lucide-react";
 import { createCategory, updateCategoryFields, deleteCategory } from "@/lib/actions/admin-plans";
 import { uploadPublicFile } from "@/lib/storage";
 import { colorForIndex, PRESET_CATEGORY_ICONS } from "@/lib/category-visuals";
@@ -181,6 +181,64 @@ export function CategoryManager({ categories, counts }: { categories: Category[]
   );
 }
 
+function ComboBox({
+  value,
+  onChange,
+  options,
+  placeholder,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  options: { value: string; label: string }[];
+  placeholder: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const selected = options.find((o) => o.value === value);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={rootRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none transition-colors hover:border-white/20 focus:border-primary"
+      >
+        <span className={selected ? "text-white" : "text-white/40"}>{selected ? selected.label : placeholder}</span>
+        <ChevronDown className={cn("h-4 w-4 text-white/40 transition-transform", open && "rotate-180")} />
+      </button>
+      {open && (
+        <div className="absolute z-20 mt-1.5 max-h-56 w-full overflow-y-auto rounded-xl border border-white/10 bg-surface p-1 shadow-2xl shadow-black/50">
+          {options.map((o) => (
+            <button
+              key={o.value || "none"}
+              type="button"
+              onClick={() => {
+                onChange(o.value);
+                setOpen(false);
+              }}
+              className={cn(
+                "flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors",
+                o.value === value ? "bg-primary/20 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"
+              )}
+            >
+              {o.label}
+              {o.value === value && <Check className="h-3.5 w-3.5 text-primary" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function CategoryPanel({
   panel,
   topLevel,
@@ -245,13 +303,17 @@ function CategoryPanel({
     setError(null);
     try {
       if (isEdit && editing) {
-        await updateCategoryFields(editing.id, {
+        const result = await updateCategoryFields(editing.id, {
           name: name.trim(),
           icon: iconUrl ? null : icon,
           icon_url: iconUrl,
           parent_id: parentId || null,
           is_active: isActive,
         });
+        if (!result.ok) {
+          setError(result.error);
+          return;
+        }
         onSaved(editing.id);
       } else {
         const formData = new FormData();
@@ -262,7 +324,11 @@ function CategoryPanel({
         // parent" never sends one, regardless of anything else on screen.
         if (isAddChild && parentId) formData.set("parent_id", parentId);
         formData.set("sort_order", "0");
-        await createCategory(formData);
+        const result = await createCategory(formData);
+        if (!result.ok) {
+          setError(result.error);
+          return;
+        }
         onSaved(isAddChild ? parentId : "new");
       }
     } catch (err) {
@@ -302,20 +368,15 @@ function CategoryPanel({
           {showParentField && (
             <div>
               <label className="mb-1 block text-xs font-semibold text-white/60">Parent Category</label>
-              <select
+              <ComboBox
                 value={parentId}
-                onChange={(e) => setParentId(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none focus:border-primary"
-              >
-                <option value="">— top level —</option>
-                {topLevel
-                  .filter((t) => t.id !== editing?.id)
-                  .map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.name}
-                    </option>
-                  ))}
-              </select>
+                onChange={setParentId}
+                placeholder="— top level —"
+                options={[
+                  { value: "", label: "— top level —" },
+                  ...topLevel.filter((t) => t.id !== editing?.id).map((t) => ({ value: t.id, label: t.name })),
+                ]}
+              />
             </div>
           )}
 

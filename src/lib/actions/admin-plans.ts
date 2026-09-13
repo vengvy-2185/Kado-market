@@ -117,13 +117,38 @@ export async function deleteBoostPlan(id: string) {
 
 // ---------------- Categories ----------------
 
-export async function createCategory(formData: FormData) {
+// Postgres error codes we can turn into a message worth showing an admin,
+// instead of the generic "something went wrong on the server" Next.js
+// shows in production for anything thrown out of a Server Action.
+function describeCategoryError(error: { code?: string; message: string }): string {
+  if (error.code === "23505") return "A category with a very similar name already exists — try a slightly different name.";
+  return "Couldn't save the category. Please try again.";
+}
+
+// Category slugs are used in the shopper-facing URL (?category=slug), so
+// they must be unique -- but two categories legitimately having the same
+// name (e.g. a top-level "Other" and a sub-category also called "Other")
+// shouldn't be a hard error the admin has to work around by hand. Instead,
+// silently pick the next free slug (classis, classis-2, classis-3, ...).
+async function uniqueCategorySlug(supabase: Awaited<ReturnType<typeof createClient>>, baseSlug: string): Promise<string> {
+  const safeBase = baseSlug || "category";
+  const { data } = await supabase.from("categories").select("slug").ilike("slug", `${safeBase}%`);
+  const existing = new Set((data ?? []).map((r) => r.slug));
+  if (!existing.has(safeBase)) return safeBase;
+  let i = 2;
+  while (existing.has(`${safeBase}-${i}`)) i++;
+  return `${safeBase}-${i}`;
+}
+
+export async function createCategory(formData: FormData): Promise<{ ok: true } | { ok: false; error: string }> {
   const supabase = await requireAdmin();
   const name = String(formData.get("name") ?? "").trim();
-  const slug = name
+  if (!name) return { ok: false, error: "Category name is required." };
+  const baseSlug = name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
+  const slug = await uniqueCategorySlug(supabase, baseSlug);
   const parentId = String(formData.get("parent_id") ?? "").trim() || null;
   const { error } = await supabase.from("categories").insert({
     name,
@@ -133,10 +158,11 @@ export async function createCategory(formData: FormData) {
     parent_id: parentId,
     sort_order: Number(formData.get("sort_order") ?? 0),
   });
-  if (error) throw new Error(error.message);
+  if (error) return { ok: false, error: describeCategoryError(error) };
   await logAudit(supabase, "category.created", "category", null, { name, parent_id: parentId });
   revalidatePath("/admin/categories");
   revalidatePath("/");
+  return { ok: true };
 }
 
 export async function updateCategoryField(id: string, field: string, value: string | number | boolean | null) {
@@ -151,13 +177,14 @@ export async function updateCategoryField(id: string, field: string, value: stri
 export async function updateCategoryFields(
   id: string,
   fields: Partial<{ name: string; icon: string | null; icon_url: string | null; parent_id: string | null; is_active: boolean; sort_order: number }>
-) {
+): Promise<{ ok: true } | { ok: false; error: string }> {
   const supabase = await requireAdmin();
   const { error } = await supabase.from("categories").update(fields).eq("id", id);
-  if (error) throw new Error(error.message);
+  if (error) return { ok: false, error: describeCategoryError(error) };
   await logAudit(supabase, "category.updated", "category", id, fields);
   revalidatePath("/admin/categories");
   revalidatePath("/");
+  return { ok: true };
 }
 
 export async function deleteCategory(id: string) {
