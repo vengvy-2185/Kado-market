@@ -57,8 +57,8 @@ export default async function HomePage({
     .from("products")
     .select(
       hasLocationFilter
-        ? "id, name, slug, price, compare_at_price, store_id, sales_count, avg_rating, review_count, product_images(url, sort_order), stores!inner(store_name, slug, verified, city, province)"
-        : "id, name, slug, price, compare_at_price, store_id, sales_count, avg_rating, review_count, product_images(url, sort_order), stores(store_name, slug, verified, city, province)"
+        ? "id, name, slug, price, compare_at_price, store_id, sales_count, created_at, avg_rating, review_count, product_images(url, sort_order), stores!inner(store_name, slug, verified, city, province)"
+        : "id, name, slug, price, compare_at_price, store_id, sales_count, created_at, avg_rating, review_count, product_images(url, sort_order), stores(store_name, slug, verified, city, province)"
     )
     .eq("status", "active")
     .limit(24);

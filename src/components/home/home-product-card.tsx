@@ -1,8 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Package, ShieldCheck, Star } from "lucide-react";
+import { Package, ShieldCheck, Star, Flame, Sparkles } from "lucide-react";
 import { SaveButton } from "@/components/product/save-button";
 import { QuickActions } from "@/components/product/quick-actions";
+import { isNewProduct, isPopularProduct } from "@/lib/product-badges";
 
 type Product = {
   id: string;
@@ -11,6 +12,8 @@ type Product = {
   price: number;
   compare_at_price: number | null;
   store_id: string;
+  sales_count?: number | null;
+  created_at?: string | null;
   avg_rating?: number | null;
   review_count?: number | null;
   product_images: { url: string; sort_order: number }[] | null;
@@ -35,12 +38,26 @@ export function HomeProductCard({
     product.compare_at_price && product.compare_at_price > product.price
       ? Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)
       : null;
+  // Popular takes priority when a product qualifies for both -- a proven
+  // seller is more useful signal to lead with than "recently listed".
+  const popular = isPopularProduct(product.sales_count);
+  const isNew = !popular && isNewProduct(product.created_at);
 
   return (
     <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-surface/60 transition-colors hover:border-primary/40">
-      {discountPct !== null && (
-        <span className="absolute left-2 top-2 z-10 rounded-full bg-danger px-2 py-0.5 text-[10px] font-bold text-white">-{discountPct}%</span>
-      )}
+      <div className="absolute left-2 top-2 z-10 flex flex-col items-start gap-1">
+        {discountPct !== null && <span className="rounded-full bg-danger px-2 py-0.5 text-[10px] font-bold text-white">-{discountPct}%</span>}
+        {popular && (
+          <span className="flex items-center gap-0.5 rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-2 py-0.5 text-[10px] font-bold text-white">
+            <Flame className="h-2.5 w-2.5" /> Popular
+          </span>
+        )}
+        {isNew && (
+          <span className="flex items-center gap-0.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-2 py-0.5 text-[10px] font-bold text-white">
+            <Sparkles className="h-2.5 w-2.5" /> New
+          </span>
+        )}
+      </div>
       {isLoggedIn && <SaveButton productId={product.id} initialSaved={isSaved} />}
       <Link href={`/product/${product.slug}`}>
         <div className="aspect-square bg-white/5">

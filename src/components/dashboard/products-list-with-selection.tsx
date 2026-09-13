@@ -3,10 +3,11 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, Copy, X } from "lucide-react";
+import { Check, Copy, X, Flame, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { duplicateProducts } from "@/lib/actions/products";
+import { isNewProduct, isPopularProduct } from "@/lib/product-badges";
 
 type Product = {
   id: string;
@@ -16,6 +17,8 @@ type Product = {
   status: string;
   low_stock_threshold: number;
   slug: string;
+  sales_count?: number | null;
+  created_at?: string | null;
 };
 
 const LONG_PRESS_MS = 450;
@@ -120,7 +123,19 @@ export function ProductsListWithSelection({ products }: { products: Product[] })
                   </span>
                 )}
                 <div>
-                  <p className="font-semibold">{p.name}</p>
+                  <p className="flex flex-wrap items-center gap-1.5 font-semibold">
+                    {p.name}
+                    {isPopularProduct(p.sales_count) && (
+                      <span className="flex items-center gap-0.5 rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                        <Flame className="h-2.5 w-2.5" /> Popular
+                      </span>
+                    )}
+                    {!isPopularProduct(p.sales_count) && isNewProduct(p.created_at) && (
+                      <span className="flex items-center gap-0.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                        <Sparkles className="h-2.5 w-2.5" /> New
+                      </span>
+                    )}
+                  </p>
                   <p className="text-sm text-white/50">
                     ${p.price} ·{" "}
                     <span
