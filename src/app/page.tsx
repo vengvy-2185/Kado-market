@@ -36,12 +36,12 @@ export default async function HomePage({
   // "Drinks") — otherwise creating sub-categories would just hide products
   // instead of organizing them. A selected sub-category filters narrowly.
   let categoryIds: string[] | null = null;
-  let browseParent: { id: string; slug: string } | null = null;
+  let browseParent: { id: string; slug: string; name: string; icon: string | null; icon_url: string | null } | null = null;
   let browseChildren: { id: string; slug: string; name: string; icon: string | null; icon_url: string | null }[] = [];
   if (searchParams.category) {
     const { data: cat } = await supabase
       .from("categories")
-      .select("id, slug, parent_id")
+      .select("id, slug, name, icon, icon_url, parent_id")
       .eq("slug", searchParams.category)
       .maybeSingle();
     if (cat) {
@@ -55,7 +55,7 @@ export default async function HomePage({
           .eq("is_active", true)
           .order("sort_order");
         categoryIds = [cat.id, ...(children ?? []).map((c) => c.id)];
-        browseParent = { id: cat.id, slug: cat.slug };
+        browseParent = { id: cat.id, slug: cat.slug, name: cat.name, icon: cat.icon, icon_url: cat.icon_url };
         browseChildren = children ?? [];
       }
     }
@@ -109,6 +109,30 @@ export default async function HomePage({
         products: (sectionResults[i].data ?? []) as unknown as ShowcaseSection["products"],
       }))
       .filter((section) => section.products.length > 0);
+
+    // Products tagged directly to the parent category itself (not to any
+    // of its sub-categories) still need somewhere to show up -- otherwise
+    // a shopper could pick "Fashion" and see nothing at all just because
+    // every existing product was filed under "Fashion" itself rather than
+    // one of its sub-categories.
+    const { data: directProducts } = await supabase
+      .from("products")
+      .select(
+        "id, name, slug, price, compare_at_price, store_id, sales_count, created_at, avg_rating, review_count, product_images(url, sort_order), stores(store_name, slug, verified, city, province)"
+      )
+      .eq("status", "active")
+      .eq("category_id", browseParent.id)
+      .order("created_at", { ascending: false })
+      .limit(12);
+
+    if (directProducts && directProducts.length > 0) {
+      showcaseSections.unshift({
+        category: browseParent,
+        colorIndex: 0,
+        viewAllHref: hrefFor(browseParent.slug),
+        products: directProducts as unknown as ShowcaseSection["products"],
+      });
+    }
   }
 
   let productQuery = supabase
