@@ -10,6 +10,16 @@
  * KADO MARKET has no Bakong merchant API integration, so this only
  * produces the QR code for the customer to scan and pay; the seller still
  * confirms receipt manually in their own banking app.
+ *
+ * Tag 99 (real-world Bakong error Q0626, "QR code has expired"):
+ * an earlier version of this function only wrote sub-tag 00 (the creation
+ * timestamp) into tag 99. Cross-checking against a real decoded KHQR
+ * sample from another Bakong SDK showed tag 99 actually needs a SECOND
+ * sub-tag — 01, the expiration timestamp — and without it the scanning
+ * app has nothing to compare "now" against, so it reads the QR as already
+ * expired the instant it's scanned, regardless of how fresh it actually
+ * is. That's the real fix; regenerating the QR on every page view (an
+ * earlier workaround) only ever masked the symptom.
  */
 
 import crypto from "crypto";
@@ -38,6 +48,11 @@ export function generateKhqr(params: {
   merchantCity?: string;
   amount?: number; // omit or 0 for a reusable static QR with no fixed amount
   currency?: "USD" | "KHR";
+  /** How long a dynamic (fixed-amount) QR stays valid before the scanning
+   * app reports it as expired. Ignored for static QRs, which are meant to
+   * be scanned indefinitely. Default 900s (15 min) — long enough for a
+   * buyer to open the page, switch to their banking app, and pay. */
+  validForSeconds?: number;
 }): string {
   const {
     bakongAccountId,
@@ -46,12 +61,18 @@ export function generateKhqr(params: {
     merchantCity = "Phnom Penh",
     amount = 0,
     currency = "USD",
+    validForSeconds = 900,
   } = params;
 
   const isDynamic = amount > 0;
   const currencyCode = currency === "USD" ? "840" : "116";
 
   const merchantAccountInfo = tlv("00", bakongAccountId) + tlv("01", accountInformation);
+
+  const createdAt = Date.now();
+  const timestampExtension = isDynamic
+    ? tlv("00", createdAt.toString()) + tlv("01", (createdAt + validForSeconds * 1000).toString())
+    : tlv("00", createdAt.toString());
 
   const parts = [
     tlv("00", "01"), // Payload Format Indicator
@@ -63,7 +84,7 @@ export function generateKhqr(params: {
     tlv("58", "KH"), // Country Code
     tlv("59", merchantName.slice(0, 25)), // Merchant Name
     tlv("60", merchantCity.slice(0, 15)), // Merchant City
-    tlv("99", tlv("00", Date.now().toString())), // Bakong timestamp extension
+    tlv("99", timestampExtension), // Bakong timestamp extension (creation + expiry)
   ];
 
   const withoutCrc = parts.join("") + "6304";

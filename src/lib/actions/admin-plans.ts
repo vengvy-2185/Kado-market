@@ -129,6 +129,7 @@ export async function createCategory(formData: FormData) {
     name,
     slug,
     icon: String(formData.get("icon") ?? "").trim() || null,
+    icon_url: String(formData.get("icon_url") ?? "").trim() || null,
     parent_id: parentId,
     sort_order: Number(formData.get("sort_order") ?? 0),
   });

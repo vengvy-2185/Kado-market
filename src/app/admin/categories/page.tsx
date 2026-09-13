@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getUserRole, isAdminRole } from "@/lib/require-admin";
 import { Card } from "@/components/ui/card";
 import { CategoryRow } from "@/components/admin/category-row";
+import { SubCategoryQuickAdd } from "@/components/admin/subcategory-quick-add";
 import { AllCategoryIconForm } from "@/components/admin/all-category-icon-form";
 import { NewCategoryForm } from "@/components/admin/new-plan-forms";
 
@@ -65,6 +66,7 @@ export default async function AdminCategoriesPage() {
             {(childrenByParent.get(c.id) ?? []).map((child) => (
               <CategoryRow key={child.id} category={child} topLevelCategories={topLevelForSelect} isSubcategory />
             ))}
+            <SubCategoryQuickAdd parentId={c.id} parentName={c.name} />
           </div>
         ))}
         {orphans.map((c) => (
