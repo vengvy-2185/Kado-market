@@ -3,12 +3,13 @@
 import { useState, useTransition, useEffect, useRef } from "react";
 import { CheckCircle2, Loader2, ShieldCheck, Clock } from "lucide-react";
 import { verifyBakongPayment } from "@/lib/actions/orders";
+import { PaymentSuccessOverlay } from "@/components/payment-success-overlay";
 
-export function BakongVerifyButton({ orderId, verifiedAt }: { orderId: string; verifiedAt: string | null }) {
+export function BakongVerifyButton({ orderId, verifiedAt, merchantName }: { orderId: string; verifiedAt: string | null; merchantName: string }) {
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(Boolean(verifiedAt));
-  const [justConfirmed, setJustConfirmed] = useState(false);
+  const [celebrate, setCelebrate] = useState<{ amount: number; currency: string; fromAccountId: string; hash: string } | null>(null);
   const [cooldownUntil, setCooldownUntil] = useState<number | null>(null);
   const [, forceTick] = useState(0);
   const isSuccessRef = useRef(isSuccess);
@@ -31,8 +32,7 @@ export function BakongVerifyButton({ orderId, verifiedAt }: { orderId: string; v
       const res = await verifyBakongPayment(orderId);
       if (res.status === "success") {
         setIsSuccess(true);
-        setJustConfirmed(true);
-        setResult(`Confirmed: $${res.amount.toFixed(2)} ${res.currency} received from ${res.fromAccountId}.`);
+        setCelebrate({ amount: res.amount, currency: res.currency, fromAccountId: res.fromAccountId, hash: res.hash });
       } else if (silent) {
         // Auto-poll failures ("not paid yet", rate-limited) stay silent —
         // only a real success or a person-initiated click should say
@@ -66,14 +66,22 @@ export function BakongVerifyButton({ orderId, verifiedAt }: { orderId: string; v
 
   if (isSuccess) {
     return (
-      <div className={`flex flex-col items-center gap-1.5 ${justConfirmed ? "animate-[pulse_0.6s_ease-in-out_1]" : ""}`}>
-        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-success/15">
-          <CheckCircle2 className="h-6 w-6 text-success" />
-        </span>
+      <>
         <p className="flex items-center gap-1.5 text-xs font-semibold text-success">
           <ShieldCheck className="h-3.5 w-3.5" /> Payment verified via Bakong{verifiedAt ? ` on ${new Date(verifiedAt).toLocaleDateString()}` : ""}
         </p>
-      </div>
+        {celebrate && (
+          <PaymentSuccessOverlay
+            merchantName={merchantName}
+            fromName={celebrate.fromAccountId}
+            amount={celebrate.amount}
+            currency={celebrate.currency}
+            transactionId={celebrate.hash}
+            onClose={() => setCelebrate(null)}
+            closeLabel="Back to Order"
+          />
+        )}
+      </>
     );
   }
 

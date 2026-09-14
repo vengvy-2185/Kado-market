@@ -124,7 +124,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
             <>
               <KhqrDisplay khqrString={khqrStringToShow!} merchantName={store?.store_name ?? ""} amountLabel={`$${order.total}`} />
               <p className="text-xs text-white/40">Scan with any Cambodian banking app to pay</p>
-              {khqrMd5ToShow && <BakongVerifyButton orderId={order.id} verifiedAt={order.bakong_verified_at} />}
+              {khqrMd5ToShow && <BakongVerifyButton orderId={order.id} verifiedAt={order.bakong_verified_at} merchantName={store?.store_name ?? "Store"} />}
             </>
           )}
         </Card>

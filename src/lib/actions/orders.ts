@@ -119,15 +119,23 @@ export async function placeOrder(formData: FormData) {
     orderNumber = randomOrderNumber();
   }
 
+  // Only go straight to "paid" when there's genuinely no way to verify a
+  // real payment (store hasn't configured Bakong) -- a clear fallback,
+  // not the normal path. Whenever a real KHQR exists, the order starts
+  // pending and only becomes paid once verifyBakongPayment confirms an
+  // actual transaction against NBC's API — no more instant "paid" on
+  // checkout regardless of whether anything was actually scanned.
+  const isPending = Boolean(khqrMd5Hash);
+
   const { data: order, error: orderError } = await supabase
     .from("orders")
     .insert({
       order_number: orderNumber,
       customer_id: user.id,
       store_id: product.store_id,
-      status: "paid", // DEMO PAYMENT MODE — see spec section 31, marked clearly, no real provider wired up
-      payment_status: "success",
-      payment_method: "demo",
+      status: isPending ? "pending" : "paid",
+      payment_status: isPending ? "pending" : "success",
+      payment_method: isPending ? "bakong" : "demo",
       subtotal,
       shipping_fee: shippingFee,
       total,
@@ -135,7 +143,7 @@ export async function placeOrder(formData: FormData) {
       discount_amount: discountAmount,
       shipping_address: { full_name: fullName, phone, address_line: addressLine, city, province, country },
       customer_note: customerNote,
-      paid_at: new Date().toISOString(),
+      paid_at: isPending ? null : new Date().toISOString(),
       khqr_string: khqrString,
       khqr_md5: khqrMd5Hash,
     })
@@ -171,10 +179,11 @@ export async function placeOrder(formData: FormData) {
   const chatId = tgSettings?.telegram_chat_id as string | undefined;
   if (botToken && chatId) {
     const discountLine = discountAmount > 0 ? `\n🏷️ Discount code used: <b>${discountCodeInput.toUpperCase()}</b> (-$${discountAmount.toFixed(2)})` : "";
+    const paymentLine = isPending ? "\n⏳ Awaiting KHQR payment" : "\n✅ Demo payment (no real KHQR configured)";
     await sendTelegramMessage(
       botToken,
       chatId,
-      `🛎️ <b>New order ${orderNumber}</b>\n${product.name}${variantLabel} × ${quantity}\nTotal: $${total.toFixed(2)}\nBuyer: ${fullName}${discountLine}`
+      `🛎️ <b>New order ${orderNumber}</b>\n${product.name}${variantLabel} × ${quantity}\nTotal: $${total.toFixed(2)}\nBuyer: ${fullName}${discountLine}${paymentLine}`
     );
   }
 
@@ -230,7 +239,7 @@ const DAILY_QUOTA_SAFETY_LIMIT = 90; // stay under NBC's hard 100/day cap with a
 const PER_ORDER_COOLDOWN_MS = 60_000; // don't let one order's repeated clicks burn the shared quota
 
 export async function verifyBakongPayment(orderId: string): Promise<
-  | { status: "success"; amount: number; currency: string; fromAccountId: string }
+  | { status: "success"; amount: number; currency: string; fromAccountId: string; hash: string }
   | { status: "not_found" | "failed" | "error" | "not_configured" | "rate_limited"; message: string }
 > {
   const supabase = createClient();
@@ -241,7 +250,7 @@ export async function verifyBakongPayment(orderId: string): Promise<
 
   const { data: order } = await supabase
     .from("orders")
-    .select("id, customer_id, total, khqr_md5, bakong_last_checked_at, stores(seller_id)")
+    .select("id, order_number, customer_id, store_id, total, khqr_md5, bakong_last_checked_at, stores(seller_id)")
     .eq("id", orderId)
     .single();
 
@@ -304,10 +313,36 @@ export async function verifyBakongPayment(orderId: string): Promise<
   if (result.status === "success") {
     await supabase
       .from("orders")
-      .update({ bakong_verified_at: new Date().toISOString() })
+      .update({
+        bakong_verified_at: new Date().toISOString(),
+        status: "paid",
+        payment_status: "success",
+        paid_at: new Date().toISOString(),
+      })
       .eq("id", orderId);
+
+    // Seller gets a distinct "payment received" ping — the "new order"
+    // message they got at checkout time only said a KHQR was waiting to
+    // be scanned, not that money had actually arrived.
+    const { data: sellerSettings } = await supabase
+      .from("store_settings")
+      .select("settings")
+      .eq("store_id", order.store_id)
+      .maybeSingle();
+    const tgSettings = sellerSettings?.settings as Record<string, unknown> | undefined;
+    const botToken = tgSettings?.telegram_bot_token as string | undefined;
+    const chatId = tgSettings?.telegram_chat_id as string | undefined;
+    if (botToken && chatId) {
+      await sendTelegramMessage(
+        botToken,
+        chatId,
+        `✅ <b>Payment received for order ${order.order_number}</b>\n$${result.amount.toFixed(2)} ${result.currency} confirmed via Bakong.`
+      );
+    }
+
     revalidatePath(`/orders/${orderId}`);
-    return { status: "success", amount: result.amount, currency: result.currency, fromAccountId: result.fromAccountId };
+    revalidatePath("/dashboard/orders");
+    return { status: "success", amount: result.amount, currency: result.currency, fromAccountId: result.fromAccountId, hash: result.hash };
   }
 
   return { status: result.status, message: result.message };

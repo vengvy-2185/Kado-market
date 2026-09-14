@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect, useRef } from "react";
 import { CheckCircle2, Loader2, Clock } from "lucide-react";
 import { verifyBoostPayment } from "@/lib/actions/boost";
 
-export function BoostVerifyButton({ campaignId, onVerified }: { campaignId: string; onVerified: () => void }) {
+export function BoostVerifyButton({ campaignId, onVerified }: { campaignId: string; onVerified: (result: { amount: number; currency: string; fromAccountId: string; hash: string }) => void }) {
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<string | null>(null);
   const [cooldownUntil, setCooldownUntil] = useState<number | null>(null);
@@ -26,7 +26,7 @@ export function BoostVerifyButton({ campaignId, onVerified }: { campaignId: stri
       const res = await verifyBoostPayment(campaignId);
       if (res.status === "success") {
         verifiedRef.current = true;
-        onVerified();
+        onVerified({ amount: res.amount, currency: res.currency, fromAccountId: res.fromAccountId, hash: res.hash });
       } else if (silent) {
         // stay quiet during background polling
       } else if (res.status === "not_found") {

@@ -95,7 +95,7 @@ export async function createBoostCampaign(
 }
 
 export async function verifyBoostPayment(campaignId: string): Promise<
-  | { status: "success" }
+  | { status: "success"; amount: number; currency: string; fromAccountId: string; hash: string }
   | { status: "not_found" | "failed" | "error" | "not_configured" | "rate_limited"; message: string }
 > {
   const { supabase, store } = await getMyStoreOrRedirect();
@@ -158,7 +158,7 @@ export async function verifyBoostPayment(campaignId: string): Promise<
     );
     revalidatePath("/dashboard/boost");
     revalidatePath("/");
-    return { status: "success" };
+    return { status: "success", amount: result.amount, currency: result.currency, fromAccountId: result.fromAccountId, hash: result.hash };
   }
 
   return { status: result.status, message: result.message };

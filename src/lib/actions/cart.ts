@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { sendTelegramMessage } from "@/lib/telegram";
 import { checkAndNotifyLowStock } from "@/lib/low-stock";
+import { generateKhqr, khqrMd5 } from "@/lib/khqr";
 
 function randomOrderNumber() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -141,6 +142,25 @@ export async function checkoutCartForStore(formData: FormData) {
   const shippingFee = 0;
   const total = subtotal + shippingFee;
 
+  // Same real-payment-required rule as the single-product checkout: only
+  // an unconfigured store (no Bakong account on file) falls back to an
+  // instant demo order.
+  let khqrString: string | null = null;
+  let khqrMd5Hash: string | null = null;
+  const { data: storeForKhqr } = await supabase.from("stores").select("store_name, city, bakong_account_id, bakong_phone").eq("id", storeId).single();
+  if (storeForKhqr?.bakong_account_id && storeForKhqr?.bakong_phone) {
+    khqrString = generateKhqr({
+      bakongAccountId: storeForKhqr.bakong_account_id,
+      accountInformation: storeForKhqr.bakong_phone,
+      merchantName: storeForKhqr.store_name,
+      merchantCity: storeForKhqr.city ?? "Phnom Penh",
+      amount: total,
+      currency: "USD",
+    });
+    khqrMd5Hash = khqrMd5(khqrString);
+  }
+  const isPending = Boolean(khqrMd5Hash);
+
   let orderNumber = randomOrderNumber();
   for (let i = 0; i < 5; i++) {
     const { data: dupe } = await supabase.from("orders").select("id").eq("order_number", orderNumber).maybeSingle();
@@ -154,14 +174,16 @@ export async function checkoutCartForStore(formData: FormData) {
       order_number: orderNumber,
       customer_id: user.id,
       store_id: storeId,
-      status: "paid",
-      payment_status: "success",
-      payment_method: "demo",
+      status: isPending ? "pending" : "paid",
+      payment_status: isPending ? "pending" : "success",
+      payment_method: isPending ? "bakong" : "demo",
       subtotal,
       shipping_fee: shippingFee,
       total,
       shipping_address: { full_name: fullName, phone, address_line: addressLine, city, province, country },
-      paid_at: new Date().toISOString(),
+      paid_at: isPending ? null : new Date().toISOString(),
+      khqr_string: khqrString,
+      khqr_md5: khqrMd5Hash,
     })
     .select()
     .single();
@@ -183,7 +205,8 @@ export async function checkoutCartForStore(formData: FormData) {
   const botToken = tgSettings?.telegram_bot_token as string | undefined;
   const chatId = tgSettings?.telegram_chat_id as string | undefined;
   if (botToken && chatId) {
-    await sendTelegramMessage(botToken, chatId, `🛎️ <b>New order ${orderNumber}</b>\n${orderItemRows.length} item(s)\nTotal: $${total.toFixed(2)}\nBuyer: ${fullName}`);
+    const paymentLine = isPending ? "\n⏳ Awaiting KHQR payment" : "\n✅ Demo payment (no real KHQR configured)";
+    await sendTelegramMessage(botToken, chatId, `🛎️ <b>New order ${orderNumber}</b>\n${orderItemRows.length} item(s)\nTotal: $${total.toFixed(2)}\nBuyer: ${fullName}${paymentLine}`);
   }
 
   await supabase

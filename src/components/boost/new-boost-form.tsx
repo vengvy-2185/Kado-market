@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { PlatformKhqrToggle } from "@/components/platform-khqr-toggle";
 import { KhqrDisplay } from "@/components/settings/khqr-display";
 import { BoostVerifyButton } from "@/components/boost/boost-verify-button";
+import { PaymentSuccessOverlay } from "@/components/payment-success-overlay";
 import type { Database } from "@/lib/types/database.types";
 
 type Plan = Database["public"]["Tables"]["boost_plans"]["Row"];
@@ -33,7 +34,7 @@ export function NewBoostForm({
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState<{ id: string; khqrString: string; amount: number } | null>(null);
   const [demoSuccess, setDemoSuccess] = useState(false);
-  const [verified, setVerified] = useState(false);
+  const [verifiedInfo, setVerifiedInfo] = useState<{ amount: number; currency: string; fromAccountId: string; hash: string } | null>(null);
 
   const items = targetType === "post" ? posts : products;
   const selectedPlan = plans.find((p) => p.id === planId);
@@ -59,11 +60,11 @@ export function NewBoostForm({
   function reset() {
     setPending(null);
     setDemoSuccess(false);
-    setVerified(false);
+    setVerifiedInfo(null);
     setError(null);
   }
 
-  if (verified || demoSuccess) {
+  if (demoSuccess) {
     return (
       <Card className="flex flex-col items-center gap-3 py-8 text-center">
         <span className="flex h-12 w-12 items-center justify-center rounded-full bg-success/15">
@@ -71,7 +72,7 @@ export function NewBoostForm({
         </span>
         <div>
           <p className="font-semibold text-white">Boost activated!</p>
-          <p className="text-sm text-white/50">{demoSuccess ? "(Demo — platform hasn't set up a real KHQR yet.)" : "Payment confirmed via Bakong."}</p>
+          <p className="text-sm text-white/50">(Demo — platform hasn&apos;t set up a real KHQR yet.)</p>
         </div>
         <Button variant="outline" onClick={reset}>
           Boost something else
@@ -82,14 +83,27 @@ export function NewBoostForm({
 
   if (pending) {
     return (
-      <Card className="flex flex-col items-center gap-3">
-        <h2 className="text-sm font-semibold text-white/70">Scan to pay ${pending.amount.toFixed(2)}</h2>
-        <KhqrDisplay khqrString={pending.khqrString} size={180} merchantName="KADO MARKET" amountLabel={`$${pending.amount.toFixed(2)}`} />
-        <BoostVerifyButton campaignId={pending.id} onVerified={() => setVerified(true)} />
-        <button onClick={reset} className="text-xs text-white/30 hover:text-white/60">
-          Cancel
-        </button>
-      </Card>
+      <>
+        <Card className="flex flex-col items-center gap-3">
+          <h2 className="text-sm font-semibold text-white/70">Scan to pay ${pending.amount.toFixed(2)}</h2>
+          <KhqrDisplay khqrString={pending.khqrString} size={180} merchantName="KADO MARKET" amountLabel={`$${pending.amount.toFixed(2)}`} />
+          <BoostVerifyButton campaignId={pending.id} onVerified={setVerifiedInfo} />
+          <button onClick={reset} className="text-xs text-white/30 hover:text-white/60">
+            Cancel
+          </button>
+        </Card>
+        {verifiedInfo && (
+          <PaymentSuccessOverlay
+            merchantName="KADO MARKET"
+            fromName={verifiedInfo.fromAccountId}
+            amount={verifiedInfo.amount}
+            currency={verifiedInfo.currency}
+            transactionId={verifiedInfo.hash}
+            onClose={reset}
+            closeLabel="Back to Campaigns"
+          />
+        )}
+      </>
     );
   }
 
