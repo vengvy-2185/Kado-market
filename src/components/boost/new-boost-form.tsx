@@ -7,7 +7,6 @@ import { Select } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { createBoostCampaign } from "@/lib/actions/boost";
 import { cn } from "@/lib/utils";
-import { PlatformKhqrToggle } from "@/components/platform-khqr-toggle";
 import { KhqrDisplay } from "@/components/settings/khqr-display";
 import { BoostVerifyButton } from "@/components/boost/boost-verify-button";
 import { PaymentSuccessOverlay } from "@/components/payment-success-overlay";
@@ -37,7 +36,6 @@ export function NewBoostForm({
   const [verifiedInfo, setVerifiedInfo] = useState<{ amount: number; currency: string; fromAccountId: string; hash: string } | null>(null);
 
   const items = targetType === "post" ? posts : products;
-  const selectedPlan = plans.find((p) => p.id === planId);
 
   async function handleSubmit(formData: FormData) {
     setSubmitting(true);
@@ -161,16 +159,6 @@ export function NewBoostForm({
             ))}
           </div>
         </div>
-
-        {platformKhqr && selectedPlan && (
-          <PlatformKhqrToggle
-            accountId={platformKhqr.accountId}
-            phone={platformKhqr.phone}
-            merchantName={platformKhqr.merchantName}
-            merchantCity={platformKhqr.merchantCity}
-            amount={selectedPlan.price}
-          />
-        )}
 
         {error && <p className="text-sm text-danger">{error}</p>}
 
