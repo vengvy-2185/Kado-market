@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { OrderStatusControl } from "@/components/product/order-status-control";
 import { BackButton } from "@/components/dashboard/back-button";
+import { AppShell } from "@/components/app-shell";
 import { KhqrDisplay } from "@/components/settings/khqr-display";
 import { generateKhqr, khqrMd5 } from "@/lib/khqr";
 import { BakongVerifyButton } from "@/components/product/bakong-verify-button";
@@ -84,7 +85,8 @@ export default async function OrderDetailPage({ params }: { params: { id: string
   const address = order.shipping_address as { full_name: string; phone: string; address_line: string; city: string | null; province: string | null; country: string | null };
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-10 md:px-6">
+    <AppShell>
+      <main className="mx-auto max-w-2xl px-4 py-10 md:px-6">
       <div className="mb-4">
         <BackButton />
       </div>
@@ -122,7 +124,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
             </p>
           ) : (
             <>
-              <KhqrDisplay khqrString={khqrStringToShow!} merchantName={store?.store_name ?? ""} amountLabel={`$${order.total}`} />
+              <KhqrDisplay khqrString={khqrStringToShow!} size={260} merchantName={store?.store_name ?? ""} amountLabel={`$${order.total}`} />
               <p className="text-xs text-white/40">Scan with any Cambodian banking app to pay</p>
               {khqrMd5ToShow && <BakongVerifyButton orderId={order.id} verifiedAt={order.bakong_verified_at} merchantName={store?.store_name ?? "Store"} />}
             </>
@@ -183,6 +185,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
         <h2 className="mb-4 text-sm font-semibold text-white/70">Order tracking</h2>
         <OrderTracker currentStatus={order.status} history={history ?? []} />
       </Card>
-    </main>
+      </main>
+    </AppShell>
   );
 }

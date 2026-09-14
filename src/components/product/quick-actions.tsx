@@ -2,16 +2,13 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ShoppingCart, Zap, Bot } from "lucide-react";
+import { ShoppingCart, Zap } from "lucide-react";
 import { addToCart } from "@/lib/actions/cart";
-import { getOrStartAiThread } from "@/lib/actions/ai-assistant";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/lib/i18n/language-context";
 
 export function QuickActions({
   productId,
-  storeId,
-  hasAiAssistant = false,
 }: {
   productId: string;
   storeId?: string;
@@ -63,21 +60,6 @@ export function QuickActions({
         <Zap className="h-3.5 w-3.5" />
         {t("product_card_buy")}
       </button>
-      {hasAiAssistant && storeId && (
-        <form
-          action={getOrStartAiThread.bind(null, storeId)}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <button
-            type="submit"
-            aria-label="Ask AI Assistant"
-            title="Ask this store's AI Assistant"
-            className="flex h-full items-center justify-center rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-accent hover:bg-white/10"
-          >
-            <Bot className="h-3.5 w-3.5" />
-          </button>
-        </form>
-      )}
     </div>
   );
 }

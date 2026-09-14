@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AiChatThread } from "@/components/ai/ai-chat-thread";
 import { BackButton } from "@/components/dashboard/back-button";
+import { AppShell } from "@/components/app-shell";
 
 export default async function AiChatPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -27,11 +28,13 @@ export default async function AiChatPage({ params }: { params: { id: string } })
     .order("created_at", { ascending: true });
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-10 md:px-6">
-      <div className="mb-4">
-        <BackButton />
-      </div>
-      <AiChatThread threadId={thread.id} initialMessages={messages ?? []} storeName={store?.store_name ?? "Store"} />
-    </main>
+    <AppShell>
+      <main className="mx-auto max-w-2xl px-4 py-10 md:px-6">
+        <div className="mb-4">
+          <BackButton />
+        </div>
+        <AiChatThread threadId={thread.id} initialMessages={messages ?? []} storeName={store?.store_name ?? "Store"} />
+      </main>
+    </AppShell>
   );
 }
