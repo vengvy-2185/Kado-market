@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import type { Metadata } from "next";
 import { MessageCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { ProductGallery } from "@/components/product/product-gallery";
 import { BuyNowPanel } from "@/components/product/buy-now-panel";
 import { SaveButton } from "@/components/product/save-button";
 import { BackButton } from "@/components/dashboard/back-button";
@@ -135,20 +135,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
       )}
       <div className="grid gap-8 md:grid-cols-2">
         <div>
-          <div className="aspect-square overflow-hidden rounded-2xl bg-white/5">
-            {images[0] ? (
-              <Image src={images[0].url} alt={product.name} width={600} height={600} className="h-full w-full object-cover" priority />
-            ) : (
-              <div className="flex h-full items-center justify-center text-white/20">No image</div>
-            )}
-          </div>
-          {images.length > 1 && (
-            <div className="mt-3 flex gap-2 overflow-x-auto">
-              {images.map((img) => (
-                <Image key={img.url} src={img.url} alt="" width={64} height={64} className="h-16 w-16 flex-shrink-0 rounded-lg object-cover" />
-              ))}
-            </div>
-          )}
+          <ProductGallery images={images} alt={product.name} />
         </div>
 
         <div>

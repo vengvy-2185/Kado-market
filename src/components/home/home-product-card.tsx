@@ -60,9 +60,15 @@ export function HomeProductCard({
       </div>
       {isLoggedIn && <SaveButton productId={product.id} initialSaved={isSaved} />}
       <Link href={`/product/${product.slug}`}>
-        <div className="aspect-square bg-white/5">
+        <div className="flex aspect-[4/5] items-center justify-center bg-white/5">
           {thumb ? (
-            <Image src={thumb} alt={product.name} width={300} height={300} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+            <Image
+              src={thumb}
+              alt={product.name}
+              width={300}
+              height={300}
+              className="h-full w-full object-contain p-5 transition-transform group-hover:scale-105"
+            />
           ) : (
             <div className="flex h-full items-center justify-center text-white/20">
               <Package className="h-8 w-8" />
