@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 
@@ -43,11 +44,11 @@ export function PasswordChangeForm() {
       <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
         <div>
           <Label htmlFor="new_password">New password</Label>
-          <Input id="new_password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} />
+          <PasswordInput id="new_password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} />
         </div>
         <div>
           <Label htmlFor="confirm_password">Confirm password</Label>
-          <Input id="confirm_password" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} minLength={8} />
+          <PasswordInput id="confirm_password" value={confirm} onChange={(e) => setConfirm(e.target.value)} minLength={8} />
         </div>
         <div className="sm:col-span-2">
           {message && <p className={message.ok ? "mb-2 text-sm text-success" : "mb-2 text-sm text-danger"}>{message.text}</p>}

@@ -1,16 +1,19 @@
 // Shared with the admin categories page and the home category tabs so a
-// given category always renders in the same color everywhere.
+// given category always renders in the same color everywhere. Deeper,
+// less saturated tones than the base Tailwind 500 shades -- a fully
+// saturated neon background makes the white icon glyph on top harder to
+// read, not easier.
 export const CATEGORY_COLORS = [
-  { bg: "bg-gradient-to-br from-pink-500 to-rose-500", solid: "#ec4899" },
-  { bg: "bg-gradient-to-br from-blue-500 to-cyan-500", solid: "#3b82f6" },
-  { bg: "bg-gradient-to-br from-fuchsia-500 to-pink-400", solid: "#d946ef" },
-  { bg: "bg-gradient-to-br from-emerald-500 to-teal-500", solid: "#10b981" },
-  { bg: "bg-gradient-to-br from-orange-500 to-amber-500", solid: "#f97316" },
-  { bg: "bg-gradient-to-br from-indigo-500 to-violet-500", solid: "#6366f1" },
-  { bg: "bg-gradient-to-br from-red-500 to-orange-500", solid: "#ef4444" },
-  { bg: "bg-gradient-to-br from-sky-500 to-blue-400", solid: "#0ea5e9" },
-  { bg: "bg-gradient-to-br from-purple-500 to-fuchsia-500", solid: "#a855f7" },
-  { bg: "bg-gradient-to-br from-teal-500 to-emerald-400", solid: "#14b8a6" },
+  { bg: "bg-gradient-to-br from-pink-600 to-rose-600", solid: "#db2777" },
+  { bg: "bg-gradient-to-br from-blue-600 to-cyan-600", solid: "#2563eb" },
+  { bg: "bg-gradient-to-br from-fuchsia-600 to-pink-500", solid: "#c026d3" },
+  { bg: "bg-gradient-to-br from-emerald-600 to-teal-600", solid: "#059669" },
+  { bg: "bg-gradient-to-br from-orange-600 to-amber-600", solid: "#ea580c" },
+  { bg: "bg-gradient-to-br from-indigo-600 to-violet-600", solid: "#4f46e5" },
+  { bg: "bg-gradient-to-br from-red-600 to-orange-600", solid: "#dc2626" },
+  { bg: "bg-gradient-to-br from-sky-600 to-blue-500", solid: "#0284c7" },
+  { bg: "bg-gradient-to-br from-purple-600 to-fuchsia-600", solid: "#9333ea" },
+  { bg: "bg-gradient-to-br from-teal-600 to-emerald-500", solid: "#0d9488" },
 ];
 
 export function colorForIndex(i: number) {

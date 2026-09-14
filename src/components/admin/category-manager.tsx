@@ -44,15 +44,17 @@ export function CategoryManager({ categories, counts }: { categories: Category[]
 
   return (
     <div className="grid gap-4 md:grid-cols-[260px_1fr]">
-      {/* Sidebar: top-level categories */}
-      <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-3">
+      {/* Sidebar: top-level categories. Sticky so the "Add Parent
+          Category" button stays reachable even with a long list -- only
+          the list itself scrolls, in its own independent scroll area. */}
+      <div className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.02] p-3 md:sticky md:top-20 md:max-h-[calc(100vh-6rem)]">
         <button
           onClick={() => setPanel({ mode: "add-parent" })}
-          className="mb-3 flex w-full items-center justify-center gap-1.5 rounded-xl bg-brand-gradient px-3 py-2 text-xs font-semibold text-white shadow-glow"
+          className="mb-3 flex w-full flex-shrink-0 items-center justify-center gap-1.5 rounded-xl bg-brand-gradient px-3 py-2 text-xs font-semibold text-white shadow-glow"
         >
           <Plus className="h-3.5 w-3.5" /> Add Parent Category
         </button>
-        <div className="space-y-1">
+        <div className="space-y-1 overflow-y-auto">
           {topLevel.map((c, i) => {
             const isActive = c.id === selected?.id;
             const color = colorForIndex(i);

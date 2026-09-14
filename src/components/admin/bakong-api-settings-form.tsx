@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { saveBakongApiSettings } from "@/lib/actions/platform-settings";
@@ -38,10 +39,9 @@ export function BakongApiSettingsForm({ hasToken, useSandbox }: { hasToken: bool
       <form action={handleSubmit} className="space-y-3">
         <div>
           <Label htmlFor="bakong_developer_token">Developer Token</Label>
-          <Input
+          <PasswordInput
             id="bakong_developer_token"
             name="bakong_developer_token"
-            type="password"
             placeholder={hasToken ? "•••••••••••••• (saved — enter a new one to replace it)" : "Paste your Bakong Bearer token"}
           />
         </div>

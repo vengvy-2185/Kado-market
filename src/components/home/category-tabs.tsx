@@ -54,7 +54,7 @@ export function CategoryTabs({
     return (
       <div id="categories" className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto px-4 pb-1 md:-mx-6 md:px-6">
         <Link href={hrefFor(undefined)} className="group flex w-16 flex-shrink-0 flex-col items-center gap-1.5 text-center">
-          <span className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-brand-gradient text-xl shadow-lg shadow-[0_0_24px_rgba(168,85,247,0.55)] transition-all duration-200 group-hover:scale-110 group-hover:brightness-110 group-active:scale-95">
+          <span className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-brand-gradient text-xl shadow-lg shadow-[0_0_16px_rgba(168,85,247,0.35)] transition-all duration-200 group-hover:scale-110 group-hover:brightness-110 group-active:scale-95">
             {allIconUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={allIconUrl} alt="" className="h-7 w-7 object-contain [filter:brightness(0)_invert(1)]" />
