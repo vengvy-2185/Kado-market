@@ -45,19 +45,19 @@ export function QuickActions({
         disabled={isPending}
         aria-label="Add to cart"
         className={cn(
-          "flex flex-1 items-center justify-center gap-1 rounded-lg border border-white/10 bg-white/5 py-1.5 text-xs font-medium transition-colors hover:bg-white/10",
+          "flex flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-lg border border-white/10 bg-white/5 py-2 text-xs font-medium transition-colors hover:bg-white/10",
           added && "border-success/40 bg-success/10 text-success"
         )}
       >
-        <ShoppingCart className="h-3.5 w-3.5" />
+        <ShoppingCart className="h-3.5 w-3.5 flex-shrink-0" />
         {added ? t("product_card_added") : t("product_card_cart")}
       </button>
       <button
         onClick={handleBuyNow}
         aria-label="Buy now"
-        className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-brand-gradient py-1.5 text-xs font-semibold transition-all hover:brightness-110"
+        className="flex flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-lg bg-brand-gradient py-2 text-xs font-semibold transition-all hover:brightness-110"
       >
-        <Zap className="h-3.5 w-3.5" />
+        <Zap className="h-3.5 w-3.5 flex-shrink-0" />
         {t("product_card_buy")}
       </button>
     </div>
