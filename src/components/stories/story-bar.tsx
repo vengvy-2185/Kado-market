@@ -115,7 +115,7 @@ export function StoryBar({ groups }: { groups: StoryGroup[] }) {
               {activeGroup.stories.map((_, i) => (
                 <div key={i} className="h-1 flex-1 overflow-hidden rounded-full bg-white/20">
                   <div
-                    className="h-full bg-white transition-[width] duration-75"
+                    className="h-full bg-[#fff] transition-[width] duration-75"
                     style={{ width: i < activeStoryIndex ? "100%" : i === activeStoryIndex ? `${progress}%` : "0%" }}
                   />
                 </div>
@@ -163,7 +163,7 @@ export function StoryBar({ groups }: { groups: StoryGroup[] }) {
                 {activeStory.product && (
                   <Link
                     href={`/product/${activeStory.product.slug}`}
-                    className="inline-block rounded-full bg-white px-4 py-1.5 text-xs font-semibold text-black"
+                    className="inline-block rounded-full bg-[#fff] px-4 py-1.5 text-xs font-semibold text-[#000]"
                   >
                     View Product
                   </Link>

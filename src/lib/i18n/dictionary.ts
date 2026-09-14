@@ -73,6 +73,9 @@ export const dictionary = {
   super_admin: { en: "Super Admin", km: "អ្នកគ្រប់គ្រងកំពូល" },
   platform_control: { en: "Platform control", km: "គ្រប់គ្រង Platform" },
   back_button: { en: "Back", km: "ថយក្រោយ" },
+  category_all: { en: "All", km: "ទាំងអស់" },
+  category_all_categories: { en: "All Categories", km: "ប្រភេទទាំងអស់" },
+  category_view_all: { en: "View all", km: "មើលទាំងអស់" },
 
   // Seller: add/edit product form
   product_form_add_title: { en: "Add a product", km: "បន្ថែមទំនិញ" },

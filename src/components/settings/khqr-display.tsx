@@ -91,7 +91,7 @@ export function KhqrDisplay({
   }, [khqrString, size, logoUrl]);
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-white" style={{ width: size }}>
+    <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#fff]" style={{ width: size }}>
       <div className="bg-brand-gradient px-3 py-2 text-center">
         <p className="text-xs font-extrabold tracking-wide text-white">KHQR</p>
       </div>

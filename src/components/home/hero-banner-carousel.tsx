@@ -54,7 +54,7 @@ export function HeroBannerCarousel() {
           <button
             key={i}
             onClick={() => setIndex(i)}
-            className={cn("h-1.5 rounded-full bg-white transition-all", i === index ? "w-5 opacity-100" : "w-1.5 opacity-50")}
+            className={cn("h-1.5 rounded-full bg-[#fff] transition-all", i === index ? "w-5 opacity-100" : "w-1.5 opacity-50")}
             aria-label={`Go to slide ${i + 1}`}
           />
         ))}

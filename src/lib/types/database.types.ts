@@ -49,6 +49,7 @@ export interface Database {
         Row: {
           id: string;
           name: string;
+          name_km: string | null;
           slug: string;
           icon: string | null;
           icon_url: string | null;

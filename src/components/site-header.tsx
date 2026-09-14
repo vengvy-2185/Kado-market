@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/home/search-bar";
 import { CategoryTabs } from "@/components/home/category-tabs";
 import { LanguageToggle } from "@/components/dashboard/language-toggle";
+import { ThemeToggle } from "@/components/dashboard/theme-toggle";
 import { Logo } from "@/components/logo";
 import { NotificationBell } from "@/components/notification-bell";
 
@@ -43,7 +44,7 @@ export async function SiteHeader({
   if (showCategories) {
     const { data } = await supabase
       .from("categories")
-      .select("id, slug, name, icon, icon_url, parent_id")
+      .select("id, slug, name, name_km, icon, icon_url, parent_id")
       .eq("is_active", true)
       .order("sort_order");
     categories = data ?? [];
@@ -60,6 +61,7 @@ export async function SiteHeader({
         </Link>
         <div className="flex flex-shrink-0 items-center gap-1.5 md:order-3 md:ml-auto">
           <LanguageToggle />
+            <ThemeToggle />
           {user ? (
             <>
               <NotificationBell userId={user.id} initialNotifications={initialNotifications} />

@@ -152,6 +152,7 @@ export async function createCategory(formData: FormData): Promise<{ ok: true } |
   const parentId = String(formData.get("parent_id") ?? "").trim() || null;
   const { error } = await supabase.from("categories").insert({
     name,
+    name_km: String(formData.get("name_km") ?? "").trim() || null,
     slug,
     icon: String(formData.get("icon") ?? "").trim() || null,
     icon_url: String(formData.get("icon_url") ?? "").trim() || null,
@@ -176,7 +177,7 @@ export async function updateCategoryField(id: string, field: string, value: stri
 
 export async function updateCategoryFields(
   id: string,
-  fields: Partial<{ name: string; icon: string | null; icon_url: string | null; parent_id: string | null; is_active: boolean; sort_order: number }>
+  fields: Partial<{ name: string; name_km: string | null; icon: string | null; icon_url: string | null; parent_id: string | null; is_active: boolean; sort_order: number }>
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const supabase = await requireAdmin();
   const { error } = await supabase.from("categories").update(fields).eq("id", id);

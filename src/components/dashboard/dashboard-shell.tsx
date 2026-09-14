@@ -8,6 +8,7 @@ import { SidebarNav, SidebarLogout } from "./sidebar-nav";
 import { Logo } from "@/components/logo";
 import { BackButton } from "./back-button";
 import { LanguageToggle } from "./language-toggle";
+import { ThemeToggle } from "@/components/dashboard/theme-toggle";
 import { LiveClock } from "./live-clock";
 import { DashboardMobileNav } from "./dashboard-mobile-nav";
 import { useLanguage } from "@/lib/i18n/language-context";
@@ -81,6 +82,7 @@ export function DashboardShell({
           <div className="ml-auto flex items-center gap-4">
             <LiveClock />
             <LanguageToggle />
+            <ThemeToggle />
           </div>
         </header>
 

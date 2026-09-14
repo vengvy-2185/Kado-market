@@ -5,6 +5,7 @@ import { Menu, X } from "lucide-react";
 import { AdminSidebarNav, AdminSidebarHeader, AdminSidebarLogout } from "./admin-sidebar-nav";
 import { BackButton } from "@/components/dashboard/back-button";
 import { LanguageToggle } from "@/components/dashboard/language-toggle";
+import { ThemeToggle } from "@/components/dashboard/theme-toggle";
 
 export function AdminShell({
   badges,
@@ -52,6 +53,7 @@ export function AdminShell({
           <BackButton />
           <div className="ml-auto flex items-center gap-2">
             <LanguageToggle />
+            <ThemeToggle />
             <span className="text-sm font-semibold text-white/70 md:hidden">
               <span className="bg-brand-gradient bg-clip-text text-transparent">Admin</span>
             </span>

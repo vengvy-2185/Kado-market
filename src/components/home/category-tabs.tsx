@@ -1,9 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { colorForIndex } from "@/lib/category-visuals";
+import { colorForIndex, categoryLabel } from "@/lib/category-visuals";
+import { useLanguage } from "@/lib/i18n/language-context";
 
-type Category = { slug: string; name: string; icon?: string | null; icon_url?: string | null; parent_id?: string | null; id?: string };
+type Category = { slug: string; name: string; name_km?: string | null; icon?: string | null; icon_url?: string | null; parent_id?: string | null; id?: string };
 
 function CategoryIcon({ category, index, size = "lg" }: { category: Category; index: number; size?: "lg" | "sm" | "xs" }) {
   const dims = size === "lg" ? "h-14 w-14 text-xl" : size === "sm" ? "h-9 w-9 text-base" : "h-7 w-7 text-sm";
@@ -31,6 +34,8 @@ export function CategoryTabs({
   query?: string;
   allIconUrl?: string | null;
 }) {
+  const { lang, t } = useLanguage();
+
   function hrefFor(categorySlug?: string) {
     const params = new URLSearchParams();
     if (query) params.set("q", query);
@@ -62,14 +67,14 @@ export function CategoryTabs({
               "🏷️"
             )}
           </span>
-          <span className="text-xs font-medium text-white">All</span>
+          <span className="text-xs font-medium text-white">{t("category_all")}</span>
         </Link>
         {topLevel.map((c, i) => (
           <Link key={c.slug} href={hrefFor(c.slug)} className="group flex w-16 flex-shrink-0 flex-col items-center gap-1.5 text-center">
             <div className="transition-transform group-hover:scale-110 group-active:scale-95">
               <CategoryIcon category={c} index={i} />
             </div>
-            <span className="truncate text-xs font-medium text-white/50 group-hover:text-white/80">{c.name}</span>
+            <span className="truncate text-xs font-medium text-white/50 group-hover:text-white/80">{categoryLabel(c, lang)}</span>
           </Link>
         ))}
       </div>
@@ -87,12 +92,12 @@ export function CategoryTabs({
         href={hrefFor(undefined)}
         className="flex flex-shrink-0 items-center gap-1 rounded-full border border-white/10 bg-white/5 py-2 pl-2.5 pr-3 text-xs font-medium text-white/60 hover:bg-white/10 hover:text-white"
       >
-        <ChevronLeft className="h-3.5 w-3.5" /> All Categories
+        <ChevronLeft className="h-3.5 w-3.5" /> {t("category_all_categories")}
       </Link>
 
       <div className="flex flex-shrink-0 items-center gap-1.5 rounded-full bg-white/5 py-1 pl-1 pr-3">
         <CategoryIcon category={activeTop} index={activeTopIndex} size="sm" />
-        <span className="text-sm font-semibold text-white">{activeTop.name}</span>
+        <span className="text-sm font-semibold text-white">{categoryLabel(activeTop, lang)}</span>
       </div>
 
       {children.length > 0 && (
@@ -105,7 +110,7 @@ export function CategoryTabs({
               isViewAllActive ? "bg-brand-gradient text-white shadow-glow" : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/80"
             )}
           >
-            View all
+            {t("category_view_all")}
           </Link>
           {children.map((child, i) => {
             const isChildActive = activeCategory === child.slug;
@@ -120,7 +125,7 @@ export function CategoryTabs({
                 )}
               >
                 <CategoryIcon category={child} index={activeTopIndex + i + 1} size="xs" />
-                {child.name}
+                {categoryLabel(child, lang)}
               </Link>
             );
           })}

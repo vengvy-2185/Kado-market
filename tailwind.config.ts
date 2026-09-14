@@ -23,8 +23,9 @@ const config: Config = {
         ],
       },
       colors: {
-        background: "#070B14",
-        surface: "#101625",
+        background: "rgb(var(--color-bg) / <alpha-value>)",
+        surface: "rgb(var(--color-surface) / <alpha-value>)",
+        white: "rgb(var(--color-ink) / <alpha-value>)",
         primary: {
           DEFAULT: "#7C3AED",
           foreground: "#FFFFFF",

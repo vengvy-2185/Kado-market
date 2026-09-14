@@ -36,12 +36,12 @@ export default async function HomePage({
   // "Drinks") — otherwise creating sub-categories would just hide products
   // instead of organizing them. A selected sub-category filters narrowly.
   let categoryIds: string[] | null = null;
-  let browseParent: { id: string; slug: string; name: string; icon: string | null; icon_url: string | null } | null = null;
-  let browseChildren: { id: string; slug: string; name: string; icon: string | null; icon_url: string | null }[] = [];
+  let browseParent: { id: string; slug: string; name: string; name_km: string | null; icon: string | null; icon_url: string | null } | null = null;
+  let browseChildren: { id: string; slug: string; name: string; name_km: string | null; icon: string | null; icon_url: string | null }[] = [];
   if (searchParams.category) {
     const { data: cat } = await supabase
       .from("categories")
-      .select("id, slug, name, icon, icon_url, parent_id")
+      .select("id, slug, name, name_km, icon, icon_url, parent_id")
       .eq("slug", searchParams.category)
       .maybeSingle();
     if (cat) {
@@ -50,7 +50,7 @@ export default async function HomePage({
       } else {
         const { data: children } = await supabase
           .from("categories")
-          .select("id, slug, name, icon, icon_url")
+          .select("id, slug, name, name_km, icon, icon_url")
           .eq("parent_id", cat.id)
           .eq("is_active", true)
           .order("sort_order");

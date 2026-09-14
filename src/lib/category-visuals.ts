@@ -20,6 +20,14 @@ export function colorForIndex(i: number) {
   return CATEGORY_COLORS[i % CATEGORY_COLORS.length];
 }
 
+// Shows a category's Khmer name when the site is in ខ្មែរ and one has
+// been set by an admin; otherwise falls back to the (always required)
+// English name, so a category never renders blank just because nobody
+// has translated it yet.
+export function categoryLabel(category: { name: string; name_km?: string | null }, lang: "en" | "km"): string {
+  return lang === "km" && category.name_km ? category.name_km : category.name;
+}
+
 // A quick-pick emoji set for the "Choose Icon" tab — covers the common
 // marketplace categories without requiring an image upload for the
 // common case. Uploading a custom image is still always available.

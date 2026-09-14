@@ -3,13 +3,14 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { HomeProductCard } from "@/components/home/home-product-card";
-import { colorForIndex } from "@/lib/category-visuals";
+import { colorForIndex, categoryLabel } from "@/lib/category-visuals";
+import { useLanguage } from "@/lib/i18n/language-context";
 import { cn } from "@/lib/utils";
 
 type Product = Parameters<typeof HomeProductCard>[0]["product"];
 
 export type ShowcaseSection = {
-  category: { id: string; slug: string; name: string; icon: string | null; icon_url: string | null };
+  category: { id: string; slug: string; name: string; name_km: string | null; icon: string | null; icon_url: string | null };
   colorIndex: number;
   viewAllHref: string;
   products: Product[];
@@ -26,6 +27,7 @@ export function CategoryShowcase({
   savedProductIds: string[];
   aiEnabledStoreIds: string[];
 }) {
+  const { lang, t } = useLanguage();
   const savedSet = new Set(savedProductIds);
   const aiSet = new Set(aiEnabledStoreIds);
 
@@ -74,10 +76,10 @@ export function CategoryShowcase({
                   section.category.icon || "🏷️"
                 )}
               </span>
-              <h3 className="text-base font-bold text-white">{section.category.name}</h3>
+              <h3 className="text-base font-bold text-white">{categoryLabel(section.category, lang)}</h3>
             </div>
             <Link href={section.viewAllHref} className="text-xs font-semibold text-accent hover:underline">
-              View all
+              {t("category_view_all")}
             </Link>
           </div>
           <div className="no-scrollbar -mx-1 flex gap-3 overflow-x-auto px-1 pb-2">

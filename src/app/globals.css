@@ -6,6 +6,25 @@ body {
   @apply bg-background text-white antialiased;
 }
 
+/* Light/dark theme tokens. Tailwind's own "white" color is remapped to
+   --color-ink below (see tailwind.config.ts) so the hundreds of existing
+   text-white / bg-white/NN / border-white/NN utilities across the app
+   automatically flip between "light text on a dark surface" and "dark
+   text on a light surface" without touching individual components.
+   Genuinely-always-white elements (KHQR card, toggle knobs, etc.) were
+   switched to bg-[#fff] so they're unaffected by this remap. */
+:root,
+.dark {
+  --color-bg: 7 11 20; /* #070B14 */
+  --color-surface: 16 22 37; /* #101625 */
+  --color-ink: 255 255 255;
+}
+.light {
+  --color-bg: 248 250 252;
+  --color-surface: 255 255 255;
+  --color-ink: 15 23 42;
+}
+
 /* Slim, dark, theme-matched scrollbar everywhere instead of the browser's
    bulky default (the classic Windows-style bar with up/down arrow
    buttons at each end, which clashes badly with a dark custom UI). Kept

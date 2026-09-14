@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { useLanguage } from "@/lib/i18n/language-context";
+import { categoryLabel } from "@/lib/category-visuals";
 import type { Database } from "@/lib/types/database.types";
 
 type Category = Database["public"]["Tables"]["categories"]["Row"];
@@ -17,7 +18,7 @@ type Category = Database["public"]["Tables"]["categories"]["Row"];
  * category you thought you'd chosen.
  */
 export function CategorySelect({ categories, defaultCategoryId }: { categories: Category[]; defaultCategoryId?: string | null }) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const topLevel = useMemo(() => categories.filter((c) => !c.parent_id), [categories]);
   const childrenByParent = useMemo(() => {
     const map = new Map<string, Category[]>();
@@ -55,7 +56,7 @@ export function CategorySelect({ categories, defaultCategoryId }: { categories: 
           <option value="">{t("product_form_uncategorized")}</option>
           {topLevel.map((c) => (
             <option key={c.id} value={c.id}>
-              {c.name}
+              {categoryLabel(c, lang)}
             </option>
           ))}
         </Select>
@@ -67,7 +68,7 @@ export function CategorySelect({ categories, defaultCategoryId }: { categories: 
             <option value="">{t("product_form_no_subcategory")}</option>
             {children.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.name}
+                {categoryLabel(c, lang)}
               </option>
             ))}
           </Select>

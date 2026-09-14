@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/language-context";
+import { ThemeProvider } from "@/lib/theme/theme-context";
 
 // Explicit Khmer-supporting font. Without this, Khmer text falls back to
 // whatever the OS happens to substitute for a script the primary font
@@ -31,8 +32,22 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`dark ${notoSansKhmer.variable}`}>
+      <head>
+        {/* Runs before paint so a returning visitor's light/system choice
+            applies immediately instead of flashing the dark default first
+            (the static "dark" class above is only the no-JS/first-paint
+            fallback). Kept as a tiny inline script, not a component, since
+            it must execute before React hydrates anything. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("kado-market-theme");var resolved=t==="light"||t==="dark"?t:(window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.classList.remove("light","dark");document.documentElement.classList.add(resolved);}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body>
-        <LanguageProvider>{children}</LanguageProvider>
+        <ThemeProvider>
+          <LanguageProvider>{children}</LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

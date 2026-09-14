@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Plus, Pencil, Trash2, X, ImagePlus, ChevronRight, ChevronDown, Check } from "lucide-react";
 import { createCategory, updateCategoryFields, deleteCategory } from "@/lib/actions/admin-plans";
 import { uploadPublicFile } from "@/lib/storage";
-import { colorForIndex, PRESET_CATEGORY_ICONS } from "@/lib/category-visuals";
+import { colorForIndex, PRESET_CATEGORY_ICONS, categoryLabel } from "@/lib/category-visuals";
+import { useLanguage } from "@/lib/i18n/language-context";
 import { cn } from "@/lib/utils";
 import type { Database } from "@/lib/types/database.types";
 
@@ -16,6 +17,7 @@ type PanelState =
   | { mode: "edit"; category: Category };
 
 export function CategoryManager({ categories, counts }: { categories: Category[]; counts: Record<string, number> }) {
+  const { lang } = useLanguage();
   const topLevel = useMemo(() => categories.filter((c) => !c.parent_id).sort((a, b) => a.sort_order - b.sort_order), [categories]);
   const childrenByParent = useMemo(() => {
     const map = new Map<string, Category[]>();
@@ -77,7 +79,7 @@ export function CategoryManager({ categories, counts }: { categories: Category[]
                   )}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate font-medium">{c.name}</span>
+                  <span className="block truncate font-medium">{categoryLabel(c, lang)}</span>
                   <span className="block text-[11px] text-white/35">{subCount} subcategories</span>
                 </span>
                 {isActive && <ChevronRight className="h-4 w-4 flex-shrink-0 text-white/40" />}
@@ -103,7 +105,7 @@ export function CategoryManager({ categories, counts }: { categories: Category[]
                   )}
                 </span>
                 <div>
-                  <p className="text-lg font-bold text-white">{selected.name}</p>
+                  <p className="text-lg font-bold text-white">{categoryLabel(selected, lang)}</p>
                   <p className="text-xs text-white/40">{children.length} sub-categories</p>
                 </div>
               </div>
@@ -123,10 +125,10 @@ export function CategoryManager({ categories, counts }: { categories: Category[]
               </div>
             </div>
 
-            <p className="mb-3 text-sm font-semibold text-white/70">Child Categories ({selected.name})</p>
+            <p className="mb-3 text-sm font-semibold text-white/70">Child Categories ({categoryLabel(selected, lang)})</p>
             {children.length === 0 ? (
               <p className="rounded-xl border border-dashed border-white/10 py-8 text-center text-sm text-white/30">
-                No sub-categories yet. Add one to help shoppers narrow down "{selected.name}".
+                No sub-categories yet. Add one to help shoppers narrow down "{categoryLabel(selected, lang)}".
               </p>
             ) : (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
@@ -153,7 +155,7 @@ export function CategoryManager({ categories, counts }: { categories: Category[]
                       )}
                     </span>
                     <div>
-                      <p className="truncate text-sm font-semibold text-white">{child.name}</p>
+                      <p className="truncate text-sm font-semibold text-white">{categoryLabel(child, lang)}</p>
                       <p className="text-[11px] text-white/35">{counts[child.id] ?? 0} products</p>
                       {!child.is_active && <p className="text-[10px] font-medium text-warning">Inactive</p>}
                     </div>
@@ -265,6 +267,7 @@ function CategoryPanel({
   const showParentField = isEdit || isAddChild;
 
   const [name, setName] = useState(editing?.name ?? "");
+  const [nameKm, setNameKm] = useState(editing?.name_km ?? "");
   const [parentId, setParentId] = useState<string>(editing?.parent_id ?? (isAddChild ? panel.parentId : "") ?? "");
   const [iconTab, setIconTab] = useState<"choose" | "upload">("choose");
   const [icon, setIcon] = useState(editing?.icon ?? "🏷️");
@@ -278,7 +281,7 @@ function CategoryPanel({
   const subtitle = isEdit
     ? `Update "${editing?.name}"`
     : isAddChild
-      ? `Create a new child category under ${topLevel.find((t) => t.id === panel.parentId)?.name ?? "this category"}`
+      ? `Create a new child category under ${categoryLabel(topLevel.find((t) => t.id === panel.parentId) ?? { name: "this category" }, lang)}`
       : "Create a new top-level category";
 
   async function handleIconUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -307,6 +310,7 @@ function CategoryPanel({
       if (isEdit && editing) {
         const result = await updateCategoryFields(editing.id, {
           name: name.trim(),
+          name_km: nameKm.trim() || null,
           icon: iconUrl ? null : icon,
           icon_url: iconUrl,
           parent_id: parentId || null,
@@ -320,6 +324,7 @@ function CategoryPanel({
       } else {
         const formData = new FormData();
         formData.set("name", name.trim());
+        if (nameKm.trim()) formData.set("name_km", nameKm.trim());
         if (iconUrl) formData.set("icon_url", iconUrl);
         else formData.set("icon", icon);
         // Only a child category ever gets a parent_id here -- "add
@@ -367,6 +372,16 @@ function CategoryPanel({
             />
           </div>
 
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-white/60">Khmer name (optional)</label>
+            <input
+              value={nameKm}
+              onChange={(e) => setNameKm(e.target.value)}
+              placeholder="ឈ្មោះជាភាសាខ្មែរ"
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none focus:border-primary"
+            />
+          </div>
+
           {showParentField && (
             <div>
               <label className="mb-1 block text-xs font-semibold text-white/60">Parent Category</label>
@@ -376,7 +391,7 @@ function CategoryPanel({
                 placeholder="— top level —"
                 options={[
                   { value: "", label: "— top level —" },
-                  ...topLevel.filter((t) => t.id !== editing?.id).map((t) => ({ value: t.id, label: t.name })),
+                  ...topLevel.filter((t) => t.id !== editing?.id).map((t) => ({ value: t.id, label: categoryLabel(t, lang) })),
                 ]}
               />
             </div>
@@ -457,7 +472,7 @@ function CategoryPanel({
                 className={cn("relative h-6 w-11 rounded-full transition-colors", isActive ? "bg-brand-gradient" : "bg-white/15")}
                 aria-label="Toggle active"
               >
-                <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform", isActive ? "translate-x-5" : "translate-x-0.5")} />
+                <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-[#fff] transition-transform", isActive ? "translate-x-5" : "translate-x-0.5")} />
               </button>
             </div>
           )}
