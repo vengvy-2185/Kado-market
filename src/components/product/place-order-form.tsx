@@ -9,8 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { placeOrder } from "@/lib/actions/orders";
 import { previewDiscount } from "@/lib/actions/marketing";
-import { generateKhqr } from "@/lib/khqr";
-import { KhqrDisplay } from "@/components/settings/khqr-display";
 import type { Database } from "@/lib/types/database.types";
 
 type Address = Database["public"]["Tables"]["addresses"]["Row"];
@@ -136,24 +134,9 @@ export function PlaceOrderForm({
       </Card>
 
       {khqrInfo && (
-        <Card className="flex flex-col items-center gap-2">
-          <p className="text-sm font-semibold text-white/70">Or pay now via KHQR</p>
-          <KhqrDisplay
-            khqrString={generateKhqr({
-              bakongAccountId: khqrInfo.accountId,
-              accountInformation: khqrInfo.phone,
-              merchantName: khqrInfo.merchantName,
-              merchantCity: khqrInfo.merchantCity ?? "Phnom Penh",
-              amount: total,
-              currency: "USD",
-            })}
-            merchantName={khqrInfo.merchantName}
-            amountLabel={`$${total.toFixed(2)}`}
-          />
-          <p className="text-center text-xs text-white/40">
-            Scanning is optional — placing the order below records it either way (demo mode).
-          </p>
-        </Card>
+        <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-center text-xs text-white/60">
+          You&apos;ll see {khqrInfo.merchantName}&apos;s KHQR code to scan and pay on the next screen.
+        </div>
       )}
 
       <Card>
@@ -164,7 +147,7 @@ export function PlaceOrderForm({
       {error && <p className="text-sm text-danger">{error}</p>}
 
       <Button type="submit" loading={submitting} className="w-full">
-        Place order (Demo payment)
+        {khqrInfo ? "Place order & pay with KHQR" : "Place order (Demo payment)"}
       </Button>
     </form>
   );

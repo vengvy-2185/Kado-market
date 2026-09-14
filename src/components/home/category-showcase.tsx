@@ -84,7 +84,7 @@ export function CategoryShowcase({
           </div>
           <div className="no-scrollbar -mx-1 flex gap-3 overflow-x-auto px-1 pb-2">
             {section.products.map((p) => (
-              <div key={p.id} className="w-40 flex-shrink-0 sm:w-48">
+              <div key={p.id} className="w-32 flex-shrink-0 sm:w-40">
                 <HomeProductCard product={p} isLoggedIn={isLoggedIn} isSaved={savedSet.has(p.id)} hasAiAssistant={aiSet.has(p.store_id)} />
               </div>
             ))}

@@ -6,8 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { checkoutCartForStore } from "@/lib/actions/cart";
-import { generateKhqr } from "@/lib/khqr";
-import { KhqrDisplay } from "@/components/settings/khqr-display";
 import type { Database } from "@/lib/types/database.types";
 
 type Address = Database["public"]["Tables"]["addresses"]["Row"];
@@ -76,33 +74,20 @@ export function CartStoreCheckout({
         </div>
       </div>
 
-      <div className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-[11px] text-warning">
-        DEMO PAYMENT MODE — no real charge will be made.
-      </div>
-
-      {khqrInfo && (
-        <div className="flex flex-col items-center gap-2 py-2">
-          <p className="text-xs font-semibold text-white/60">Or pay now via KHQR</p>
-          <KhqrDisplay
-            khqrString={generateKhqr({
-              bakongAccountId: khqrInfo.accountId,
-              accountInformation: khqrInfo.phone,
-              merchantName: khqrInfo.merchantName,
-              merchantCity: khqrInfo.merchantCity ?? "Phnom Penh",
-              amount: subtotal,
-              currency: "USD",
-            })}
-            size={160}
-            merchantName={khqrInfo.merchantName}
-            amountLabel={`$${subtotal.toFixed(2)}`}
-          />
+      {khqrInfo ? (
+        <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-[11px] text-white/60">
+          You&apos;ll get a KHQR code to scan and pay right after this.
+        </div>
+      ) : (
+        <div className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-[11px] text-warning">
+          DEMO PAYMENT MODE — this seller hasn&apos;t set up KHQR payments yet, no real charge will be made.
         </div>
       )}
 
       {error && <p className="text-sm text-danger">{error}</p>}
 
       <Button type="submit" loading={submitting} className="w-full">
-        Place order (Demo payment)
+        {khqrInfo ? "Place order & pay with KHQR" : "Place order (Demo payment)"}
       </Button>
     </form>
   );

@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { PlaceOrderForm } from "@/components/product/place-order-form";
 import { BackButton } from "@/components/dashboard/back-button";
+import { AppShell } from "@/components/app-shell";
 
 export default async function CheckoutPage({
   params,
@@ -59,44 +60,53 @@ export default async function CheckoutPage({
     .eq("is_default", true)
     .maybeSingle();
 
+  const khqrInfo =
+    store?.bakong_account_id && store?.bakong_phone
+      ? { accountId: store.bakong_account_id, phone: store.bakong_phone, merchantName: store.store_name, merchantCity: store.city }
+      : null;
+
   return (
-    <main className="mx-auto max-w-lg px-4 py-10 md:px-6">
-      <div className="mb-4">
-        <BackButton />
-      </div>
-      <h1 className="mb-6 text-2xl font-bold">Checkout</h1>
-
-      <Card className="mb-6 flex items-center gap-3">
-        <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-white/5">
-          {thumbnail && <Image src={thumbnail} alt={product.name} width={64} height={64} className="h-16 w-16 object-cover" />}
+    <AppShell>
+      <main className="mx-auto max-w-lg px-4 py-10 md:px-6">
+        <div className="mb-4">
+          <BackButton />
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-medium">
-            {product.name}
-            {variantName ? ` (${variantName})` : ""}
-          </p>
-          <p className="text-sm text-white/50">Qty {quantity} × ${unitPrice}</p>
-        </div>
-        <p className="font-semibold text-accent">${total.toFixed(2)}</p>
-      </Card>
+        <h1 className="mb-6 text-2xl font-bold">Checkout</h1>
 
-      <div className="mb-4 rounded-xl border border-warning/30 bg-warning/10 px-4 py-2.5 text-xs text-warning">
-        DEMO PAYMENT MODE — no real charge will be made. This confirms the order flow only.
-      </div>
+        <Card className="mb-6 flex items-center gap-3">
+          <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-white/5">
+            {thumbnail && <Image src={thumbnail} alt={product.name} width={64} height={64} className="h-16 w-16 object-cover" />}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-medium">
+              {product.name}
+              {variantName ? ` (${variantName})` : ""}
+            </p>
+            <p className="text-sm text-white/50">Qty {quantity} × ${unitPrice}</p>
+          </div>
+          <p className="font-semibold text-accent">${total.toFixed(2)}</p>
+        </Card>
 
-      <PlaceOrderForm
-        productId={product.id}
-        storeId={product.store_id}
-        subtotal={total}
-        variantId={variantId}
-        quantity={quantity}
-        savedAddress={savedAddress}
-        khqrInfo={
-          store?.bakong_account_id && store?.bakong_phone
-            ? { accountId: store.bakong_account_id, phone: store.bakong_phone, merchantName: store.store_name, merchantCity: store.city }
-            : null
-        }
-      />
-    </main>
+        {khqrInfo ? (
+          <div className="mb-4 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-xs text-white/70">
+            After placing your order, you&apos;ll get a KHQR code to scan and pay — the order is confirmed automatically once payment clears.
+          </div>
+        ) : (
+          <div className="mb-4 rounded-xl border border-warning/30 bg-warning/10 px-4 py-2.5 text-xs text-warning">
+            DEMO PAYMENT MODE — this seller hasn&apos;t set up KHQR payments yet, so no real charge will be made. This confirms the order flow only.
+          </div>
+        )}
+
+        <PlaceOrderForm
+          productId={product.id}
+          storeId={product.store_id}
+          subtotal={total}
+          variantId={variantId}
+          quantity={quantity}
+          savedAddress={savedAddress}
+          khqrInfo={khqrInfo}
+        />
+      </main>
+    </AppShell>
   );
 }

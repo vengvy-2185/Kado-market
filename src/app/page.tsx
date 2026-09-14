@@ -409,7 +409,7 @@ export default async function HomePage({
           {isFiltered ? <T k="home_no_match" /> : <T k="home_no_products" />}
         </p>
       ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {(isFiltered ? products : products.slice(posts.length * 2)).map((p) => (
             <HomeProductCard
               key={p.id}

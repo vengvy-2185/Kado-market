@@ -45,15 +45,15 @@ export function HomeProductCard({
 
   return (
     <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-surface/60 transition-colors hover:border-primary/40">
-      <div className="absolute left-2 top-2 z-10 flex flex-col items-start gap-1">
-        {discountPct !== null && <span className="rounded-full bg-danger px-2 py-0.5 text-[10px] font-bold text-white">-{discountPct}%</span>}
+      <div className="absolute left-2 top-2 z-10 flex max-w-[calc(100%-2.5rem)] flex-wrap items-start gap-1">
+        {discountPct !== null && <span className="rounded-full bg-danger px-1.5 py-0.5 text-[9px] font-bold text-white">-{discountPct}%</span>}
         {popular && (
-          <span className="flex items-center gap-0.5 rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-2 py-0.5 text-[10px] font-bold text-white">
+          <span className="flex items-center gap-0.5 rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-1.5 py-0.5 text-[9px] font-bold text-white">
             <Flame className="h-2.5 w-2.5" /> Popular
           </span>
         )}
         {isNew && (
-          <span className="flex items-center gap-0.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-2 py-0.5 text-[10px] font-bold text-white">
+          <span className="flex items-center gap-0.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-1.5 py-0.5 text-[9px] font-bold text-white">
             <Sparkles className="h-2.5 w-2.5" /> New
           </span>
         )}
