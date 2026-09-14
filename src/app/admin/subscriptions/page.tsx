@@ -45,10 +45,12 @@ export default async function AdminSubscriptionsPage() {
     const plan = s.ai_plans as unknown as { price: number } | null;
     return sum + (plan?.price ?? 0);
   }, 0);
-  const boostRevenue = (boosts ?? []).reduce((sum, b) => {
-    const plan = b.boost_plans as unknown as { price: number } | null;
-    return sum + (plan?.price ?? 0);
-  }, 0);
+  const boostRevenue = (boosts ?? [])
+    .filter((b) => b.status === "active") // only count boosts that actually went through (verified or demo-active), not pending/cancelled/expired
+    .reduce((sum, b) => {
+      const plan = b.boost_plans as unknown as { price: number } | null;
+      return sum + (plan?.price ?? 0);
+    }, 0);
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-12">

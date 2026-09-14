@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { createBoostCampaign } from "@/lib/actions/boost";
 import { cn } from "@/lib/utils";
 import { PlatformKhqrToggle } from "@/components/platform-khqr-toggle";
+import { KhqrDisplay } from "@/components/settings/khqr-display";
+import { BoostVerifyButton } from "@/components/boost/boost-verify-button";
 import type { Database } from "@/lib/types/database.types";
 
 type Plan = Database["public"]["Tables"]["boost_plans"]["Row"];
@@ -28,19 +31,66 @@ export function NewBoostForm({
   const [planId, setPlanId] = useState(plans[0]?.id ?? "");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState<{ id: string; khqrString: string; amount: number } | null>(null);
+  const [demoSuccess, setDemoSuccess] = useState(false);
+  const [verified, setVerified] = useState(false);
 
   const items = targetType === "post" ? posts : products;
+  const selectedPlan = plans.find((p) => p.id === planId);
 
   async function handleSubmit(formData: FormData) {
     setSubmitting(true);
     setError(null);
     formData.set("plan_id", planId);
     try {
-      await createBoostCampaign(formData);
+      const result = await createBoostCampaign(formData);
+      if (result.pending && result.khqrString) {
+        setPending({ id: result.id, khqrString: result.khqrString, amount: result.amount });
+      } else {
+        setDemoSuccess(true);
+      }
     } catch (err) {
-      setSubmitting(false);
       setError(err instanceof Error ? err.message : "Failed to start boost.");
+    } finally {
+      setSubmitting(false);
     }
+  }
+
+  function reset() {
+    setPending(null);
+    setDemoSuccess(false);
+    setVerified(false);
+    setError(null);
+  }
+
+  if (verified || demoSuccess) {
+    return (
+      <Card className="flex flex-col items-center gap-3 py-8 text-center">
+        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-success/15">
+          <CheckCircle2 className="h-7 w-7 text-success" />
+        </span>
+        <div>
+          <p className="font-semibold text-white">Boost activated!</p>
+          <p className="text-sm text-white/50">{demoSuccess ? "(Demo — platform hasn't set up a real KHQR yet.)" : "Payment confirmed via Bakong."}</p>
+        </div>
+        <Button variant="outline" onClick={reset}>
+          Boost something else
+        </Button>
+      </Card>
+    );
+  }
+
+  if (pending) {
+    return (
+      <Card className="flex flex-col items-center gap-3">
+        <h2 className="text-sm font-semibold text-white/70">Scan to pay ${pending.amount.toFixed(2)}</h2>
+        <KhqrDisplay khqrString={pending.khqrString} size={180} merchantName="KADO MARKET" amountLabel={`$${pending.amount.toFixed(2)}`} />
+        <BoostVerifyButton campaignId={pending.id} onVerified={() => setVerified(true)} />
+        <button onClick={reset} className="text-xs text-white/30 hover:text-white/60">
+          Cancel
+        </button>
+      </Card>
+    );
   }
 
   return (
@@ -98,20 +148,20 @@ export function NewBoostForm({
           </div>
         </div>
 
-        {platformKhqr && planId && (
+        {platformKhqr && selectedPlan && (
           <PlatformKhqrToggle
             accountId={platformKhqr.accountId}
             phone={platformKhqr.phone}
             merchantName={platformKhqr.merchantName}
             merchantCity={platformKhqr.merchantCity}
-            amount={plans.find((p) => p.id === planId)?.price ?? 0}
+            amount={selectedPlan.price}
           />
         )}
 
         {error && <p className="text-sm text-danger">{error}</p>}
 
         <Button type="submit" loading={submitting} disabled={items.length === 0} className="w-full">
-          Boost now (Demo payment)
+          {platformKhqr ? "Pay with KHQR to boost" : "Boost now (Demo — no KHQR set up)"}
         </Button>
       </form>
     </Card>

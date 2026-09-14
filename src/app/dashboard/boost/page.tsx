@@ -61,26 +61,32 @@ export default async function BoostPage() {
               const label = c.target_type === "post" ? post?.content.slice(0, 40) ?? "Post" : product?.name ?? "Product";
               const expired = new Date(c.expires_at).getTime() < now;
               const isActive = c.status === "active" && !expired;
+              const isPending = c.status === "pending_payment";
+              const statusLabel = isPending
+                ? "Awaiting payment"
+                : isActive
+                  ? `Active until ${new Date(c.expires_at).toLocaleDateString()}`
+                  : c.status === "cancelled"
+                    ? "Cancelled"
+                    : "Expired";
               return (
                 <div key={c.id} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] p-3">
                   <div className="min-w-0">
                     <p className="truncate text-sm capitalize">
                       {c.target_type}: {label}
                     </p>
-                    <p className="text-xs text-white/40">
-                      {isActive ? `Active until ${new Date(c.expires_at).toLocaleDateString()}` : c.status === "cancelled" ? "Cancelled" : "Expired"}
-                    </p>
+                    <p className="text-xs text-white/40">{statusLabel}</p>
                   </div>
                   <div className="flex flex-shrink-0 items-center gap-2">
                     <span
                       className={cn(
                         "rounded-full px-2 py-0.5 text-[10px] font-semibold",
-                        isActive ? "bg-success/15 text-success" : "bg-white/10 text-white/40"
+                        isActive ? "bg-success/15 text-success" : isPending ? "bg-warning/15 text-warning" : "bg-white/10 text-white/40"
                       )}
                     >
-                      {isActive ? "Sponsored" : c.status === "cancelled" ? "Cancelled" : "Expired"}
+                      {isPending ? "Pending" : isActive ? "Sponsored" : c.status === "cancelled" ? "Cancelled" : "Expired"}
                     </span>
-                    {isActive && <CancelBoostButton campaignId={c.id} />}
+                    {(isActive || isPending) && <CancelBoostButton campaignId={c.id} />}
                   </div>
                 </div>
               );

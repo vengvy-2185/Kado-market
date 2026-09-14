@@ -18,7 +18,7 @@ export type AiDocumentStatus = "processed" | "unsupported" | "error";
 export type AiMessageRole = "user" | "assistant";
 export type DiscountType = "percent" | "fixed";
 export type BoostTargetType = "post" | "product";
-export type BoostStatus = "active" | "expired" | "cancelled";
+export type BoostStatus = "active" | "expired" | "cancelled" | "pending_payment";
 export type SupportTicketStatus = "open" | "in_progress" | "resolved";
 export type NotificationType = "order_status" | "review_reply" | "chat_message" | "system";
 
@@ -617,6 +617,10 @@ export interface Database {
           plan_id: string;
           status: BoostStatus;
           payment_method: string;
+          khqr_string: string | null;
+          khqr_md5: string | null;
+          bakong_last_checked_at: string | null;
+          bakong_verified_at: string | null;
           started_at: string;
           expires_at: string;
           created_at: string;
@@ -692,7 +696,7 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["reviews"]["Row"]>;
       };
       bakong_api_calls: {
-        Row: { id: string; order_id: string | null; called_at: string };
+        Row: { id: string; order_id: string | null; boost_campaign_id: string | null; called_at: string };
         Insert: Partial<Database["public"]["Tables"]["bakong_api_calls"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["bakong_api_calls"]["Row"]>;
       };
