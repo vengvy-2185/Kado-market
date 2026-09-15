@@ -69,9 +69,12 @@ body {
     opacity: 0;
     transform: scale(0.3) translateY(10px) rotate(var(--splash-rot, 0deg));
   }
-  60% {
+  55% {
     opacity: 1;
-    transform: scale(1.08) translateY(0) rotate(0deg);
+    transform: scale(1.15) translateY(-4px) rotate(0deg);
+  }
+  75% {
+    transform: scale(0.95) translateY(0);
   }
   100% {
     opacity: 1;
@@ -91,10 +94,10 @@ body {
 @keyframes splash-float {
   0%,
   100% {
-    transform: translateY(0);
+    transform: translateY(0) rotate(0deg);
   }
   50% {
-    transform: translateY(-8px);
+    transform: translateY(-10px) rotate(4deg);
   }
 }
 @keyframes splash-fade-out {
@@ -105,10 +108,13 @@ body {
 }
 .splash-pop {
   opacity: 0;
-  animation: splash-pop 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: splash-pop 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 .splash-float {
-  animation: splash-float 2.4s ease-in-out infinite;
+  animation: splash-float 2.8s ease-in-out infinite;
+}
+.splash-glow {
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.55)) drop-shadow(0 0 22px rgba(255, 200, 80, 0.35));
 }
 
 /* Highlights the matching chip in the sticky category bar while the

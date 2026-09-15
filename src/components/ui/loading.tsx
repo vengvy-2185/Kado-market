@@ -13,8 +13,20 @@ export function Spinner({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
 
 export function FullPageSpinner() {
   return (
-    <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3">
-      <Image src="/logo.png" alt="" width={48} height={48} className="animate-pulse rounded-xl" priority />
+    <div className="relative flex min-h-[50vh] flex-col items-center justify-center gap-3 overflow-hidden">
+      <img
+        src="/splash/heart.png"
+        alt=""
+        className="splash-float splash-glow absolute left-[30%] top-[30%] h-6 w-6 opacity-80"
+        style={{ animationDuration: "2.6s" }}
+      />
+      <img
+        src="/splash/gift.png"
+        alt=""
+        className="splash-float splash-glow absolute right-[28%] top-[35%] h-7 w-7 opacity-80"
+        style={{ animationDuration: "3s", animationDelay: "0.3s" }}
+      />
+      <Image src="/logo.png" alt="" width={48} height={48} className="splash-float relative z-10 rounded-xl" style={{ animationDuration: "2s" }} priority />
       <Spinner size="sm" />
     </div>
   );

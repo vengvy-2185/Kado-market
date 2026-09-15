@@ -32,8 +32,8 @@ export function SplashScreen() {
       return;
     }
     setVisible(true);
-    const fadeTimer = setTimeout(() => setFadingOut(true), 3400);
-    const removeTimer = setTimeout(() => setVisible(false), 3900);
+    const fadeTimer = setTimeout(() => setFadingOut(true), 4600);
+    const removeTimer = setTimeout(() => setVisible(false), 5100);
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(removeTimer);
@@ -57,28 +57,34 @@ export function SplashScreen() {
       <img
         src="/splash/bag.png"
         alt=""
-        className="splash-pop splash-float absolute left-[12%] top-[22%] h-12 w-12 sm:h-16 sm:w-16"
-        style={{ animationDelay: "1.6s", ["--splash-rot" as string]: "-25deg" }}
+        className="splash-pop splash-float splash-glow absolute left-[10%] top-[20%] h-12 w-12 sm:h-16 sm:w-16"
+        style={{ animationDelay: "1.8s", ["--splash-rot" as string]: "-25deg" }}
       />
       <img
         src="/splash/gift.png"
         alt=""
-        className="splash-pop splash-float absolute right-[14%] top-[26%] h-12 w-12 sm:h-16 sm:w-16"
-        style={{ animationDelay: "1.75s", ["--splash-rot" as string]: "25deg", animationDuration: "2.8s" }}
+        className="splash-pop splash-float splash-glow absolute right-[12%] top-[24%] h-12 w-12 sm:h-16 sm:w-16"
+        style={{ animationDelay: "2.0s", ["--splash-rot" as string]: "25deg", animationDuration: "3.2s" }}
       />
       <img
         src="/splash/heart.png"
         alt=""
-        className="splash-pop splash-float absolute bottom-[24%] left-[16%] h-9 w-9 sm:h-12 sm:w-12"
-        style={{ animationDelay: "1.9s", ["--splash-rot" as string]: "20deg" }}
+        className="splash-pop splash-float splash-glow absolute bottom-[30%] left-[14%] h-9 w-9 sm:h-12 sm:w-12"
+        style={{ animationDelay: "2.2s", ["--splash-rot" as string]: "20deg" }}
+      />
+      <img
+        src="/splash/mascot.png"
+        alt=""
+        className="splash-pop splash-float absolute bottom-[12%] right-[10%] h-20 w-20 sm:h-28 sm:w-28"
+        style={{ animationDelay: "2.6s", ["--splash-rot" as string]: "-10deg", animationDuration: "3.4s" }}
       />
 
       {/* cart icon */}
       <img
         src="/splash/cart.png"
         alt=""
-        className="splash-pop relative z-10 mb-3 h-16 w-16 sm:h-20 sm:w-20"
-        style={{ animationDelay: "0.15s" }}
+        className="splash-pop splash-glow relative z-10 mb-3 h-16 w-16 sm:h-20 sm:w-20"
+        style={{ animationDelay: "0.2s" }}
       />
 
       {/* KADO */}
@@ -89,7 +95,7 @@ export function SplashScreen() {
             src={l.src}
             alt=""
             className="splash-pop h-10 w-10 sm:h-14 sm:w-14"
-            style={{ animationDelay: `${0.55 + i * 0.1}s`, ["--splash-rot" as string]: `${l.rot}deg` }}
+            style={{ animationDelay: `${0.7 + i * 0.13}s`, ["--splash-rot" as string]: `${l.rot}deg` }}
           />
         ))}
       </div>
@@ -102,7 +108,7 @@ export function SplashScreen() {
             src={l.src}
             alt=""
             className="splash-pop h-7 w-7 sm:h-9 sm:w-9"
-            style={{ animationDelay: `${1.0 + i * 0.08}s`, ["--splash-rot" as string]: `${l.rot}deg` }}
+            style={{ animationDelay: `${1.35 + i * 0.1}s`, ["--splash-rot" as string]: `${l.rot}deg` }}
           />
         ))}
       </div>
@@ -112,7 +118,7 @@ export function SplashScreen() {
         src="/splash/tagline.png"
         alt="Shop Smarter, Live Better"
         className="splash-pop relative z-10 mt-4 h-8 w-auto sm:h-10"
-        style={{ animationDelay: "1.7s" }}
+        style={{ animationDelay: "2.3s" }}
       />
     </div>
   );
