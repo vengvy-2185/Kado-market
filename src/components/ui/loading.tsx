@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 export function Spinner({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
   const px = size === "sm" ? "h-5 w-5" : size === "lg" ? "h-10 w-10" : "h-7 w-7";
   return (
@@ -11,9 +9,16 @@ export function Spinner({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
   );
 }
 
+const LOGO_LETTERS = [
+  { src: "/splash/k1.png" },
+  { src: "/splash/a1.png" },
+  { src: "/splash/d1.png" },
+  { src: "/splash/o1.png" },
+];
+
 export function FullPageSpinner() {
   return (
-    <div className="relative flex min-h-[50vh] flex-col items-center justify-center gap-3 overflow-hidden">
+    <div className="relative flex min-h-[50vh] flex-col items-center justify-center gap-2 overflow-hidden">
       <img
         src="/splash/heart.png"
         alt=""
@@ -26,8 +31,17 @@ export function FullPageSpinner() {
         className="splash-float splash-glow absolute right-[28%] top-[35%] h-7 w-7 opacity-80"
         style={{ animationDuration: "3s", animationDelay: "0.3s" }}
       />
-      <Image src="/logo.png" alt="" width={48} height={48} className="splash-float relative z-10 rounded-xl" style={{ animationDuration: "2s" }} priority />
-      <Spinner size="sm" />
+      <div className="relative z-10 flex gap-0.5" role="status" aria-label="Loading">
+        {LOGO_LETTERS.map((l, i) => (
+          <img
+            key={l.src}
+            src={l.src}
+            alt=""
+            className="h-7 w-7 object-contain"
+            style={{ animation: "loading-bounce 1s ease-in-out infinite", animationDelay: `${i * 0.12}s` }}
+          />
+        ))}
+      </div>
     </div>
   );
 }

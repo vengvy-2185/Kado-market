@@ -117,6 +117,19 @@ body {
   filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.55)) drop-shadow(0 0 22px rgba(255, 200, 80, 0.35));
 }
 
+/* Continuous staggered up/down bounce for the small inline loading
+   indicator's letters (see FullPageSpinner) -- distinct from splash-pop,
+   which is a one-shot entrance for the full intro screen. */
+@keyframes loading-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
 /* Highlights the matching chip in the sticky category bar while the
    shopper scrolls past that category's row of products further down the
    page (see CategoryShowcase) -- separate from the chip's own

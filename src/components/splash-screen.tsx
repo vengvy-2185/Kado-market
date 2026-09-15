@@ -72,12 +72,6 @@ export function SplashScreen() {
         className="splash-pop splash-float splash-glow absolute bottom-[30%] left-[14%] h-9 w-9 sm:h-12 sm:w-12"
         style={{ animationDelay: "2.2s", ["--splash-rot" as string]: "20deg" }}
       />
-      <img
-        src="/splash/mascot.png"
-        alt=""
-        className="splash-pop splash-float absolute bottom-[12%] right-[10%] h-20 w-20 sm:h-28 sm:w-28"
-        style={{ animationDelay: "2.6s", ["--splash-rot" as string]: "-10deg", animationDuration: "3.4s" }}
-      />
 
       {/* cart icon */}
       <img
@@ -88,26 +82,26 @@ export function SplashScreen() {
       />
 
       {/* KADO */}
-      <div className="relative z-10 flex">
+      <div className="relative z-10 flex gap-1.5 sm:gap-2">
         {KADO_LETTERS.map((l, i) => (
           <img
             key={l.src}
             src={l.src}
             alt=""
-            className="splash-pop h-10 w-10 sm:h-14 sm:w-14"
+            className="splash-pop h-10 w-10 object-contain sm:h-14 sm:w-14"
             style={{ animationDelay: `${0.7 + i * 0.13}s`, ["--splash-rot" as string]: `${l.rot}deg` }}
           />
         ))}
       </div>
 
       {/* MARKET */}
-      <div className="relative z-10 mt-1 flex">
+      <div className="relative z-10 mt-1 flex gap-1 sm:gap-1.5">
         {MARKET_LETTERS.map((l, i) => (
           <img
             key={l.src}
             src={l.src}
             alt=""
-            className="splash-pop h-7 w-7 sm:h-9 sm:w-9"
+            className="splash-pop h-7 w-7 object-contain sm:h-9 sm:w-9"
             style={{ animationDelay: `${1.35 + i * 0.1}s`, ["--splash-rot" as string]: `${l.rot}deg` }}
           />
         ))}
@@ -119,6 +113,14 @@ export function SplashScreen() {
         alt="Shop Smarter, Live Better"
         className="splash-pop relative z-10 mt-4 h-8 w-auto sm:h-10"
         style={{ animationDelay: "2.3s" }}
+      />
+
+      {/* mascot, walking in with a gift */}
+      <img
+        src="/splash/mascot2.png"
+        alt=""
+        className="splash-pop absolute bottom-[8%] right-[8%] h-24 w-24 object-contain sm:h-32 sm:w-32"
+        style={{ animationDelay: "2.7s", ["--splash-rot" as string]: "-8deg" }}
       />
     </div>
   );
