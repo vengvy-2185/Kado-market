@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/language-context";
 import { ThemeProvider } from "@/lib/theme/theme-context";
+import { SplashScreen } from "@/components/splash-screen";
 
 // Explicit Khmer-supporting font. Without this, Khmer text falls back to
 // whatever the OS happens to substitute for a script the primary font
@@ -46,7 +47,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <ThemeProvider>
-          <LanguageProvider>{children}</LanguageProvider>
+          <LanguageProvider>
+            <SplashScreen />
+            {children}
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>
