@@ -67,7 +67,7 @@ export default async function CheckoutPage({
 
   return (
     <AppShell>
-      <main className="mx-auto max-w-lg px-4 py-10 md:px-6">
+      <div className="mx-auto max-w-lg px-4 py-10 md:px-6">
         <div className="mb-4">
           <BackButton />
         </div>
@@ -106,7 +106,7 @@ export default async function CheckoutPage({
           savedAddress={savedAddress}
           khqrInfo={khqrInfo}
         />
-      </main>
+      </div>
     </AppShell>
   );
 }

@@ -87,7 +87,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
 
   return (
     <AppShell>
-      <main className="mx-auto max-w-2xl px-4 py-10 md:px-6">
+      <div className="mx-auto max-w-2xl px-4 py-10 md:px-6">
       <div className="mb-4">
         <BackButton />
       </div>
@@ -192,7 +192,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
         <h2 className="mb-4 text-sm font-semibold text-white/70">Order tracking</h2>
         <OrderTracker currentStatus={order.status} history={history ?? []} />
       </Card>
-      </main>
+      </div>
     </AppShell>
   );
 }

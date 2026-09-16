@@ -29,12 +29,12 @@ export default async function AiChatPage({ params }: { params: { id: string } })
 
   return (
     <AppShell>
-      <main className="mx-auto max-w-2xl px-4 py-10 md:px-6">
+      <div className="mx-auto max-w-2xl px-4 py-10 md:px-6">
         <div className="mb-4">
           <BackButton />
         </div>
         <AiChatThread threadId={thread.id} initialMessages={messages ?? []} storeName={store?.store_name ?? "Store"} />
-      </main>
+      </div>
     </AppShell>
   );
 }
