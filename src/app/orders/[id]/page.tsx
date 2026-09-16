@@ -4,6 +4,7 @@ import { Download, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { OrderStatusControl } from "@/components/product/order-status-control";
+import { CancelOrderButton } from "@/components/product/cancel-order-button";
 import { BackButton } from "@/components/dashboard/back-button";
 import { AppShell } from "@/components/app-shell";
 import { KhqrDisplay } from "@/components/settings/khqr-display";
@@ -130,6 +131,12 @@ export default async function OrderDetailPage({ params }: { params: { id: string
             </>
           )}
         </Card>
+      )}
+
+      {!isSeller && order.status === "pending" && (
+        <div className="mb-4">
+          <CancelOrderButton orderId={order.id} />
+        </div>
       )}
 
       <Card className="mb-4 space-y-3">

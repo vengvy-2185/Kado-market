@@ -235,6 +235,39 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
   revalidatePath("/account/orders");
 }
 
+export async function cancelOrderAsBuyer(orderId: string) {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: order } = await supabase.from("orders").select("id, customer_id, status, order_number, store_id").eq("id", orderId).single();
+  if (!order) throw new Error("Order not found.");
+  if (order.customer_id !== user.id) throw new Error("Not authorized.");
+  // Buyers can back out of an order that hasn't been paid for yet -- once
+  // it's paid, cancelling unilaterally would need to involve the seller
+  // (a refund, stock already reserved/sold, etc.), so that stays a
+  // seller-side status change instead.
+  if (order.status !== "pending") {
+    throw new Error("Only orders still awaiting payment can be cancelled this way.");
+  }
+
+  // No RLS policy lets a customer update orders.status directly (only the
+  // seller/admin policy exists) -- the authorization checks above already
+  // confirm this is the order's own buyer and it's still unpaid, so using
+  // the admin client here for just this one field is safe.
+  const admin = createAdminClient();
+  const { error } = await admin.from("orders").update({ status: "cancelled" }).eq("id", orderId);
+  if (error) throw new Error(error.message);
+  // No manual order_status_history insert needed -- a DB trigger already
+  // logs every status change automatically.
+
+  revalidatePath(`/orders/${orderId}`);
+  revalidatePath("/account/orders");
+  revalidatePath("/dashboard/orders");
+}
+
 const DAILY_QUOTA_SAFETY_LIMIT = 90; // stay under NBC's hard 100/day cap with a buffer
 const PER_ORDER_COOLDOWN_MS = 60_000; // don't let one order's repeated clicks burn the shared quota
 
