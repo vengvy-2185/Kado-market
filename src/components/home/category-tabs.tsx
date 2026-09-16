@@ -106,7 +106,7 @@ export function CategoryTabs({
           <Link
             href={hrefFor(activeTop.slug)}
             className={cn(
-              "flex-shrink-0 rounded-full px-3 py-2 text-xs font-semibold transition-colors",
+              "flex-shrink-0 rounded-full px-3 py-2 text-xs font-semibold transition-colors active:scale-95",
               isViewAllActive ? "bg-brand-gradient text-white shadow-glow" : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/80"
             )}
           >
@@ -120,7 +120,7 @@ export function CategoryTabs({
                 href={hrefFor(child.slug)}
                 data-cat-chip={child.slug}
                 className={cn(
-                  "flex flex-shrink-0 items-center gap-1.5 rounded-full py-1 pl-1 pr-3 text-xs font-medium transition-colors",
+                  "flex flex-shrink-0 items-center gap-1.5 rounded-full py-1 pl-1 pr-3 text-xs font-medium transition-colors active:scale-95",
                   isChildActive ? "bg-white/15 text-white" : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/80"
                 )}
               >

@@ -66,7 +66,7 @@ export function CategoryManager({ categories, counts }: { categories: Category[]
                 key={c.id}
                 onClick={() => setSelectedId(c.id)}
                 className={cn(
-                  "flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-sm transition-colors",
+                  "flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-sm transition-colors active:scale-[0.98]",
                   isActive ? "bg-primary/15 text-white" : "text-white/60 hover:bg-white/5 hover:text-white/90"
                 )}
               >

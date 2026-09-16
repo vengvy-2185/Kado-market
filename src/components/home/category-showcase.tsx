@@ -38,6 +38,18 @@ export function CategoryShowcase({
     const sectionEls = Array.from(document.querySelectorAll<HTMLElement>("[data-showcase-section]"));
     if (sectionEls.length === 0) return;
 
+    // Query the chip elements once and cache them, instead of re-querying
+    // the whole DOM on every intersection firing (this can fire dozens of
+    // times per second while scrolling on a slower phone, and repeated
+    // querySelectorAll calls were blocking the main thread long enough to
+    // make taps right after scrolling feel unresponsive).
+    const chipBySlug = new Map<string, Element>();
+    document.querySelectorAll("[data-cat-chip]").forEach((el) => {
+      const slug = el.getAttribute("data-cat-chip");
+      if (slug) chipBySlug.set(slug, el);
+    });
+    let activeChip: Element | null = null;
+
     const observer = new IntersectionObserver(
       (entries) => {
         let bestSlug: string | null = null;
@@ -48,9 +60,11 @@ export function CategoryShowcase({
             bestSlug = entry.target.getAttribute("data-cat-slug");
           }
         }
-        if (bestSlug) {
-          document.querySelectorAll("[data-cat-chip]").forEach((el) => el.classList.remove("scrollspy-active"));
-          document.querySelector(`[data-cat-chip="${bestSlug}"]`)?.classList.add("scrollspy-active");
+        const nextChip = bestSlug ? chipBySlug.get(bestSlug) : undefined;
+        if (nextChip && nextChip !== activeChip) {
+          activeChip?.classList.remove("scrollspy-active");
+          nextChip.classList.add("scrollspy-active");
+          activeChip = nextChip;
         }
       },
       { rootMargin: "-140px 0px -55% 0px", threshold: [0, 0.25, 0.5, 0.75, 1] }
