@@ -1,9 +1,12 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { MessageCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ProductGallery } from "@/components/product/product-gallery";
+import { RecordRecentlyViewed, RecentlyViewedStrip } from "@/components/product/recently-viewed";
+import { T } from "@/components/t";
 import { BuyNowPanel } from "@/components/product/buy-now-panel";
 import { SaveButton } from "@/components/product/save-button";
 import { BackButton } from "@/components/dashboard/back-button";
@@ -103,6 +106,21 @@ export default async function ProductPage({ params }: { params: { slug: string }
     reviewableItems = (candidateItems ?? []).filter((ci) => !reviewedOrderItemIds.has(ci.id)).map((ci) => ({ id: ci.id }));
   }
 
+  // "You might also like" -- other active products in the same category,
+  // skipped entirely for uncategorized products rather than showing an
+  // unrelated grab-bag.
+  let similarProducts: { id: string; slug: string; name: string; price: number; product_images: { url: string; sort_order: number }[] | null }[] = [];
+  if (product.category_id) {
+    const { data } = await supabase
+      .from("products")
+      .select("id, slug, name, price, product_images(url, sort_order)")
+      .eq("category_id", product.category_id)
+      .eq("status", "active")
+      .neq("id", product.id)
+      .limit(8);
+    similarProducts = data ?? [];
+  }
+
   const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -197,6 +215,43 @@ export default async function ProductPage({ params }: { params: { slug: string }
         ))}
         <ReviewsList reviews={reviews} />
       </div>
+
+      {similarProducts.length > 0 && (
+        <div className="mt-8">
+          <h2 className="mb-3 text-sm font-semibold text-white/70">
+            <T k="similar_products" />
+          </h2>
+          <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
+            {similarProducts.map((p) => {
+              const thumb = [...(p.product_images ?? [])].sort((a, b) => a.sort_order - b.sort_order)[0]?.url ?? null;
+              return (
+                <Link key={p.id} href={`/product/${p.slug}`} className="w-28 flex-shrink-0 sm:w-32">
+                  <div className="flex aspect-square items-center justify-center overflow-hidden rounded-xl bg-white/5">
+                    {thumb ? (
+                      <Image src={thumb} alt={p.name} width={128} height={128} className="h-full w-full object-contain p-2" />
+                    ) : (
+                      <div className="h-full w-full bg-white/5" />
+                    )}
+                  </div>
+                  <p className="mt-1.5 line-clamp-1 text-xs text-white/70">{p.name}</p>
+                  <p className="text-xs font-semibold text-accent">${p.price}</p>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <RecentlyViewedStrip excludeProductId={product.id} />
+      <RecordRecentlyViewed
+        product={{
+          id: product.id,
+          slug: product.slug,
+          name: product.name,
+          price: product.price,
+          image: images[0]?.url ?? null,
+        }}
+      />
       </div>
     </AppShell>
   );

@@ -76,6 +76,8 @@ export const dictionary = {
   category_all: { en: "All", km: "ទាំងអស់" },
   category_all_categories: { en: "All Categories", km: "ប្រភេទទាំងអស់" },
   category_view_all: { en: "View all", km: "មើលទាំងអស់" },
+  recently_viewed: { en: "Recently viewed", km: "មើលថ្មីៗនេះ" },
+  similar_products: { en: "You might also like", km: "អ្នកអាចនឹងចូលចិត្ត" },
 
   // Seller: add/edit product form
   product_form_add_title: { en: "Add a product", km: "បន្ថែមទំនិញ" },
