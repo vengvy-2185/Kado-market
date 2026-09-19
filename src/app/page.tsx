@@ -14,7 +14,7 @@ import { StoryBar, type StoryGroup } from "@/components/stories/story-bar";
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: { q?: string; category?: string; minPrice?: string; maxPrice?: string; location?: string; sort?: string };
+  searchParams: { q?: string; category?: string; minPrice?: string; maxPrice?: string; location?: string; sort?: string; lat?: string; lng?: string };
 }) {
   const supabase = createClient();
   const {
@@ -135,12 +135,14 @@ export default async function HomePage({
     }
   }
 
+  const isNearestSort = searchParams.sort === "nearest" && searchParams.lat && searchParams.lng;
+
   let productQuery = supabase
     .from("products")
     .select(
-      hasLocationFilter
-        ? "id, name, slug, price, compare_at_price, sale_ends_at, store_id, sales_count, created_at, avg_rating, review_count, product_images(url, sort_order), stores!inner(store_name, slug, verified, city, province)"
-        : "id, name, slug, price, compare_at_price, sale_ends_at, store_id, sales_count, created_at, avg_rating, review_count, product_images(url, sort_order), stores(store_name, slug, verified, city, province)"
+      hasLocationFilter || isNearestSort
+        ? "id, name, slug, price, compare_at_price, sale_ends_at, store_id, sales_count, created_at, avg_rating, review_count, product_images(url, sort_order), stores!inner(store_name, slug, verified, city, province, latitude, longitude)"
+        : "id, name, slug, price, compare_at_price, sale_ends_at, store_id, sales_count, created_at, avg_rating, review_count, product_images(url, sort_order), stores(store_name, slug, verified, city, province, latitude, longitude)"
     )
     .eq("status", "active")
     .limit(24);
@@ -153,6 +155,9 @@ export default async function HomePage({
     const loc = `%${searchParams.location!.trim()}%`;
     productQuery = productQuery.or(`city.ilike.${loc},province.ilike.${loc}`, { foreignTable: "stores" });
   }
+  if (isNearestSort) {
+    productQuery = productQuery.not("stores.latitude", "is", null).not("stores.longitude", "is", null);
+  }
 
   switch (searchParams.sort) {
     case "price_asc":
@@ -164,11 +169,38 @@ export default async function HomePage({
     case "best_selling":
       productQuery = productQuery.order("sales_count", { ascending: false });
       break;
+    case "nearest":
+      // Distance is computed in JS below (Supabase can't order by a
+      // computed haversine distance directly) -- order by recency here
+      // just so the query itself is deterministic before we re-sort.
+      productQuery = productQuery.order("created_at", { ascending: false });
+      break;
     default:
       productQuery = productQuery.order("created_at", { ascending: false });
   }
 
-  const { data: products } = await productQuery;
+  const { data: productsRaw } = await productQuery;
+
+  function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
+    const R = 6371;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLng = ((lng2 - lng1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) ** 2 + Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  const products = isNearestSort
+    ? [...(productsRaw ?? [])].sort((a, b) => {
+        const aStore = a.stores as unknown as { latitude: number | null; longitude: number | null } | null;
+        const bStore = b.stores as unknown as { latitude: number | null; longitude: number | null } | null;
+        const buyerLat = Number(searchParams.lat);
+        const buyerLng = Number(searchParams.lng);
+        const distA = aStore?.latitude && aStore?.longitude ? distanceKm(buyerLat, buyerLng, aStore.latitude, aStore.longitude) : Infinity;
+        const distB = bStore?.latitude && bStore?.longitude ? distanceKm(buyerLat, buyerLng, bStore.latitude, bStore.longitude) : Infinity;
+        return distA - distB;
+      })
+    : productsRaw;
 
   const { data: aiStoreRows } = await supabase
     .from("ai_subscriptions")

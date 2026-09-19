@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { SlidersHorizontal, X } from "lucide-react";
+import { SlidersHorizontal, X, MapPin, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const SORT_OPTIONS = [
@@ -10,6 +10,7 @@ const SORT_OPTIONS = [
   { value: "price_asc", label: "Price: Low to High" },
   { value: "price_desc", label: "Price: High to Low" },
   { value: "best_selling", label: "Best Selling" },
+  { value: "nearest", label: "Nearest to me" },
 ];
 
 export function ProductFilters() {
@@ -48,8 +49,31 @@ export function ProductFilters() {
     setOpen(false);
   }
 
+  const [locating, setLocating] = useState(false);
+  const [geoError, setGeoError] = useState<string | null>(null);
+
   function changeSort(value: string) {
-    router.push(buildUrl({ sort: value || null }));
+    if (value === "nearest") {
+      if (!navigator.geolocation) {
+        setGeoError("Your browser doesn't support location.");
+        return;
+      }
+      setLocating(true);
+      setGeoError(null);
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setLocating(false);
+          router.push(buildUrl({ sort: "nearest", lat: String(pos.coords.latitude), lng: String(pos.coords.longitude) }));
+        },
+        () => {
+          setLocating(false);
+          setGeoError("Couldn't get your location — check your browser's location permission.");
+        },
+        { timeout: 10_000 }
+      );
+      return;
+    }
+    router.push(buildUrl({ sort: value || null, lat: null, lng: null }));
   }
 
   return (
@@ -125,8 +149,9 @@ export function ProductFilters() {
       <select
         value={currentSort}
         onChange={(e) => changeSort(e.target.value)}
+        disabled={locating}
         className={cn(
-          "rounded-full px-3.5 py-2 text-xs font-semibold outline-none transition-colors",
+          "rounded-full px-3.5 py-2 text-xs font-semibold outline-none transition-colors disabled:opacity-60",
           currentSort ? "bg-brand-gradient text-white" : "border border-accent/30 bg-accent/10 text-accent hover:bg-accent/20"
         )}
       >
@@ -136,6 +161,16 @@ export function ProductFilters() {
           </option>
         ))}
       </select>
+      {locating && (
+        <span className="flex items-center gap-1 text-xs text-white/50">
+          <Loader2 className="h-3 w-3 animate-spin" /> Finding you...
+        </span>
+      )}
+      {geoError && (
+        <span className="flex items-center gap-1 text-xs text-danger">
+          <MapPin className="h-3 w-3" /> {geoError}
+        </span>
+      )}
     </div>
   );
 }
