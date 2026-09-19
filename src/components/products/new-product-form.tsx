@@ -141,6 +141,11 @@ export function NewProductForm({ storeId, categories }: { storeId: string; categ
             <Input id="sku" name="sku" />
           </div>
         </div>
+        <div>
+          <Label htmlFor="sale_ends_at">{t("product_form_sale_ends")}</Label>
+          <Input id="sale_ends_at" name="sale_ends_at" type="datetime-local" />
+          <p className="mt-1 text-xs text-white/40">{t("product_form_sale_ends_hint")}</p>
+        </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Label htmlFor="initial_stock">{t("product_form_initial_stock")}</Label>

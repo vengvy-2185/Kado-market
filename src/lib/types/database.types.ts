@@ -176,6 +176,7 @@ export interface Database {
           description: string | null;
           price: number;
           compare_at_price: number | null;
+          sale_ends_at: string | null;
           sku: string | null;
           brand: string | null;
           stock: number;

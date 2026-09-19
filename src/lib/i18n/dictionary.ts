@@ -104,6 +104,11 @@ export const dictionary = {
   product_form_price: { en: "Price ($)", km: "តម្លៃ ($)" },
   product_form_compare_price: { en: "Compare-at price ($)", km: "តម្លៃប្រៀបធៀប ($)" },
   product_form_sku: { en: "SKU", km: "លេខកូដទំនិញ (SKU)" },
+  product_form_sale_ends: { en: "Flash sale ends (optional)", km: "ការបញ្ចុះតម្លៃរហ័សបញ្ចប់ (មិនចាំបាច់)" },
+  product_form_sale_ends_hint: {
+    en: "Shows a countdown timer on the product until this time, then the discount display goes back to normal.",
+    km: "បង្ហាញនាឡិកាថយក្រោយលើផលិតផលរហូតដល់ម៉ោងនេះ បន្ទាប់មកបង្ហាញការបញ្ចុះតម្លៃធម្មតាវិញ។",
+  },
   product_form_initial_stock: { en: "Initial stock", km: "ស្តុកដំបូង" },
   product_form_low_stock: { en: "Low stock alert below", km: "ជូនដំណឹងស្តុកទាបនៅក្រោម" },
   product_form_stock_hint: {

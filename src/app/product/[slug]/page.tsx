@@ -6,6 +6,7 @@ import { MessageCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { RecordRecentlyViewed, RecentlyViewedStrip } from "@/components/product/recently-viewed";
+import { FlashSaleCountdown } from "@/components/product/flash-sale-countdown";
 import { T } from "@/components/t";
 import { BuyNowPanel } from "@/components/product/buy-now-panel";
 import { SaveButton } from "@/components/product/save-button";
@@ -191,6 +192,11 @@ export default async function ProductPage({ params }: { params: { slug: string }
               <span className="text-white/40 line-through">${product.compare_at_price}</span>
             )}
           </div>
+          {product.sale_ends_at && new Date(product.sale_ends_at).getTime() > Date.now() && (
+            <div className="mt-2">
+              <FlashSaleCountdown endsAt={product.sale_ends_at} />
+            </div>
+          )}
 
           {product.description && <p className="mt-4 text-sm text-white/70">{product.description}</p>}
 

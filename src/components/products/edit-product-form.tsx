@@ -139,6 +139,16 @@ export function EditProductForm({
             </div>
           </div>
           <div>
+            <Label htmlFor="sale_ends_at">{t("product_form_sale_ends")}</Label>
+            <Input
+              id="sale_ends_at"
+              name="sale_ends_at"
+              type="datetime-local"
+              defaultValue={product.sale_ends_at ? new Date(product.sale_ends_at).toISOString().slice(0, 16) : ""}
+            />
+            <p className="mt-1 text-xs text-white/40">{t("product_form_sale_ends_hint")}</p>
+          </div>
+          <div>
             <Label htmlFor="low_stock_threshold">{t("product_form_low_stock")}</Label>
             <Input id="low_stock_threshold" name="low_stock_threshold" type="number" min="0" defaultValue={product.low_stock_threshold} />
           </div>

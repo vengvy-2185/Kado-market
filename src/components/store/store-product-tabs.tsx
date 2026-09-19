@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Package, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { QuickActions } from "@/components/product/quick-actions";
+import { FlashSaleCountdown } from "@/components/product/flash-sale-countdown";
 
 type Product = {
   id: string;
@@ -13,6 +14,7 @@ type Product = {
   slug: string;
   price: number;
   compare_at_price: number | null;
+  sale_ends_at?: string | null;
   category_name: string | null;
   product_images: { url: string; sort_order: number }[] | null;
 };
@@ -84,7 +86,12 @@ export function StoreProductTabs({
             const images = p.product_images ?? [];
             const thumb = [...images].sort((a, b) => a.sort_order - b.sort_order)[0]?.url ?? null;
             return (
-              <div key={p.id} className="group overflow-hidden rounded-2xl border border-white/10 bg-surface/60 transition-colors hover:border-primary/40">
+              <div key={p.id} className="group relative overflow-hidden rounded-2xl border border-white/10 bg-surface/60 transition-colors hover:border-primary/40">
+                {p.sale_ends_at && new Date(p.sale_ends_at).getTime() > Date.now() && (
+                  <div className="absolute left-2 top-2 z-10">
+                    <FlashSaleCountdown endsAt={p.sale_ends_at} compact />
+                  </div>
+                )}
                 <Link href={`/product/${p.slug}`}>
                   <div className="flex aspect-[4/5] items-center justify-center bg-white/5">
                     {thumb ? (

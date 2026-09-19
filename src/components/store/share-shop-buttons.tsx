@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Facebook, Send, Link2, Share2 } from "lucide-react";
+import { StoreQrButton } from "@/components/store/store-qr-button";
 
 export function ShareShopButtons({ storeUrl, storeName }: { storeUrl: string; storeName: string }) {
   const [copied, setCopied] = useState(false);
@@ -53,6 +54,7 @@ export function ShareShopButtons({ storeUrl, storeName }: { storeUrl: string; st
         >
           <Link2 className="h-4 w-4" />
         </button>
+        <StoreQrButton storeUrl={storeUrl} storeName={storeName} />
         <button
           onClick={nativeShare}
           className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/60 hover:bg-white/10 md:hidden"

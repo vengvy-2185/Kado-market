@@ -92,7 +92,7 @@ export default async function HomePage({
         supabase
           .from("products")
           .select(
-            "id, name, slug, price, compare_at_price, store_id, sales_count, created_at, avg_rating, review_count, product_images(url, sort_order), stores(store_name, slug, verified, city, province)"
+            "id, name, slug, price, compare_at_price, sale_ends_at, store_id, sales_count, created_at, avg_rating, review_count, product_images(url, sort_order), stores(store_name, slug, verified, city, province)"
           )
           .eq("status", "active")
           .eq("category_id", child.id)
@@ -118,7 +118,7 @@ export default async function HomePage({
     const { data: directProducts } = await supabase
       .from("products")
       .select(
-        "id, name, slug, price, compare_at_price, store_id, sales_count, created_at, avg_rating, review_count, product_images(url, sort_order), stores(store_name, slug, verified, city, province)"
+        "id, name, slug, price, compare_at_price, sale_ends_at, store_id, sales_count, created_at, avg_rating, review_count, product_images(url, sort_order), stores(store_name, slug, verified, city, province)"
       )
       .eq("status", "active")
       .eq("category_id", browseParent.id)
@@ -139,8 +139,8 @@ export default async function HomePage({
     .from("products")
     .select(
       hasLocationFilter
-        ? "id, name, slug, price, compare_at_price, store_id, sales_count, created_at, avg_rating, review_count, product_images(url, sort_order), stores!inner(store_name, slug, verified, city, province)"
-        : "id, name, slug, price, compare_at_price, store_id, sales_count, created_at, avg_rating, review_count, product_images(url, sort_order), stores(store_name, slug, verified, city, province)"
+        ? "id, name, slug, price, compare_at_price, sale_ends_at, store_id, sales_count, created_at, avg_rating, review_count, product_images(url, sort_order), stores!inner(store_name, slug, verified, city, province)"
+        : "id, name, slug, price, compare_at_price, sale_ends_at, store_id, sales_count, created_at, avg_rating, review_count, product_images(url, sort_order), stores(store_name, slug, verified, city, province)"
     )
     .eq("status", "active")
     .limit(24);

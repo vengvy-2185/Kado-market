@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Package, ShieldCheck, Star, Flame, Sparkles } from "lucide-react";
 import { SaveButton } from "@/components/product/save-button";
 import { QuickActions } from "@/components/product/quick-actions";
+import { FlashSaleCountdown } from "@/components/product/flash-sale-countdown";
 import { isNewProduct, isPopularProduct } from "@/lib/product-badges";
 
 type Product = {
@@ -11,6 +12,7 @@ type Product = {
   slug: string;
   price: number;
   compare_at_price: number | null;
+  sale_ends_at?: string | null;
   store_id: string;
   sales_count?: number | null;
   created_at?: string | null;
@@ -38,6 +40,7 @@ export function HomeProductCard({
     product.compare_at_price && product.compare_at_price > product.price
       ? Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)
       : null;
+  const hasFlashSale = Boolean(product.sale_ends_at && new Date(product.sale_ends_at).getTime() > Date.now());
   // Popular takes priority when a product qualifies for both -- a proven
   // seller is more useful signal to lead with than "recently listed".
   const popular = isPopularProduct(product.sales_count);
@@ -46,7 +49,11 @@ export function HomeProductCard({
   return (
     <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-surface/60 transition-colors hover:border-primary/40">
       <div className="absolute left-2 top-2 z-10 flex max-w-[calc(100%-2.5rem)] flex-wrap items-start gap-1">
-        {discountPct !== null && <span className="rounded-full bg-danger px-1.5 py-0.5 text-[9px] font-bold text-white">-{discountPct}%</span>}
+        {hasFlashSale ? (
+          <FlashSaleCountdown endsAt={product.sale_ends_at as string} compact />
+        ) : (
+          discountPct !== null && <span className="rounded-full bg-danger px-1.5 py-0.5 text-[9px] font-bold text-white">-{discountPct}%</span>
+        )}
         {popular && (
           <span className="flex items-center gap-0.5 rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-1.5 py-0.5 text-[9px] font-bold text-white">
             <Flame className="h-2.5 w-2.5" /> Popular

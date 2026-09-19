@@ -34,6 +34,8 @@ export async function createProduct(formData: FormData) {
   const price = Number(formData.get("price") ?? 0);
   const compareAtPriceRaw = formData.get("compare_at_price");
   const compare_at_price = compareAtPriceRaw ? Number(compareAtPriceRaw) : null;
+  const saleEndsAtRaw = String(formData.get("sale_ends_at") ?? "").trim();
+  const sale_ends_at = saleEndsAtRaw ? new Date(saleEndsAtRaw).toISOString() : null;
   const sku = String(formData.get("sku") ?? "").trim() || null;
   const brand = String(formData.get("brand") ?? "").trim() || null;
   const condition = (String(formData.get("condition") ?? "new") as ProductCondition);
@@ -60,6 +62,7 @@ export async function createProduct(formData: FormData) {
       description,
       price,
       compare_at_price,
+      sale_ends_at,
       sku,
       brand,
       condition,
@@ -130,6 +133,8 @@ export async function updateProduct(productId: string, formData: FormData) {
   const price = Number(formData.get("price") ?? 0);
   const compareAtPriceRaw = formData.get("compare_at_price");
   const compare_at_price = compareAtPriceRaw ? Number(compareAtPriceRaw) : null;
+  const saleEndsAtRaw = String(formData.get("sale_ends_at") ?? "").trim();
+  const sale_ends_at = saleEndsAtRaw ? new Date(saleEndsAtRaw).toISOString() : null;
   const sku = String(formData.get("sku") ?? "").trim() || null;
   const brand = String(formData.get("brand") ?? "").trim() || null;
   const condition = (String(formData.get("condition") ?? "new") as ProductCondition);
@@ -144,6 +149,7 @@ export async function updateProduct(productId: string, formData: FormData) {
       description,
       price,
       compare_at_price,
+      sale_ends_at,
       sku,
       brand,
       condition,
