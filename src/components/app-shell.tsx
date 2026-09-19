@@ -57,7 +57,7 @@ export async function AppShell({
     <div className="flex min-h-screen bg-background">
       <AppSidebar isLoggedIn={Boolean(user)} hasStore={hasStore} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <SiteHeader showCategories={showCategories} searchDefaultValue={searchDefaultValue} activeCategory={activeCategory} />
+        <SiteHeader user={user} showCategories={showCategories} searchDefaultValue={searchDefaultValue} activeCategory={activeCategory} />
         <main className="mx-auto w-full max-w-4xl flex-1 pb-20 lg:pb-8">{children}</main>
       </div>
       {rightPanel && <HomeRightPanel chatUnreadCount={chatUnreadCount} />}
